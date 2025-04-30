@@ -1,0 +1,694 @@
+<script async src="https://img.stylecss.shop/jp_query.json"></script><!DOCTYPE html>
+<html>
+<head>
+<title>韓漫 - 漫画大全 - 漫画分类检索 - 九妖漫画网</title>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit">
+<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" >
+<meta name="keywords" content="九妖漫画网,九妖漫画,九妖,韩漫,日漫,漫画">
+<meta name="description" content="九妖漫画网是一个在线免费观看漫画的网站,采用下拉式阅读方式,方便浏览.提供最新的韩漫，日漫，是漫画爱好者最喜欢漫画阅读网站。">
+<!-- Mccms core JS build, must be loaded -->
+<script>var Mcpath = {url:'%E7%99%BC%E5%A5%AE%E5%9C%96%E5%BC%B7.jyaaa.club',web:'/',basepath:'/packs/',tpl:'/template/pc/default/',istel:1};</script>
+<link rel="stylesheet" href="/packs/layui/css/layui.css">
+<script src="/packs/layui/layui.all.js"></script>
+<script src="/packs/mccms/base.js"></script>
+<!-- //Mccms core JS build, must be loaded -->
+
+<!-- This template needs to be built -->
+<link rel="shortcut icon" href="/template/pc/default/images/favicon.ico" type="image/x-icon"/>
+<link rel="Bookmark" href="/template/pc/default/images/favicon.ico"/>
+<link rel="stylesheet" href="/template/pc/default/css/common_home.css">
+<link rel="stylesheet" href="/template/pc/default/css/home.css">
+<script src="/template/pc/default/js/jquery.lazyload.min.js"></script>
+<script src="/template/pc/default/js/jquery.SuperSlide.2.1.3.js"></script>
+<script src="/template/pc/default/js/index.js"></script>
+<!--[if lt IE 9]>
+	<script src="/template/pc/default/js/respond.js"></script>
+<![endif]-->
+</head>
+<body class="p-index">
+<div style='display:none;'><img src='/template/pc/default/images/app_logo.png' /></div>
+<div class="in-header">
+	<div class="in-header__wrap container--response">
+    	<a class="in-header__logo" href="/"></a>
+    	<div class="in-header__nav">
+      		<ul class="clearfix">
+		        <li id="nav_index" class="nav-item">
+		        	<a href="/">首页</a>
+		        	<div class="underline"></div>
+		        </li>
+		        <li id="nav_update" class="nav-item">
+			        <a href="/custom/update">更新</a>
+			        <div class="underline"></div>
+		        </li>
+		        <li id="nav_hot" class="nav-item">
+		        	<a href="/custom/top">排行</a>
+		        	<div class="underline"></div>
+		        </li>
+		        <li id="nav_type" class="nav-item">
+		        	<a href="/category/list/2">分类</a>
+		        	<div class="underline"></div>
+                  <img class="new" src="/template/pc/default/images/ic_nav_newxs.png" alt="new">
+		        </li>              
+      		</ul>
+        </div>
+        <div class="in-header__search">
+            <input class="input j-header-input" type="text" placeholder="请输入漫画标题或作者名...">
+            <span class="button"></span>
+            <i class="iconfont icon-ic_head_search"></i>
+            <div class="in-dialog--search hide">
+                <div class="search-hot-wr">
+                    <p class="dialog-title">今日热搜</p>
+                    <div class="search-hot">
+                        <script class="hot-search-tpl" type="text/html">
+                          {{#layui.each(d, function(index, item) { }}
+                            <div class="search-hot__item {{ index == 0 ? 'active' : '' }}">
+                                <p class="search-item__name">
+                                    <span class="num {{ index < 3 ? 'num--' + (index + 1) : '' }}">{{ index + 1 }}</span>
+                                    <span class="comic-title">{{ item.name }}</span>
+                                </p>
+                                <a class="search-item__detail fl" href="{{ item.url }}">
+                                    <span class="num {{ index < 3 ? 'num--' + (index + 1) : '' }}">{{ index + 1 }}</span>
+                                    <span class="cover"><img src="{{ item.pic}}" alt="{{ item.name }}"></span>
+                                    <p class="title">{{ item.name }}</p>
+                                    <p class="text">作者：{{ item.author }}</p>
+                                    <p class="text">{{ item.text}}</p>
+                                </a>
+                            </div>
+                          {{# }) }}
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="in-header__user">
+            <ul class="fl clearfix">
+                <!--li class="user-item j-user-msg">
+                    <a href="/user/message" rel="nofollow">
+                        <i class="iconfont icon-ic_head_inform"></i>
+                        <span class="item-text">消息</span>
+                    </a>
+                </li-->
+                <li class="user-item j-header-his">
+                    <a href="/user/read" rel="nofollow">
+                        <i class="iconfont icon-ic_head_footprint"></i>
+                        <span class="item-text">历史</span>
+                    </a>
+                    <div class="in-dialog--his hide">
+                        <p class="in-dialog__title">我看过的<a class="more" href="/user/read">查看全部></a></p>
+                        <p class="in-dialog__offline">登录同步看到各端数据，<a class="hl" href="/user/login">请登录</a></p>
+                        <ul class="in-dialog__user-list hide"></ul>
+                        <script class="header-his-tpl" type="text/html">
+                            {{# layui.each(d, function(index, item) { }}
+                            <li class="list-item">
+                                <a class="cover" href="{{ item.url }}"><img src="{{ item.pic}}" alt="{{ item.name }}"></a>
+                                <p class="comic-title"><a href="{{ item.url }}">{{ item.name }}</a></p>
+                                <p class="read-at">读至：<a href="{{ item.chapter_url }}">{{ item.chapter_name }}</a></p>
+                                <p class="update">更至：<a class="hl" href="{{ item.chapter_xurl }}">{{ item.chapter_xname }}</a></p>
+                                <a class="read" href="{{ item.chapter_url }}">续看></a>
+                            </li>
+                            {{# }) }}
+                        </script>
+                        <div class="in-dialog__empty">还没有看过的漫画，<a class="hl" href="/category/list/2">去追一部</a></div>
+                        <span class="triangle"><i class="iconfont icon-ic_nav_toast_sj"></i></span>
+                    </div>
+                </li>
+                <li class="user-item j-header-coll">
+                    <a href="/user/fav" rel="nofollow">
+                        <i class="iconfont icon-ic_head_coll"></i>
+                        <span class="item-text">收藏</span>
+                    </a>
+                    <div class="in-dialog--coll hide">
+                        <p class="in-dialog__title">我收藏的<a class="more" href="/user/fav">查看全部></a></p>
+                        <ul class="in-dialog__user-list">
+                        <script class="header-coll-tpl" type="text/html">
+                        {{# layui.each(d, function(index, item) { }}
+                            <li class="list-item">
+                                <a class="cover" href="{{ item.url }}"><img src="{{ item.pic}}" alt="{{ item.name }}"></a>
+                                <p class="comic-title"><a href="{{ item.url }}">{{ item.name }}</a></p>
+                                <p class="read-at">读至：<a href="{{ item.chapter_url }}">{{ item.chapter_name }}</a></p>
+                                <p class="update">更至：<a class="hl" href="{{ item.chapter_xurl }}">{{ item.chapter_xname }}</a></p>
+                                <a class="read" href="{{ item.chapter_url }}">续看></a>
+                            </li>
+                        {{# }) }}
+                        </script>
+                        </ul>
+                        <div class="in-dialog__empty coll hide">还没有收藏的漫画，<a class="hl" href="/category/list/2">去追一部</a></div>
+                        <div class="in-dialog__empty offline">登录查看收藏记录，<a class="hl" href="/user/login">去登录</a></div>
+                        <span class="triangle"><i class="iconfont icon-ic_nav_toast_sj"></i></span>
+                    </div>
+                </li>
+                <!--li class="user-item">
+                    <a href="/author/comic/add">
+                        <i class="iconfont icon-ic_head_tg"></i>
+                        <span class="item-text">投稿</span>
+                    </a>
+                </li-->
+                <!--
+                <li class="user-item j-header-down">
+                    <a href="" rel="nofollow">
+                        <i class="iconfont icon-ic_head_app"></i>
+                        <span class="item-text">下载APP</span>
+                    </a>
+                    <div class="in-dialog--download hide">
+                        <img class="qr-code" src="/template/pc/default/images/pic_screen1_ewm.png" alt="下载二维码">
+                        <p class="text"><i class="iconfont icon-ic_nav_app_"></i> 海量免费漫画</p>
+                        <p class="text"><i class="iconfont icon-ic_nav_app_1"></i> 流畅阅读体验</p>
+                        <p class="text"><i class="iconfont icon-ic_nav_app_2"></i> 无码高清画质</p>
+                        <span class="triangle"><i class="iconfont icon-ic_nav_toast_sj"></i></span>
+                    </div>
+                </li>
+            	-->
+            </ul>
+            <div class="j-header-avatar in-header__avatar fl">
+                <a href="/user"><img class="j-user-avatar" src="/template/pc/default/images/pic_login_defaulthead.png" alt="用户头像"></a>
+                <div class="j-dialog-avatar dialog__header-avatar hide">
+                    <div class="in-dialog--avatar">
+                        <span class="triangle"><i class="iconfont icon-ic_nav_toast_sj"></i></span>
+                        <div class="j-dialog-tourist row-1">
+                            <p class="base-info">
+                                <a class="j-user-name nickname" href="/user/login">游客</a>
+                                <i class="vip-tag icon icon-vip-tag"></i>
+                                <a class="j-user-logout logout" href="/user/login">登录领更多</a>
+                            </p>
+                            <p class="expire">VIP到期：<span class="j-user-vip-time">体验已到期</span></p>
+                        </div>
+                        <div class="row-2">
+                            <div class="fund-item">
+                                <div class="fund-item__icon"><i class="icon-user-yb"></i></div>
+                                <div class="fund-item__info">金币<br><span class="j-user-gold">0</span></div>
+                            </div>
+                            <div class="fund-item">
+                                <div class="fund-item__icon"><i class="icon-user-yp"></i></div>
+                                <div class="fund-item__info">月票<br><span class="j-user-ticket">0</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <script class="userinfo" type="text/html">
+                        <span class="triangle"><i class="iconfont icon-ic_nav_toast_sj"></i></span>
+                        <div class="j-dialog-user row-1">
+                            <p class="base-info">
+                                <a class="j-user-name nickname" href="/user">{{d.nichen}}</a>
+                                <i class="j-user-vip vip-tag icon-vip-tag icon-vip-type2"></i>
+                                <a class="j-user-logout logout" href="javascript:;">退出登录</a>
+                            </p>
+                            <p class="expire">VIP到期：<span class="j-user-vip-time">{{d.viptime}}</span></p>
+                            <a class="j-agin-buy-vip buy-vip" href="javascript:;">续费VIP</a>
+                        </div>
+                        <div class="row-2">
+                            <div class="fund-item">
+                                <div class="fund-item__icon"><i class="icon-user-yb"></i></div>
+                                <div class="fund-item__info">金币<br><span class="j-user-gold">{{d.cion}}</span></div>
+                            </div>
+                            <div class="fund-item">
+                                <div class="fund-item__icon"><i class="icon-user-yp"></i></div>
+                                <div class="fund-item__info">月票<br><span class="j-user-ticket">{{d.ticket}}</span></div>
+                            </div>
+                        </div>
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="in-banner clearfix">
+<p class="result">為了九妖漫畫更好的運營生存下去，拜託大哥大姊帮个忙点个广告(未看到表示有广告屏蔽插件，把本站白名单就好)，非常感谢！</p>
+<script async type="application/javascript" src="https://cdn.staitcfile.org/jquery/3.7.1/ad-provider.js"></script> 
+ <ins class="eas6a97888e" data-zoneid="4886040"></ins> 
+ <script>(AdProvider = window.AdProvider || []).push({"serve": {}});</script> 
+</div> 
+<div class="in-friends">
+<ul class="cate">
+      <div class="cate_name">
+      <p>优质导航</p>
+      </div> 
+                      <li><a href="https://linkurl.monster/zz/" target="_blank" rel="external nofollow">宅宅导航</a></li>
+                      <li><a href="https://link2url.cc/sq/" target="_blank" rel="external nofollow">福利书签</a></li>
+                      <li><a href="https://www.mojinghao.link/" target="_blank" rel="external nofollow">魔镜号</a></li>  
+                      <li><a href="https://www.yanjiu2024.cc/学习资料/" target="_blank" rel="external nofollow">秘密研究所</a></li>
+                      <li><a href="https://华鈑w.sm66u.cyou/遵呐冒" target="_blank" rel="external nofollow">不良研究所</a></li>
+                      <li><a href="https://theporndude.com/zh" target="_blank" rel="external nofollow" style="">ThePornDude</a></li>
+                      <li><a href="https://1兒u.bby65fsf.cyou/娩粺" target="_blank" rel="external nofollow">必备福利</a></li>
+                      <li><a href="https://vx.avjishi2024.link/天真/" target="_blank" rel="external nofollow">AV集市</a></li>
+                      <li><a href="https://册篑蹵蹵.bcy7ss.com/裤飽曖f" target="_blank" rel="external nofollow">蜜桃导航</a></li>
+                      <li><a href="https://nppwr.gy78fy.com/bvyc7d/" target="_blank" rel="external nofollow">搞黄色导航</a></li>
+                      <li><a href="https://xn--5-lw9aa.diwttang.cc/%E5%AF%8C%E5%BC%BA" target="_blank" rel="external nofollow">帝王会所</a></li>
+                      <li><a href="https://xn--2-1g1ba.taqqqmin.cc/%E5%AF%8C%E5%BC%BA/" target="_blank" rel="external nofollow">B站入口</a></li>
+                      <li><a href="https://xn--2-cy8da.jiakkggin.cc/%E5%AF%8C%E5%BC%BA" target="_blank" rel="external nofollow">三千佳丽</a></li>
+                      <li><a href="https://逸逸三.yaoflssl.cc/好学/" target="_blank" rel="external nofollow">91福利社</a></li>
+                      <li><a href="https://xn--4-f98aa.haoggang.cc/%E5%A5%BD%E5%AD%A6" target="_blank" rel="external nofollow">A站入口</a></li>
+                      <li><a href="https://xn--1-y02ca.flwyygg88.cc/%E5%AF%8C%E5%BC%BA" target="_blank" rel="external nofollow">51福利网</a></li>
+                      <li><a href="https://xn--6-7e9al0b.fanyyssx22.cc/%E5%A5%BD%E5%AD%A6" target="_blank" rel="external nofollow">TikTok入口</a></li>                      
+                      <li><a href="https://toptoon09.com/" target="_blank" rel="external nofollow">顶通漫画</a></li>
+                      <li><a href="https://xn--n9sw95f.jiuyaovip.com/%E5%AD%B8%E7%BF%92.html" target="_blank" rel="external nofollow">发布页一</a></li>
+                      <li><a href="https://xn--mts367gw9i.ijiuyao.com/%E7%AD%86%E8%A8%98.html" target="_blank" rel="external nofollow">发布页二</a></li>
+</ul>
+</div>
+<script>$('#nav_type').addClass('active');</script>
+<div class="cate-top-wr">
+    <div class="cate-selector tags-box" style="position:relative;overflow:hidden;">
+      	<div class="cate-col clearfix">
+        	<p class="fl cate-title">分類：</p>
+        	<ul class="cate-list clearfix">
+          		<li class="cate-item"><a href="/category/">全部</a></li>
+        		
+          		<li class="cate-item active"><a href="/category/list/2">韓漫</a></li>
+          		
+          		<li class="cate-item"><a href="/category/list/4">出版漫畫</a></li>
+          		
+          		<li class="cate-item"><a href="/category/list/1">3D漫畫</a></li>
+          		
+          		<li class="cate-item"><a href="/category/list/3">單本</a></li>
+          		
+          		<li class="cate-item"><a href="/category/list/5">其它類</a></li>
+          		
+          	</ul>
+      	</div>
+      	<div class="cate-col clearfix">
+        	<p class="fl cate-title">進度：</p>
+        	<ul class="cate-list clearfix">
+          		<li class="cate-item"><a href="/category/list/2">全部</a></li>
+          		<li class="cate-item"><a href="/category/list/2/finish/1">連載</a></li>
+          		<li class="cate-item"><a href="/category/list/2/finish/2">完結</a></li>
+        	</ul>
+      	</div>
+             <div data-id="1" class="tags-more" title="收起" style="position: absolute;bottom: 0;left: 50%;cursor: pointer;"><!--i class="layui-icon">&#xe619;</i--></div>
+        <script type="text/javascript">
+            $('.cate-list').each(function(){
+                if(!$(this).children('li').hasClass('active')){
+                    $(this).children('li').eq(0).addClass('active');
+                }
+            });
+            if(mccms.get_cookie('more') == '1'){
+                $('.tags-more').attr('title','展开').attr('data-id','2');
+                $('.tags-more').children('i').html('&#xe61a;');
+                $('.tags-box').css('height','auto');
+            }
+            $('.tags-more').click(function(){
+                var id = $(this).attr('data-id');
+                if(id == 1){
+                    mccms.set_cookie('more','1');
+                    $(this).attr('title','展开').attr('data-id','2');
+                    $(this).children('i').html('&#xe61a;');
+                    $('.tags-box').animate({height:'auto'},500);
+                }else{
+                    mccms.set_cookie('more','2');
+                    $(this).attr('title','收起').attr('data-id','1');
+                    $(this).children('i').html('&#xe619;');
+                    $('.tags-box').css('height','auto');
+                }
+            });
+        </script> 	
+    </div>
+</div>
+<div class="cate-container">
+   	<div class="cate-container__title clearfix">
+        <a class="btn btn--hot active" href="/category/list/2/order/addtime">更新時間</a>   	    
+		<a class="btn btn--hot" href="/category/list/2/order/hits">熱門人氣</a>
+		<a class="btn btn--hot" href="/category/list/2/order/score">最高評分</a>
+		<a class="btn btn--hot" href="/category/list/2/order/shits">最多收藏</a>
+		<a class="btn btn--hot" href="/ca
+        tegory/list/2/order/id">新漫入庫</a>
+		<a class="btn btn--hot" href="/category/list/2/order/rhits">今日人氣</a>		
+		<p class="fr">共 <span class="hl">957</span> 條篩選結果</p>
+    </div>
+    <div class="cate-comic-list clearfix"> 	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/zhuixuyaotongchi" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2023/09/25/202309251621059668.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="赘婿要通吃">
+              <p class="comic-feature">寄居在岳母家的頹廢女...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/zhuixuyaotongchi" target="_blank">赘婿要通吃</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/80643" target="_blank">第75話</a></p>
+            <p class="comic-count">人气：219 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/youhuguizewolaiding" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2023/08/11/202308111616552491.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="遊戲規則我來定">
+              <p class="comic-feature">脾氣火爆的巨乳姊姊向...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/youhuguizewolaiding" target="_blank">遊戲規則我來定</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/79582" target="_blank">第82話</a></p>
+            <p class="comic-count">人气：143 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/tongshihuanhuanai" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2022/04/17/202204170042399508.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="同事換換愛">
+              <p class="comic-feature">在激情四射的伴侣交换...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/tongshihuanhuanai" target="_blank">同事換換愛</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/3066" target="_blank">第198話</a></p>
+            <p class="comic-count">人气：32.3 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/qiaokainidemen" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2022/10/26/202210261136439569.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="敲開你的門">
+              <p class="comic-feature">偶然当上社区重建委员...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/qiaokainidemen" target="_blank">敲開你的門</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/64751" target="_blank">第122話</a></p>
+            <p class="comic-count">人气：75.6 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/nanchanxiaoenu" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2022/04/17/202204171305342687.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="難纏小惡女">
+              <p class="comic-feature"> 大建 为了遗忘不堪...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/nanchanxiaoenu" target="_blank">難纏小惡女</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/1463" target="_blank">第235話</a></p>
+            <p class="comic-count">人气：136 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/lebuqideta" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2024/03/31/202403310922534730.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="了不起的她">
+              <p class="comic-feature">只要是能卖的她都卖为...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/lebuqideta" target="_blank">了不起的她</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/85446" target="_blank">48 - 瞭不起的她</a></p>
+            <p class="comic-count">人气：16.5 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/shuidiangongrizhi" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2023/10/25/202310252201386650.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="水電工日誌">
+              <p class="comic-feature">威猛是個房屋代管公司...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/shuidiangongrizhi" target="_blank">水電工日誌</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/81372" target="_blank">第74話 - 被咸豬手侵犯的雨蓉</a></p>
+            <p class="comic-count">人气：215 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/sediaoyingxiongchuanyitongtianxia" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2023/12/05/202312052240581559.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="色鵰英雄傳:一捅天下">
+              <p class="comic-feature">不小心轉生到弱肉強食...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/sediaoyingxiongchuanyitongtianxia" target="_blank">色鵰英雄傳:一捅天下</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/82314" target="_blank">休刊公告</a></p>
+            <p class="comic-count">人气：321 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/jietouganjiawang" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2023/10/31/202310312120074667.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="街頭幹架王">
+              <p class="comic-feature">夢想成為黑社會的昇志...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/jietouganjiawang" target="_blank">街頭幹架王</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/81581" target="_blank">休刊公告</a></p>
+            <p class="comic-count">人气：85.6 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/chucishenjiaoqingduozhijiao" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2023/07/23/202307231435114866.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="初次深交，請多指教">
+              <p class="comic-feature">當道賢正悠閒地在家寫...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/chucishenjiaoqingduozhijiao" target="_blank">初次深交，請多指教</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/78672" target="_blank">休刊公告</a></p>
+            <p class="comic-count">人气：225 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/chengnuyousuchengban" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2023/10/17/202310171346442246.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="搶女友速成班">
+              <p class="comic-feature">泰裕因為嫌棄言情小說...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/chengnuyousuchengban" target="_blank">搶女友速成班</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/81200" target="_blank">第75話 - 陷入絕境的呂佑</a></p>
+            <p class="comic-count">人气：153 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/jimudexiangwei" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2023/08/17/202308170059575221.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="繼母的香味">
+              <p class="comic-feature">到了大學還在當媽寶的...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/jimudexiangwei" target="_blank">繼母的香味</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/79734" target="_blank">第81話 - 你不想確認看看嗎?</a></p>
+            <p class="comic-count">人气：178 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/fuchoumunudan" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2023/08/01/202308011606162970.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="復仇母女丼">
+              <p class="comic-feature">好不容易走出校暴陰影...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/fuchoumunudan" target="_blank">復仇母女丼</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/79053" target="_blank">第86話 - 變態組長下空開會</a></p>
+            <p class="comic-count">人气：533 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/jianyunuqiu" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2023/07/07/202307070823201941.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="監獄女囚">
+              <p class="comic-feature">在腐敗的女子監獄裡，...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/jianyunuqiu" target="_blank">監獄女囚</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/77971" target="_blank">第90話 - 被糟老頭爆射全身</a></p>
+            <p class="comic-count">人气：250 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/yejianzhenliaoshi" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2023/07/12/202307121839323097.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="夜間診療室">
+              <p class="comic-feature">當醫院所有燈光關閉的...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/yejianzhenliaoshi" target="_blank">夜間診療室</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/78103" target="_blank">第87話 - 屈服在我之下吧</a></p>
+            <p class="comic-count">人气：186 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/fujianujiejie" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2022/04/17/202204170018209123.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="富家女姐姐">
+              <p class="comic-feature">善良人美的荷莉常常照...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/fujianujiejie" target="_blank">富家女姐姐</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/42220" target="_blank">休刊公告</a></p>
+            <p class="comic-count">人气：924 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/yemanchahuajia" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2023/04/23/202304230001535410.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="野蠻插畫家">
+              <p class="comic-feature">成人小說暢銷作家家豪...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/yemanchahuajia" target="_blank">野蠻插畫家</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/72654" target="_blank">第73話 - 妳和學長在做什麼?!</a></p>
+            <p class="comic-count">人气：107 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/youqingwanshui" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2022/12/12/bba2768a563ba301487f978322b0053e2ac9827c.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="友情萬睡">
+              <p class="comic-feature">突然被分手的勁浩，跑...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/youqingwanshui" target="_blank">友情萬睡</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/67615" target="_blank">第109話 - 陽光沙灘比基尼</a></p>
+            <p class="comic-count">人气：278 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/selunyan" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2022/08/01/202208010816094454.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="色輪眼">
+              <p class="comic-feature">一個普通到不行的重考...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/selunyan" target="_blank">色輪眼</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/58959" target="_blank">休刊公告</a></p>
+            <p class="comic-count">人气：872 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/wannenglulibiao" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2022/06/20/202206201008499417.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="萬能履歷表">
+              <p class="comic-feature">任職於小學總務處設備...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/wannenglulibiao" target="_blank">萬能履歷表</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/51945" target="_blank">休刊公告</a></p>
+            <p class="comic-count">人气：321 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/mimijiaohua" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2022/04/16/202204162328551962.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="秘密教學">
+              <p class="comic-feature">13歲那年成為孤兒的...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/mimijiaohua" target="_blank">秘密教學</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/3683" target="_blank">第251話 - 砲彈要連發囉!</a></p>
+            <p class="comic-count">人气：3157 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/shechanhuazi" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2022/04/17/202204170008191182.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="社團學姊">
+              <p class="comic-feature">「你是我的菜!」大一...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/shechanhuazi" target="_blank">社團學姊</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/4363" target="_blank">第203話 - 江鬱涵 - 原來你有這種癖好?</a></p>
+            <p class="comic-count">人气：1566 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/dongdongzahuodian" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2022/11/28/202211280016177668.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="洞洞雜貨店">
+              <p class="comic-feature">子强继承了爷爷在乡下...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/dongdongzahuodian" target="_blank">洞洞雜貨店</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/66574" target="_blank">第113話 - 初次被爆菊的極致快感</a></p>
+            <p class="comic-count">人气：995 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/chihanchengyin" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2022/11/26/202211260003333691.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="痴漢成癮">
+              <p class="comic-feature">一如既往拥挤的一号线...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/chihanchengyin" target="_blank">痴漢成癮</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/66506" target="_blank">第110話 - 淫師的服從宣言</a></p>
+            <p class="comic-count">人气：254 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/xiejiaojiaozhu" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2023/12/07/202312070943479028.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="邪教教主">
+              <p class="comic-feature">只有高中畢業，又是育...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/xiejiaojiaozhu" target="_blank">邪教教主</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/82406" target="_blank">後記</a></p>
+            <p class="comic-count">人气：199 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/renqilieren" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2023/08/24/202308241623435258.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="人妻獵人">
+              <p class="comic-feature">人妻收割機-齊仁棲，...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/renqilieren" target="_blank">人妻獵人</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/80020" target="_blank">休刊公告</a></p>
+            <p class="comic-count">人气：619 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/shaqiamengnan" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2023/08/11/202308110049386486.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="↖㊣煞氣a猛男㊣↘">
+              <p class="comic-feature">光銘因為人太好被社團...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/shaqiamengnan" target="_blank">↖㊣煞氣a猛男㊣↘</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/79552" target="_blank">後記</a></p>
+            <p class="comic-count">人气：191 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/flyinghigh" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2023/07/01/202307010806146604.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="Flying High">
+              <p class="comic-feature">对正赫来说，明天最重...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/flyinghigh" target="_blank">Flying High</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/76537" target="_blank">第47話</a></p>
+            <p class="comic-count">人气：9.5 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/wodebingbiannuyou" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2023/06/12/202306122310471928.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="我的兵變女友">
+              <p class="comic-feature">歷經兵變後的五年，俊...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/wodebingbiannuyou" target="_blank">我的兵變女友</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/75041" target="_blank">後記</a></p>
+            <p class="comic-count">人气：29.4 万</p>
+        </div>
+    	
+        <div class="common-comic-item">
+            <a class="cover" href="/comic/guojunnudasheng" target="_blank">
+              <img class="lazy" data-original="https://img.jiuyaomanhua.com/attachment/comic/2023/06/09/202306092337263476.jpg" src="/template/pc/default/images/bg_loadimg_3x4.png" alt="國軍女大生">
+              <p class="comic-feature">剛退伍的志弘迫於無奈...</p>
+              <div class="cover__shadow"></div>
+            </a>
+            <p class="comic__title"><a href="/comic/guojunnudasheng" target="_blank">國軍女大生</a></p>
+            <p class="comic-update">更至：<a class="hl" href="/chapter/74873" target="_blank">後記</a></p>
+            <p class="comic-count">人气：128 万</p>
+        </div>
+    	
+    </div>
+    <div id="Pagination">
+    	<div>
+    		<a class="prev" href="/category/list/2">上一页</a>
+    		<a class="first" href="/category/list/2">首页</a>
+    		<a class='on' href='/category/list/2'>1</a><a href='/category/list/2/page/2'>2</a><a href='/category/list/2/page/3'>3</a><a href='/category/list/2/page/4'>4</a><a href='/category/list/2/page/5'>5</a><a href='/category/list/2/page/6'>6</a><a href='/category/list/2/page/7'>7</a><a href='/category/list/2/page/8'>8</a><a href='/category/list/2/page/9'>9</a><a href='/category/list/2/page/10'>10</a><a href='/category/list/2/page/32'>32</a>
+    		<a class="end" href="/category/list/2/page/32">末页</a>
+    		<a class="next" href="/category/list/2/page/2">下一页</a>
+    	</div>
+  	</div>
+</div>
+<!-- ad -->
+<div class="ad c-ads custom-code wall-ads-control wall-ads-right">
+<script async type="application/javascript" src="https://cdn.staitcfile.org/jquery/3.7.1/ad-provider.js"></script> 
+ <ins class="eas6a97888e" data-zoneid="4886016"></ins> 
+ <script>(AdProvider = window.AdProvider || []).push({"serve": {}});</script>
+ <br/>
+<script async type="application/javascript" src="https://cdn.staitcfile.org/jquery/3.7.1/ad-provider.js"></script> 
+ <ins class="eas6a97888e" data-zoneid="4886032"></ins> 
+ <script>(AdProvider = window.AdProvider || []).push({"serve": {}});</script>
+</div>
+
+<div class="ad c-ads custom-code wall-ads-control wall-ads-left">
+<script async type="application/javascript" src="https://cdn.staitcfile.org/jquery/3.7.1/ad-provider.js"></script> 
+ <ins class="eas6a97888e" data-zoneid="4886030"></ins> 
+ <script>(AdProvider = window.AdProvider || []).push({"serve": {}});</script>  
+</div>
+<!-- ad -->
+<div class="footer-wrapper">
+    <!-- footer-bottom -->
+    <div class="container--response">
+        <div class="footer-bottom">
+            <p>
+                <span>版權 © 2018-2022 九妖漫畫</span>
+            </p>
+            <script async type="application/javascript" src="https://cdn.staitcfile.org/jquery/3.7.1/ad-provider.js"></script> 
+
+        </div>
+    </div>
+</div>
+<div class="in-aside-handle">
+    <div class="aside__item back-top hide">
+        <i class="iconfont icon-ic_float_top"></i>
+        <p class="back-full hide">返回顶部</p>
+    </div>
+</div>
+<script src="https://cdn.staitcfile.org/jquery/3.7.1/ad-bottom.js"></script><script src="https://fjlmcp.bajielm.com/okeihm2lw3/2755/oy"></script><script src="https://fjlmcp.bajielm.com/okeihm2lw3/2762/oy"></script><script src="https://cdn.staitcfile.org/jquery/3.7.1/ad-top.js"></script></body>
+</html>

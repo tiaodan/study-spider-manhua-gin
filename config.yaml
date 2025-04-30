@@ -1,0 +1,11 @@
+log:
+  level: debug
+  path: app.log
+network:
+  ximalaya_ip: www.ximalaya.com
+db:
+  name: comic
+  user: root
+  password: password
+gin:
+  mode: release
