@@ -89,11 +89,15 @@ type CustomFormatter struct{}
 // 实现 logrus.Formatter 接口
 func (f *CustomFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	// 获取文件名和行号
-	_, file, line, ok := runtime.Caller(8) // 调用者的堆栈深度，通常是日志调用的位置
-	if !ok {
-		file = "unknown"
-		line = 0
-	}
+	// 封装前的写法
+	// _, file, line, ok := runtime.Caller(8) // 调用者的堆栈深度，通常是日志调用的位置, 原来设置8
+	// if !ok {
+	// 	file = "unknown"
+	// 	line = 0
+	// }
+
+	// 封装后的写法
+	file, line := getCaller(8)
 
 	// 提取短文件名
 	shortFile := filepath.Base(file)
@@ -132,11 +136,15 @@ type CustomFileFormatter struct{}
 // 实现 logrus.Formatter 接口
 func (f *CustomFileFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	// 获取文件名和行号
-	_, file, line, ok := runtime.Caller(8) // 调用者的堆栈深度，通常是日志调用的位置, AI默认给的是7, 算的不对
-	if !ok {
-		file = "unknown"
-		line = 0
-	}
+	// 封装前的写法
+	// _, file, line, ok := runtime.Caller(8) // 调用者的堆栈深度，通常是日志调用的位置, 原来设置8
+	// if !ok {
+	// 	file = "unknown"
+	// 	line = 0
+	// }
+
+	// 封装后的写法
+	file, line := getCaller(8)
 
 	// 提取短文件名
 	shortFile := filepath.Base(file)
@@ -161,4 +169,15 @@ func shortenLevel(level string) string {
 	default:
 		return level
 	}
+}
+
+// 建议统一封装 Caller 层级处理逻辑
+func getCaller(skip int) (string, int) {
+	for i := skip; i < 15; i++ {
+		_, file, line, ok := runtime.Caller(i)
+		if ok && !strings.Contains(file, "logrus") && !strings.Contains(file, "logger.go") {
+			return file, line
+		}
+	}
+	return "unknown", 0
 }

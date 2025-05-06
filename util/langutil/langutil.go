@@ -3,6 +3,7 @@ package langutil
 
 import (
 	"log"
+	"strings"
 	"sync"
 
 	"github.com/longbridgeapp/opencc"
@@ -28,4 +29,16 @@ func TraditionalToSimplified(text string) (string, error) {
 		return "", err
 	}
 	return result, nil
+}
+
+// IsHTTPOrHTTPS 判断URL是否以 http:// 或 https:// 开头
+// 返回值: bool
+func IsHTTPOrHTTPS(url string) bool {
+	return strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://")
+}
+
+// IsHTTPS 判断URL是否以  https:// 开头
+// 返回值: bool
+func IsHTTPS(url string) bool {
+	return strings.HasPrefix(url, "https://")
 }

@@ -67,7 +67,7 @@ func init() {
 	db.InitDB("mysql", cfg.DB.Name, cfg.DB.User, cfg.DB.Password)
 
 	// 自动迁移表结构
-	db.DB.AutoMigrate(&models.Website{}, &models.Country{}, &models.Category{}, &models.Type{}, &models.Order{}) // 有几个表, 写几个参数
+	db.DB.AutoMigrate(&models.Website{}, &models.Country{}, &models.Category{}, &models.Type{}, &models.Comic{}) // 有几个表, 写几个参数
 
 	// 插入默认数据
 	db.InsertDefaultData()
@@ -81,6 +81,7 @@ func init() {
  4. 封装restful api
 */
 func main() {
+
 	// 1. 读取配置文件， (如果配置文件不填, 自动会有默认值)
 	// 2. 设置日志级别, 默认info
 	// 3. 统一调用错误打印, 封装函数
