@@ -111,7 +111,7 @@ func ComicsPageQuery(c *gin.Context) {
 	// 强校验参数类型
 	pageStr := c.DefaultQuery("page", "") // 之前写法默认为 1, pageStr := c.DefaultQuery("page", "1")
 	sizeStr := c.DefaultQuery("size", "") // 之前写法默认为 10 ,所以不存在类型不是string类型, sizeStr := c.DefaultQuery("size", "10")
-	log.Debug("前端传参, page=%v, size=%v", pageStr, sizeStr)
+	log.Debugf("前端传参, page=%v, size=%v", pageStr, sizeStr)
 
 	// 参数缺失校验
 	if pageStr == "" || sizeStr == "" {

@@ -3,6 +3,7 @@ package main
 import (
 	"io"
 	"os"
+	"study-spider-manhua-gin/business/comic"
 	"study-spider-manhua-gin/business/order"
 	"study-spider-manhua-gin/business/spider"
 	"study-spider-manhua-gin/config"
@@ -98,6 +99,11 @@ func main() {
 	r.DELETE("/orders/:id", order.OrderDelete)
 	r.PUT("/orders", order.OrderUpdate)
 	r.GET("/orders", order.OrdersPageQuery) // 分页查询
+
+	r.POST("/comics", comic.ComicAdd)
+	r.DELETE("/comics/:id", comic.ComicDelete)
+	r.PUT("/comics", comic.ComicUpdate)
+	r.GET("/comics", comic.ComicsPageQuery) // 分页查询
 
 	// 爬虫
 	r.GET("/spider", spider.Spider)

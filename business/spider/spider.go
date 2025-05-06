@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 	"study-spider-manhua-gin/db"
 	"study-spider-manhua-gin/errorutil"
 	"study-spider-manhua-gin/log"
@@ -66,7 +67,7 @@ func Spider(context *gin.Context) {
 
 			// 1. 爬数据, 自动去重前后空格
 			// 1.1 爬名字,唯一索引,如果为空, return
-			comicNameTradition := element.ChildText(".comic__title")
+			comicNameTradition := strings.TrimSpace(element.ChildText(".comic__title"))
 			if comicNameTradition == "" {
 				log.Debug("漫画名称为空, 跳过")
 				return
@@ -80,16 +81,16 @@ func Spider(context *gin.Context) {
 			moveRepeatComics[comicNameTradition] = comicNameTradition
 
 			// 1.2 爬更新到 ?集
-			updateStrTrad := element.ChildText(".comic-update a")
+			updateStrTrad := strings.TrimSpace(element.ChildText(".comic-update a"))
 
 			// 1.3 爬人气
-			hitsStrTrad := element.ChildText(".comic-count")
+			hitsStrTrad := strings.TrimSpace(element.ChildText(".comic-count"))
 
 			// 1.4 爬封面链接
-			coverUrl := element.ChildAttr(".cover img", "data-original")
+			coverUrl := strings.TrimSpace(element.ChildAttr(".cover img", "data-original"))
 
 			// 1.5 爬漫画链接
-			comicUrl := element.ChildAttr(".cover", "href")
+			comicUrl := strings.TrimSpace(element.ChildAttr(".cover", "href"))
 
 			// 2 转简体
 			// 2.1 漫画名称, 转换为简体中文
