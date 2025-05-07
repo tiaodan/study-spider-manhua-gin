@@ -51,6 +51,9 @@ func Spider(context *gin.Context) {
 		// 1.3 爬人气
 		// 1.4 爬封面链接
 		// 1.5 爬漫画链接
+		// 1.6 爬简介-short
+		// 1.7 标志位不用管，插入默认0值 (spider_end、download_end、upload_aws_end、upload_baidu_end)
+		// 1.8 不用管 (评分)，插入默认0值，因为这个页面爬取不到
 		// 2. 转简体
 		// 3. 数据清洗
 		// 4. 把参数赋值给 comic对象,把每个对象存起来
@@ -92,6 +95,9 @@ func Spider(context *gin.Context) {
 			// 1.5 爬漫画链接
 			comicUrl := strings.TrimSpace(element.ChildAttr(".cover", "href"))
 
+			// 1.6 爬简介-short - 繁体
+			comicBriefShortTrad := strings.TrimSpace(element.ChildText(".cover p"))
+
 			// 2 转简体
 			// 2.1 漫画名称, 转换为简体中文
 			comicName, err := langutil.TraditionalToSimplified(comicNameTradition)
@@ -112,6 +118,13 @@ func Spider(context *gin.Context) {
 			if err != nil {
 				log.Errorf("转换为简体中文失败: %v", err)
 				HitsStr = hitsStrTrad // 如果转换失败，使用原名称
+			}
+
+			// 2.4 爬简介-short
+			comicBriefShort, err := langutil.TraditionalToSimplified(comicBriefShortTrad)
+			if err != nil {
+				log.Errorf("转换为简体中文失败: %v", err)
+				comicBriefShort = comicBriefShortTrad // 如果转换失败，使用原名称
 			}
 
 			// 3. 数据清洗
@@ -162,6 +175,7 @@ func Spider(context *gin.Context) {
 			comic.Update = updateStr
 			comic.ComicUrl = comicUrl
 			comic.CoverUrl = coverUrl
+			comic.BriefShort = comicBriefShort
 
 			// comic对象加入到数组中,把每个对象存起来
 			comicArr = append(comicArr, comic)
@@ -187,6 +201,12 @@ func Spider(context *gin.Context) {
 	err := c.Visit("http://localhost:8080/test/index.html") // 使用file协议访问本地文件
 
 	errorutil.ErrorPrint(err, "访问失败")
+
+	// 返回信息
+	if err != nil {
+		context.JSON(500, gin.H{"error": err.Error()})
+	}
+	context.JSON(200, "添加成功")
 	log.Debug("爬虫结束-------------------------------")
 }
 
@@ -203,4 +223,12 @@ func SpiderBaiduTest(context *gin.Context) {
 	// 开始访问
 	err := c.Visit("http://www.baidu.com/") // 百度 测试
 	errorutil.ErrorPrint(err, "访问失败")
+}
+
+// 根据第一页链接，自动提取出 请求链接、尾页号码、是否需要http请求
+// 前期可以先人为提供信息
+func GetFirstPageLink(url string) (string, int, int) {
+	// 提取请求参数
+
+	return "", 0, 0 // 暂时这么些，待修改
 }

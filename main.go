@@ -106,7 +106,12 @@ func main() {
 	r.GET("/comics", comic.ComicsPageQuery) // 分页查询
 
 	// 爬虫
-	r.GET("/spider", spider.Spider)
+	// 爬虫思路：
+	// 1. 爬某一类漫画所有内容
+	// 2. 爬某个漫画的所有章节，更新该漫画具体内容
+
+	// 流程：爬完漫画（spider_end）-》爬章节-》修改漫画-》 存章节-》下载漫画(download_end)-》下载章节-》下载完，上传aws章节(upload_aws_end)-》传完，更新漫画标志位
+	r.POST("/spider/oneCategory", spider.Spider)
 
 	r.Run(":8888") // 启动服务
 	// 等会再用 ----------------------------- end

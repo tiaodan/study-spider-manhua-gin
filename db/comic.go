@@ -14,13 +14,20 @@ func ComicAdd(comic *models.Comic) error {
 	result := DB.Clauses(clause.OnConflict{
 		Columns: []clause.Column{{Name: "Name"}}, // 判断唯一索引: Name
 		DoUpdates: clause.Assignments(map[string]interface{}{
-			"update":         comic.Update,
-			"hits":           comic.Hits,
-			"comic_url":      comic.ComicUrl,
-			"cover_url":      comic.CoverUrl,
-			"end":            comic.End,
-			"need_tcp":       comic.NeedTcp,
-			"cover_need_tcp": comic.CoverNeedTcp,
+			"update":           comic.Update,
+			"hits":             comic.Hits,
+			"comic_url":        comic.ComicUrl,
+			"cover_url":        comic.CoverUrl,
+			"brief_short":      comic.BriefShort,
+			"brief_long":       comic.BriefLong,
+			"end":              comic.End,
+			"star":             comic.Star,
+			"need_tcp":         comic.NeedTcp,
+			"cover_need_tcp":   comic.CoverNeedTcp,
+			"spider_end":       comic.SpiderEnd,
+			"download_end":     comic.DownloadEnd,
+			"upload_aws_end":   comic.UploadAwsEnd,
+			"upload_baidu_end": comic.UploadBaiduEnd,
 		}),
 	}).Create(comic)
 	if result.Error != nil {
@@ -74,7 +81,8 @@ func ComicsBatchDelete(ids []uint) {
 func ComicUpdate(comicId any, comic *models.Comic) error {
 	// 解决0值不更新 -> 指定更新字段
 	result := DB.Model(&comic).Where("id = ?", comicId).Select("update", "hits", "comic_url",
-		"cover_url", "end", "need_tcp", "cover_need_tcp").Updates(comic)
+		"cover_url", "brief_short", "brief_long", "end", "need_tcp", "cover_need_tcp",
+		"spider_end", "download_end", "upload_aws_end", "upload_baidu_end").Updates(comic)
 	if result.Error != nil {
 		log.Error("修改失败: ", result.Error)
 		return result.Error
@@ -90,7 +98,8 @@ func ComicUpdate(comicId any, comic *models.Comic) error {
 func ComicUpdateByIdOmitIndex(comicId any, comic *models.Comic) error {
 	// result := DB.Model(&comic).Where("id = ?", comicId).Omit("name").Updates(comic)
 	result := DB.Model(&comic).Where("id = ?", comicId).Select("update", "hits", "comic_url",
-		"cover_url", "end", "need_tcp", "cover_need_tcp").Updates(comic)
+		"cover_url", "brief_short", "brief_long", "end", "need_tcp", "cover_need_tcp",
+		"spider_end", "download_end", "upload_aws_end", "upload_baidu_end").Updates(comic)
 	if result.Error != nil {
 		log.Error("修改失败: ", result.Error)
 		return result.Error

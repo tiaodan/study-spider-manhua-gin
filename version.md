@@ -47,3 +47,6 @@
 - fix-bug: 爬取漫画,插入报错:1054 (42S22): Unknown column 'comicUrl' in 'field list'。原因comic.go ComicAdd()方法，参数用_下划线方式
 - 增加更新方法: 排除唯一索引字段 方式更新
 - fix-bug：解决，db.Updates() 0值不更新问题
+
+# v0.0.0.8
+- 能实现漫画的爬取，章节还不行，增加几个字段，下个版本封装爬取
