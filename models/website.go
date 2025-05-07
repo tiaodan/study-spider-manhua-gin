@@ -6,5 +6,6 @@ type Website struct {
 	NameId    int    `gorm:"not null;unique"`
 	Name      string `gorm:"not null"`
 	URL       string `gorm:"not null"`
-	NeedProxy uint   `gorm:"not null"` // 是否需要翻墙
+	NeedProxy int    `gorm:"not null"` // 是否需要翻墙
+	IsHttps   int    `gorm:"not null"` // 网站是否Https前缀
 }

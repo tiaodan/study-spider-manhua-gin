@@ -1,0 +1,18 @@
+package models
+
+// 爬取请求body 结构体
+//
+//	{
+//	    "url": "/category/list/2/page/",
+//	    "websitePrefix": "https://9y01.xyz"
+//	    "needTcp": 0,
+//	    "needHttps": 0,
+//	    "endNum": 32
+//	}
+type SpiderRequestBody struct {
+	URL           string `json:"url" `           // 每页请求链接, 不带具体数字
+	WebsitePrefix string `json:"websitePrefix" ` // 请求前缀，网站url
+	NeedTcp       int    `json:"needTcp" `       // 完整请求，是否需要带 http / https
+	NeedHttps     int    `json:"needHttps" `     // 完整请求，是否需要带  https
+	EndNum        int    `json:"endNum" `        // 尾页号码
+}

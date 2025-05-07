@@ -49,8 +49,8 @@ func InitDB(dbType, dbName, dbUser, dbPass string) {
 func InsertDefaultData() {
 	// 插入默认数据-website
 	// 插入默认数据-website
-	websiteDefaultNoClass := &models.Website{Name: "待分类", NameId: 0, URL: "未知"}
-	websiteDefaultJ88d := &models.Website{Name: "j88d", NameId: 1, URL: "www.j88d.com"} // 请求url 时带上http://
+	websiteDefaultNoClass := &models.Website{Name: "待分类", NameId: 0, URL: "未知", NeedProxy: 0, IsHttps: 0}
+	websiteDefaultJ88d := &models.Website{Name: "j88d", NameId: 1, URL: "http://www.j88d.com", NeedProxy: 0, IsHttps: 0} // 请求url 时带上http://
 	defaultWebsites := []*models.Website{websiteDefaultNoClass, websiteDefaultJ88d}
 	WebsiteBatchAdd(defaultWebsites)
 

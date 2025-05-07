@@ -10,31 +10,69 @@ import (
 	"study-spider-manhua-gin/log"
 	"study-spider-manhua-gin/models"
 	"study-spider-manhua-gin/util/langutil"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gocolly/colly/v2"
+	"github.com/gocolly/colly/v2/queue"
 )
 
+// 思路：
+// 1. 提取请求数据,拼接完整请求url
+// 1.1 判断参数是否符合要求，不符合返回错误 return
+// 2. 爬取
+// 2.1 new 爬取对象
+// 2.2 建一个任务队列
+// 2.3 设置并发数，和爬取限制
+// 2.4 注册 HTML 解析逻辑
+// 2.5 可选：注册请求前的回调
+// 2.6 可选：注册错误处理
+// 2.7 添加多个页面到队列中
+// 2.8 启动爬虫并等待所有任务完成
 func Spider(context *gin.Context) {
 	log.Debug("爬虫开始-------------------------------")
+
+	// 1. 提取请求数据
+	var requestBody models.SpiderRequestBody
+	if err := context.ShouldBindJSON(&requestBody); err != nil {
+		log.Error("解析请求体失败, err: ", err)
+		context.JSON(400, gin.H{"error": err.Error()})
+		return // 必须保留 return，确保绑定失败时提前退出
+	}
+	var fullUrl string // 完整请求url
+	if requestBody.NeedTcp == 1 {
+		if requestBody.NeedHttps == 1 { // 如果需要https
+			fullUrl += "https://"
+		}
+		fullUrl += "http://"
+	}
+	fullUrl += requestBody.WebsitePrefix + requestBody.URL // 完整请求url,差结尾数字
+
+	log.Debug("请求数据: url: ", requestBody.URL)
+	log.Debug("请求数据: websitePrefix: ", requestBody.WebsitePrefix)
+	log.Debug("请求数据: needTcp: ", requestBody.NeedTcp)
+	log.Debug("请求数据: needHttps: ", requestBody.NeedHttps)
+	log.Debug("请求数据: endNum: ", requestBody.EndNum)
+	log.Debug("请求数据: fullUrl: ", fullUrl)
+
+	// 1.1 判断参数是否符合要求，不符合返回错误 return
+	if requestBody.EndNum <= 0 {
+		context.JSON(400, gin.H{"error": "参数错误"})
+		return
+	}
+
 	c := colly.NewCollector()
 
-	// 设置请求限制（每秒最多2个请求）
-	// spider.Limit(&colly.LimitRule{
-	// 	DomainGlob:  "*",
-	// 	Parallelism: 2,
-	// 	RandomDelay: 5 * time.Second,
-	// })
+	// 创建一个并发为3的任务队列，使用内存存储
 
-	// 修改为解析所有元素并检查文本内容
-	// spider.OnHTML("*", func(e *colly.HTMLElement) { // 修改选择器为"*"匹配所有元素
-	// 	text := e.Text
-	// 	if strings.Contains(text, "还没有看过的漫画") { // 新增文本判断逻辑
-	// 		log.Debug("找到目标文本: %s", text)
-	// 	}
-	// 	link := e.Attr("href")
-	// 	log.Debug("发现链接：%s", link)
-	// })
+	// 设置请求限制（每秒最多2个请求, 5秒后发）
+	c.Limit(&colly.LimitRule{
+		DomainGlob:  "*",
+		Parallelism: 3,
+		RandomDelay: 5 * time.Second,
+	})
+	// 使用队列控制任务调度（最多并发3个URL）
+	q, _ := queue.New(3, &queue.InMemoryQueueStorage{MaxSize: 100})
 
 	// 获取html内容,每成功匹配一次, 就执行一次逻辑。这个标签选只匹配一次的
 	c.OnHTML(".cate-comic-list", func(e *colly.HTMLElement) {
@@ -197,15 +235,17 @@ func Spider(context *gin.Context) {
 		moveRepeatComics = make(map[string]string)
 	})
 
-	// 修改本地文件访问路径为file协议格式
-	err := c.Visit("http://localhost:8080/test/index.html") // 使用file协议访问本地文件
+	// 修改本地文件访问路径为file协议格式 - 注释了
+	// err := c.Visit("http://localhost:8080/test/index.html") // 使用file协议访问本地文件，用了队列后，就不用c.Visit了
 
-	errorutil.ErrorPrint(err, "访问失败")
-
-	// 返回信息
-	if err != nil {
-		context.JSON(500, gin.H{"error": err.Error()})
+	// 添加任务到队列
+	for i := 1; i <= requestBody.EndNum; i++ {
+		q.AddURL(fullUrl + strconv.Itoa(i))
 	}
+
+	// 启动对垒
+	q.Run(c)
+	// 返回信息
 	context.JSON(200, "添加成功")
 	log.Debug("爬虫结束-------------------------------")
 }
@@ -225,7 +265,7 @@ func SpiderBaiduTest(context *gin.Context) {
 	errorutil.ErrorPrint(err, "访问失败")
 }
 
-// 根据第一页链接，自动提取出 请求链接、尾页号码、是否需要http请求
+// 根据第一页链接，自动提取出 请求链接、尾页号码、是否需要http请求。待后续封装
 // 前期可以先人为提供信息
 func GetFirstPageLink(url string) (string, int, int) {
 	// 提取请求参数
