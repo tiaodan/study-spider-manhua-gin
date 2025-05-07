@@ -16,8 +16,8 @@ func ComicAdd(comic *models.Comic) error {
 		DoUpdates: clause.Assignments(map[string]interface{}{
 			"update":         comic.Update,
 			"hits":           comic.Hits,
-			"comicUrl":       comic.ComicUrl,
-			"coverUrl":       comic.CoverUrl,
+			"comic_url":      comic.ComicUrl,
+			"cover_url":      comic.CoverUrl,
 			"end":            comic.End,
 			"need_tcp":       comic.NeedTcp,
 			"cover_need_tcp": comic.CoverNeedTcp,
@@ -69,10 +69,28 @@ func ComicsBatchDelete(ids []uint) {
 	}
 }
 
-// 改 - 参数用结构体
+// 改 - 参数用结构体, 0值不更新
 // id 可以int,可以string。go默认定义的 any = interface{}
 func ComicUpdate(comicId any, comic *models.Comic) error {
-	result := DB.Model(&comic).Where("pdd_comic_id = ?", comicId).Updates(comic)
+	// 解决0值不更新 -> 指定更新字段
+	result := DB.Model(&comic).Where("id = ?", comicId).Select("update", "hits", "comic_url",
+		"cover_url", "end", "need_tcp", "cover_need_tcp").Updates(comic)
+	if result.Error != nil {
+		log.Error("修改失败: ", result.Error)
+		return result.Error
+	} else {
+		log.Info("修改成功: ", comicId)
+	}
+
+	return nil
+}
+
+// 改 - 根据id, 排除唯一索引 参数用结构体
+// id 可以int,可以string。go默认定义的 any = interface{}
+func ComicUpdateByIdOmitIndex(comicId any, comic *models.Comic) error {
+	// result := DB.Model(&comic).Where("id = ?", comicId).Omit("name").Updates(comic)
+	result := DB.Model(&comic).Where("id = ?", comicId).Select("update", "hits", "comic_url",
+		"cover_url", "end", "need_tcp", "cover_need_tcp").Updates(comic)
 	if result.Error != nil {
 		log.Error("修改失败: ", result.Error)
 		return result.Error
@@ -87,7 +105,7 @@ func ComicUpdate(comicId any, comic *models.Comic) error {
 func ComicsBatchUpdate(updates map[uint]map[string]interface{}) {
 	for comicId, update := range updates {
 		var comic models.Comic
-		result := DB.Model(&comic).Where("comic_id = ?", comicId).Updates(update)
+		result := DB.Model(&comic).Where("id = ?", comicId).Updates(update)
 		if result.Error != nil {
 			log.Errorf("更新漫画 %d 失败: %v", comicId, result.Error)
 		} else {

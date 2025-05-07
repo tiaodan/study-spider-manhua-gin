@@ -42,3 +42,8 @@
 
 # v0.0.0.6
 - 爬取漫画操作, 去除前后空格
+
+# v0.0.0.7
+- fix-bug: 爬取漫画,插入报错:1054 (42S22): Unknown column 'comicUrl' in 'field list'。原因comic.go ComicAdd()方法，参数用_下划线方式
+- 增加更新方法: 排除唯一索引字段 方式更新
+- fix-bug：解决，db.Updates() 0值不更新问题

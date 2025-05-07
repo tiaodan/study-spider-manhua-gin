@@ -102,7 +102,7 @@ func main() {
 
 	r.POST("/comics", comic.ComicAdd)
 	r.DELETE("/comics/:id", comic.ComicDelete)
-	r.PUT("/comics", comic.ComicUpdate)
+	r.PUT("/comics", comic.ComicUpdateByIdOmitIndex)
 	r.GET("/comics", comic.ComicsPageQuery) // 分页查询
 
 	// 爬虫

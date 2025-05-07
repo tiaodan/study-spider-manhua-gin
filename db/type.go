@@ -61,7 +61,8 @@ func TypesBatchDelete(ids []uint) {
 // 改
 func TypeUpdate(nameId uint, updates map[string]interface{}) {
 	var typeData models.Type
-	result := DB.Model(&typeData).Where("name_id = ?", nameId).Updates(updates)
+	// 解决0值不更新
+	result := DB.Model(&typeData).Where("name_id = ?", nameId).Select("name", "level", "parent").Updates(updates)
 	if result.Error != nil {
 		log.Error("修改失败:", result.Error)
 	} else {
@@ -73,7 +74,8 @@ func TypeUpdate(nameId uint, updates map[string]interface{}) {
 func TypesBatchUpdate(updates map[uint]map[string]interface{}) {
 	for nameId, update := range updates {
 		var typeData models.Type
-		result := DB.Model(&typeData).Where("name_id = ?", nameId).Updates(update)
+		// 解决0值不更新
+		result := DB.Model(&typeData).Where("name_id = ?", nameId).Select("name", "level", "parent").Updates(update)
 		if result.Error != nil {
 			log.Errorf("更新类型 %d 失败: %v", nameId, result.Error)
 		} else {

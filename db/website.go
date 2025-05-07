@@ -61,7 +61,8 @@ func WebsitesBatchDelete(ids []uint) {
 // 改
 func WebsiteUpdate(nameId uint, updates map[string]interface{}) {
 	var website models.Website
-	result := DB.Model(&website).Where("name_id = ?", nameId).Updates(updates)
+	// 解决0值不更新
+	result := DB.Model(&website).Where("name_id = ?", nameId).Select("name", "url").Updates(updates)
 	if result.Error != nil {
 		log.Error("修改失败:", result.Error)
 	} else {
@@ -73,7 +74,8 @@ func WebsiteUpdate(nameId uint, updates map[string]interface{}) {
 func WebsitesBatchUpdate(updates map[uint]map[string]interface{}) {
 	for nameId, update := range updates {
 		var website models.Website
-		result := DB.Model(&website).Where("name_id = ?", nameId).Updates(update)
+		// 解决0值不更新
+		result := DB.Model(&website).Where("name_id = ?", nameId).Select("name", "url").Updates(update)
 		if result.Error != nil {
 			log.Errorf("更新网站 %d 失败: %v", nameId, result.Error)
 		} else {

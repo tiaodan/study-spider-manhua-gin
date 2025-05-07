@@ -54,6 +54,9 @@ func ComicDelete(c *gin.Context) {
 // 改
 func ComicUpdate(c *gin.Context) {
 	log.Debug("修改漫画")
+	// bodyBytes, _ := io.ReadAll(c.Request.Body)  // 测试用-可以删
+	// log.Debug("请求内容c.request.body= ", string(bodyBytes))  // 测试用-可以删，这段代码影响c.ShouldBindJson
+
 	// 绑定前端数据
 	var comic models.Comic
 	if err := c.ShouldBindJSON(&comic); err != nil {
@@ -62,6 +65,29 @@ func ComicUpdate(c *gin.Context) {
 		return // 必须保留 return，确保绑定失败时提前退出
 	}
 	err := db.ComicUpdate(comic.Id, &comic)
+
+	if err != nil {
+		log.Error("修改漫画失败, err: ", err)
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, "修改成功")
+}
+
+// 改 - 根据id, 排除唯一索引
+func ComicUpdateByIdOmitIndex(c *gin.Context) {
+	log.Debug("修改漫画")
+
+	// 绑定前端数据
+	var comic models.Comic
+	if err := c.ShouldBindJSON(&comic); err != nil {
+		log.Error("解析请求体失败, err: ", err)
+		c.JSON(400, gin.H{"error": err.Error()})
+		return // 必须保留 return，确保绑定失败时提前退出
+	}
+	log.Debug("修改漫画, 参数.needTcp= ", comic.NeedTcp)
+
+	err := db.ComicUpdateByIdOmitIndex(comic.Id, &comic)
 
 	if err != nil {
 		log.Error("修改漫画失败, err: ", err)

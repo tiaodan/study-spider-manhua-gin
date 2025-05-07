@@ -61,7 +61,8 @@ func CountriesBatchDelete(ids []uint) {
 // 改
 func CountryUpdate(nameId uint, updates map[string]interface{}) {
 	var country models.Country
-	result := DB.Model(&country).Where("name_id = ?", nameId).Updates(updates)
+	// 解决0值不更新
+	result := DB.Model(&country).Where("name_id = ?", nameId).Select("name").Updates(updates)
 	if result.Error != nil {
 		log.Error("修改失败: ", result.Error)
 	} else {
@@ -73,7 +74,8 @@ func CountryUpdate(nameId uint, updates map[string]interface{}) {
 func CountriesBatchUpdate(updates map[uint]map[string]interface{}) {
 	for nameId, update := range updates {
 		var country models.Country
-		result := DB.Model(&country).Where("name_id = ?", nameId).Updates(update)
+		// 解决0值不更新
+		result := DB.Model(&country).Where("name_id = ?", nameId).Select("name").Updates(update)
 		if result.Error != nil {
 			log.Errorf("更新国家 %d 失败: %v", nameId, result.Error)
 		} else {

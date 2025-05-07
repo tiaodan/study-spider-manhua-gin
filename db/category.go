@@ -61,7 +61,8 @@ func CategoriesBatchDelete(ids []uint) {
 // 改
 func CategoryUpdate(nameId uint, updates map[string]interface{}) {
 	var categoryData models.Category
-	result := DB.Model(&categoryData).Where("name_id = ?", nameId).Updates(updates)
+	// 解决0值不更新
+	result := DB.Model(&categoryData).Where("name_id = ?", nameId).Select("name").Updates(updates)
 	if result.Error != nil {
 		log.Error("修改失败:", result.Error)
 	} else {
@@ -73,7 +74,8 @@ func CategoryUpdate(nameId uint, updates map[string]interface{}) {
 func CategoriesBatchUpdate(updates map[uint]map[string]interface{}) {
 	for nameId, update := range updates {
 		var categoryData models.Category
-		result := DB.Model(&categoryData).Where("name_id = ?", nameId).Updates(update)
+		// 解决0值不更新
+		result := DB.Model(&categoryData).Where("name_id = ?", nameId).Select("name").Updates(update)
 		if result.Error != nil {
 			log.Errorf("更新类型 %d 失败: %v", nameId, result.Error)
 		} else {
