@@ -10,6 +10,7 @@ import (
 	"study-spider-manhua-gin/log"
 	"study-spider-manhua-gin/models"
 	"study-spider-manhua-gin/util/langutil"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -74,6 +75,9 @@ func Spider(context *gin.Context) {
 	// 使用队列控制任务调度（最多并发3个URL）
 	q, _ := queue.New(3, &queue.InMemoryQueueStorage{MaxSize: 100})
 
+	// 线程安全的 去重map, 用于爬某类所有page数据
+	var comicNamePool sync.Map
+
 	// 获取html内容,每成功匹配一次, 就执行一次逻辑。这个标签选只匹配一次的
 	c.OnHTML(".cate-comic-list", func(e *colly.HTMLElement) {
 		// log.Debug("html 元素名称Name= ", e.Name) // 一般显示div a span 等标签名
@@ -118,8 +122,14 @@ func Spider(context *gin.Context) {
 				log.Info("存在重复项: ", comicNameTradition)
 				return
 			}
+			if _, exists := comicNamePool.Load(comicNameTradition); exists { // 线程安全方式提取
+				log.Info("--------------------大comic池, 存在重复项: ", comicNameTradition)
+				return
+			}
+
 			// 1.1.2 把不重复的加入到map里
 			moveRepeatComics[comicNameTradition] = comicNameTradition
+			comicNamePool.Store(comicNameTradition, comicNameTradition) // 把不重复的加到大comic池里
 
 			// 1.2 爬更新到 ?集
 			updateStrTrad := strings.TrimSpace(element.ChildText(".comic-update a"))
@@ -187,10 +197,12 @@ func Spider(context *gin.Context) {
 			re := regexp.MustCompile(`(\d+\.?\d*)\s*([^\d\s]+)`) // 定义正则表达式，匹配数字和单位
 			matches := re.FindStringSubmatch(HitsStr)
 			log.Info("--------------- matches = ", matches)
+			var hitsNumStr string // xx数字
+			var hitsUnit string   // 单位 如；万、千
+			numUnit := 1          // 单位 如：万, 默认1个
 			if len(matches) >= 3 {
-				hitsNumStr := matches[1] // 匹配全部字符串 如 95.2 万
-				hitsUnit := matches[2]   // 人气数字 如：95.2
-				numUnit := 1             // 单位 如：万
+				hitsNumStr = matches[1] // 匹配全部字符串 如 95.2 万
+				hitsUnit = matches[2]   // 人气数字 如：95.2
 				if hitsUnit == "亿" {
 					numUnit = 100000000
 				} else if hitsUnit == "万" {
@@ -198,14 +210,20 @@ func Spider(context *gin.Context) {
 				} else if hitsUnit == "千" {
 					numUnit = 1000
 				}
+			} else { // 重新正则匹配
+				re = regexp.MustCompile(`(\d+\.?\d*)\s*`) // 定义正则表达式，匹配数字和单位
+				newMatches := re.FindStringSubmatch(HitsStr)
+				log.Info("--------------- newMatches !=3 ", newMatches)
+				log.Info("--------------- newMatches[1] ", newMatches[1])
+				hitsNumStr = newMatches[1] // 匹配全部字符串 如 95.2 万
+			}
 
-				// 计算具体数字 HitsNum * hitsUnit
-				hitsFloat, err := strconv.ParseFloat(hitsNumStr, 64)
-				if err != nil || hitsFloat < 0 {
-					comic.Hits = 0 // 错误或负值设为0
-				} else {
-					comic.Hits = uint(hitsFloat * float64(numUnit))
-				}
+			// 计算具体数字 HitsNum * hitsUnit
+			hitsFloat, err := strconv.ParseFloat(hitsNumStr, 64)
+			if err != nil || hitsFloat < 0 {
+				comic.Hits = 0 // 错误或负值设为0
+			} else {
+				comic.Hits = uint(hitsFloat * float64(numUnit))
 			}
 
 			// 4. 把参数赋值给 comic对象
@@ -233,6 +251,7 @@ func Spider(context *gin.Context) {
 		// 7. 重置变量
 		comicArr = comicArr[:0]
 		moveRepeatComics = make(map[string]string)
+		comicNamePool = sync.Map{}
 	})
 
 	// 修改本地文件访问路径为file协议格式 - 注释了
