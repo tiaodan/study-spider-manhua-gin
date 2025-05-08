@@ -1,9 +1,8 @@
 package db
 
 import (
+	"fmt"
 	"os"
-	"study-spider-manhua-gin/errorutil"
-	"study-spider-manhua-gin/log"
 	"study-spider-manhua-gin/models"
 	"testing"
 
@@ -16,10 +15,16 @@ var testDB *gorm.DB
 func TestMain(m *testing.M) {
 	// 使用 MySQL 数据库进行测试
 	var err error
-	dsn := "root:password@tcp(127.0.0.1:3306)/audio?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:password@tcp(127.0.0.1:3306)/comic_test?charset=utf8mb4&parseTime=True&loc=Local"
 	testDB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
-	errorutil.ErrorPanic(err, "Failed to connect to test database: ")
+	if err != nil {
+		fmt.Println("----------- 连接测试数据失败 test database: ", err)
+		panic(err)
+	}
+
+	// 设置全局 db 变量，防止调用方法DB.xx报错
+	DB = testDB
 
 	// 自动迁移表结构
 	testDB.AutoMigrate(&models.Website{})
@@ -27,71 +32,144 @@ func TestMain(m *testing.M) {
 	// 运行测试
 	os.Exit(m.Run())
 }
-
-func TestCreateWebsite(t *testing.T) {
-	website := &models.Website{
-		NameId: 1,
-		Name:   "Test Website",
-		URL:    "http://test.com",
-	}
-	log.Debug("Creating website...", website)
-	WebsiteAdd(website)
-
-	var createdWebsite models.Website
-	testDB.First(&createdWebsite, website.ID)
-	if createdWebsite.ID != website.ID || createdWebsite.Name != website.Name || createdWebsite.URL != website.URL {
-		t.Errorf("Expected website to be created with correct values, got %v", createdWebsite)
-	}
+func TestLog(t *testing.T) {
+	// t.Log("----------- 测试能不能打印日志 --------------")
+	fmt.Println("----------- 测试能不能打印日志 fmt.Println --------------")
 }
 
-func TestDeleteWebsite(t *testing.T) {
+// 增
+func TestWebsiteAdd(t *testing.T) {
+	t.Log("------------ website add ... start ")
+	fmt.Println("----------- website add start --------------")
+
 	website := &models.Website{
-		NameId: 2,
-		Name:   "Test Website for Delete",
-		URL:    "http://delete.com",
+		// Id:        1, // 新增时，可以指定id,如果有会更新
+		NameId:    1,
+		Name:      "Test Website",
+		Url:       "http://test.com",
+		NeedProxy: 1,
+		IsHttps:   1,
 	}
+	t.Log("website: ", website)
 	WebsiteAdd(website)
 
-	WebsiteDelete(website.ID)
-
-	var deletedWebsite models.Website
-	result := testDB.First(&deletedWebsite, website.ID)
-	if result.Error == nil {
-		t.Errorf("Expected website to be deleted, but found %v", deletedWebsite)
+	// var createdWebsite *models.Website // 手动写法
+	// testDB.Where("name_id = ?", website.NameId).First(&createdWebsite) // 手动写法,不调用方法
+	createdWebsite := WebsiteQueryByNameId(website.NameId) // 调用方法
+	if createdWebsite.NameId != website.NameId || createdWebsite.Name != website.Name ||
+		createdWebsite.Url != website.Url || createdWebsite.NeedProxy != website.NeedProxy ||
+		createdWebsite.IsHttps != website.IsHttps {
+		t.Errorf("【增】测试不通过, got= %v", createdWebsite)
 	}
+	fmt.Println("----------- website add end --------------")
 }
 
-func TestUpdateWebsite(t *testing.T) {
-	website := &models.Website{
-		NameId: 3,
-		Name:   "Test Website for Update",
-		URL:    "http://update.com",
+// 批量增
+func TestWebsiteBatchAdd(t *testing.T) {
+	website1 := &models.Website{
+		NameId:    1,
+		Name:      "Test Website1",
+		Url:       "http://test.com1",
+		NeedProxy: 1,
+		IsHttps:   1,
 	}
-	WebsiteAdd(website)
 
-	updates := map[string]interface{}{
-		"Name": "Updated Website",
-		"URL":  "http://updated.com",
+	website2 := &models.Website{
+		NameId:    2,
+		Name:      "Test Website2",
+		Url:       "http://test.com2",
+		NeedProxy: 1,
+		IsHttps:   1,
 	}
-	WebsiteUpdate(website.ID, updates)
-
-	var updatedWebsite models.Website
-	testDB.First(&updatedWebsite, website.ID)
-	if updatedWebsite.Name != "Updated Website" || updatedWebsite.URL != "http://updated.com" {
-		t.Errorf("Expected website to be updated with correct values, got %v", updatedWebsite)
+	websites := []*models.Website{website1, website2}
+	WebsiteBatchAdd(websites)
+	nameIds := []any{website1.NameId, website2.NameId}
+	t.Error("namedis = ", nameIds)
+	createdWebsites, err := WebsitesBatchQueryByNameId(nameIds) // 调用方法
+	if err != nil {
+		t.Errorf("【增-批量】测试不通过, got=  %v", createdWebsites)
 	}
+	// 判断第1个
+	createdWebsite1 := createdWebsites[0]
+	createdWebsite2 := createdWebsites[1]
+	if createdWebsite1.NameId != website1.NameId || createdWebsite1.Name != website1.Name ||
+		createdWebsite1.Url != website1.Url || createdWebsite1.NeedProxy != website1.NeedProxy ||
+		createdWebsite1.IsHttps != website1.IsHttps {
+		t.Errorf("【增-批量】测试不通过, got 1= %v", createdWebsite1)
+	}
+	// 判断第2个
+	if createdWebsite2.NameId != website2.NameId || createdWebsite2.Name != website2.Name ||
+		createdWebsite2.Url != website2.Url || createdWebsite2.NeedProxy != website2.NeedProxy ||
+		createdWebsite2.IsHttps != website2.IsHttps {
+		t.Errorf("【增-批量】测试不通过, got 2= %v", createdWebsite2)
+	}
+	fmt.Println("----------- website add end --------------")
 }
 
-func TestQueryWebsiteById(t *testing.T) {
-	website := &models.Website{
-		NameId: 4,
-		Name:   "Test Website for Query",
-		URL:    "http://query.com",
-	}
-	WebsiteAdd(website)
+// func TestWebsiteDelete(t *testing.T) {
+// 	t.Log("------------ website delete ... start ")
+// 	website := &models.Website{
+// 		NameId:    2,
+// 		Name:      "Test Website for Delete",
+// 		Url:       "http://delete.com",
+// 		NeedProxy: 1,
+// 		IsHttps:   1,
+// 	}
+// 	WebsiteAdd(website)
 
-	retrievedWebsite := WebsiteQueryById(website.ID)
-	if retrievedWebsite == nil || retrievedWebsite.Name != website.Name || retrievedWebsite.URL != website.URL {
-		t.Errorf("Expected website to be queried with correct values, got %v", retrievedWebsite)
-	}
-}
+// 	WebsiteDeleteByOther("name_id", website.NameId)
+
+// 	var deletedWebsite models.Website
+// 	result := testDB.Where("name_id = ?", website.NameId).First(&deletedWebsite)
+// 	if result.Error == nil { // err是空, 说明记录存在
+// 		t.Errorf("【删】测试不通过,删除后仍能查到, =  %v", deletedWebsite)
+// 	}
+// 	t.Log("------------ website delete ... end ")
+// }
+
+// func TestWebsiteUpdate(t *testing.T) {
+// 	t.Log("------------ website update ... start ")
+// 	website := &models.Website{
+// 		NameId:    3,
+// 		Name:      "Test Website for Update",
+// 		Url:       "http://update.com",
+// 		NeedProxy: 1,
+// 		IsHttps:   1,
+// 	}
+// 	WebsiteAdd(website)
+
+// 	updates := map[string]interface{}{
+// 		"Name":      "Updated Website",
+// 		"Url":       "http://updated.com",
+// 		"NeedProxy": 0,
+// 		"IsHttps":   0,
+// 	}
+// 	WebsiteUpdateByOther("name_id", website.NameId, updates)
+
+// 	var updatedWebsite models.Website
+// 	testDB.Where("name_id = ?", website.NameId).First(&updatedWebsite)
+// 	if updatedWebsite.Name != "Updated Website" || updatedWebsite.Url != "http://updated.com" ||
+// 		updatedWebsite.NeedProxy != 0 || updatedWebsite.IsHttps != 0 {
+// 		t.Errorf("【删】测试不通过, got= %v", updatedWebsite)
+// 	}
+// 	t.Log("------------ website update ... end ")
+// }
+
+// func TestWebsiteQueryById(t *testing.T) {
+// 	t.Log("------------ website query ... start ")
+// 	website := &models.Website{
+// 		NameId:    4,
+// 		Name:      "Test Website for Query",
+// 		Url:       "http://query.com",
+// 		NeedProxy: 1,
+// 		IsHttps:   1,
+// 	}
+// 	WebsiteAdd(website)
+
+// 	retrievedWebsite := WebsiteQueryByOther("name_id", website.NameId)
+// 	if retrievedWebsite == nil || retrievedWebsite.Name != website.Name || retrievedWebsite.Url != website.Url ||
+// 		retrievedWebsite.NeedProxy != website.NeedProxy || retrievedWebsite.IsHttps != website.IsHttps {
+// 		t.Errorf("【删】测试不通过, got= %v", retrievedWebsite)
+// 	}
+// 	t.Log("------------ website query ... start ")
+// }

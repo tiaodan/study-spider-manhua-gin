@@ -35,7 +35,7 @@ func InitLog() {
 		if err != nil {
 			logInstance.Printf("Failed to open log file: %v", err)
 		}
-		defer file.Close() // 关闭日志文件
+		// defer file.Close() // 关闭日志文件,不关闭日志文件，一直开着，要不测试时没有看情况关闭
 
 		// 使用 io.MultiWriter 实现多写入器功能
 		multiWriter := io.MultiWriter(os.Stdout, file)

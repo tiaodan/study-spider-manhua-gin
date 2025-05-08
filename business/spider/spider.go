@@ -32,6 +32,8 @@ import (
 // 2.8 启动爬虫并等待所有任务完成
 func Spider(context *gin.Context) {
 	log.Debug("爬虫开始-------------------------------")
+	// 读取 Body
+	log.Info("传参 body = ", context.Request.Body)
 
 	// 1. 提取请求数据
 	var requestBody models.SpiderRequestBody
@@ -47,9 +49,9 @@ func Spider(context *gin.Context) {
 		}
 		fullUrl += "http://"
 	}
-	fullUrl += requestBody.WebsitePrefix + requestBody.URL // 完整请求url,差结尾数字
+	fullUrl += requestBody.WebsitePrefix + requestBody.Url // 完整请求url,差结尾数字
 
-	log.Debug("请求数据: url: ", requestBody.URL)
+	log.Debug("请求数据: url: ", requestBody.Url)
 	log.Debug("请求数据: websitePrefix: ", requestBody.WebsitePrefix)
 	log.Debug("请求数据: needTcp: ", requestBody.NeedTcp)
 	log.Debug("请求数据: needHttps: ", requestBody.NeedHttps)
@@ -72,7 +74,7 @@ func Spider(context *gin.Context) {
 		Parallelism: 3,
 		RandomDelay: 5 * time.Second,
 	})
-	// 使用队列控制任务调度（最多并发3个URL）
+	// 使用队列控制任务调度（最多并发3个Url）
 	q, _ := queue.New(3, &queue.InMemoryQueueStorage{MaxSize: 100})
 
 	// 线程安全的 去重map, 用于爬某类所有page数据
@@ -188,9 +190,13 @@ func Spider(context *gin.Context) {
 				comic.CoverNeedTcp = 1
 			}
 
-			// 判断是否完结, 通过"更新至" 是否== "休刊公告"
-			if updateStr == "休刊公告" || updateStr == "后记" {
+			// 判断是否完结, 传参如果带标志位，就不判断了。通过字段包含 "更新至" 是否== "休刊公告"
+			if requestBody.End == 1 {
 				comic.End = 1 // 不用设置默认值0, 因为new comic 时会有默认值0
+			} else if requestBody.End == 2 { // 传参2, 程序自行判断
+				if strings.Contains(updateStr, "休刊公告") || strings.Contains(updateStr, "后记") {
+					comic.End = 1 // 不用设置默认值0, 因为new comic 时会有默认值0
+				}
 			}
 
 			// 清洗 “人气”,提取字符串中数字
@@ -232,6 +238,10 @@ func Spider(context *gin.Context) {
 			comic.ComicUrl = comicUrl
 			comic.CoverUrl = coverUrl
 			comic.BriefShort = comicBriefShort
+			comic.CountryId = requestBody.CountryId // 外键
+			comic.WebsiteId = requestBody.WebsiteId
+			comic.CategoryId = requestBody.CategoryId
+			comic.TypeId = requestBody.TypeId
 
 			// comic对象加入到数组中,把每个对象存起来
 			comicArr = append(comicArr, comic)
@@ -258,9 +268,12 @@ func Spider(context *gin.Context) {
 	// err := c.Visit("http://localhost:8080/test/index.html") // 使用file协议访问本地文件，用了队列后，就不用c.Visit了
 
 	// 添加任务到队列
-	for i := 1; i <= requestBody.EndNum; i++ {
-		q.AddURL(fullUrl + strconv.Itoa(i))
-	}
+	// for i := 1; i <= requestBody.EndNum; i++ {
+	// 	q.AddURL(fullUrl + strconv.Itoa(i))
+	// }
+
+	// 测试用
+	q.AddURL("http://localhost:8080/test/index.html")
 
 	// 启动对垒
 	q.Run(c)

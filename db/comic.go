@@ -14,6 +14,10 @@ func ComicAdd(comic *models.Comic) error {
 	result := DB.Clauses(clause.OnConflict{
 		Columns: []clause.Column{{Name: "Name"}}, // 判断唯一索引: Name
 		DoUpdates: clause.Assignments(map[string]interface{}{
+			"country_id":       comic.CountryId,
+			"website_id":       comic.WebsiteId,
+			"category_id":      comic.CategoryId,
+			"type_id":          comic.TypeId,
 			"update":           comic.Update,
 			"hits":             comic.Hits,
 			"comic_url":        comic.ComicUrl,
@@ -80,7 +84,8 @@ func ComicsBatchDelete(ids []uint) {
 // id 可以int,可以string。go默认定义的 any = interface{}
 func ComicUpdate(comicId any, comic *models.Comic) error {
 	// 解决0值不更新 -> 指定更新字段
-	result := DB.Model(&comic).Where("id = ?", comicId).Select("update", "hits", "comic_url",
+	result := DB.Model(&comic).Where("id = ?", comicId).Select("country_id", "website_id",
+		"category_id", "type_id", "update", "hits", "comic_url",
 		"cover_url", "brief_short", "brief_long", "end", "need_tcp", "cover_need_tcp",
 		"spider_end", "download_end", "upload_aws_end", "upload_baidu_end").Updates(comic)
 	if result.Error != nil {
@@ -97,7 +102,8 @@ func ComicUpdate(comicId any, comic *models.Comic) error {
 // id 可以int,可以string。go默认定义的 any = interface{}
 func ComicUpdateByIdOmitIndex(comicId any, comic *models.Comic) error {
 	// result := DB.Model(&comic).Where("id = ?", comicId).Omit("name").Updates(comic)
-	result := DB.Model(&comic).Where("id = ?", comicId).Select("update", "hits", "comic_url",
+	result := DB.Model(&comic).Where("id = ?", comicId).Select("country_id", "website_id",
+		"category_id", "type_id", "update", "hits", "comic_url",
 		"cover_url", "brief_short", "brief_long", "end", "need_tcp", "cover_need_tcp",
 		"spider_end", "download_end", "upload_aws_end", "upload_baidu_end").Updates(comic)
 	if result.Error != nil {
