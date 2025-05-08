@@ -12,8 +12,12 @@ import (
 // 增
 func WebsiteAdd(website *models.Website) error {
 	result := DB.Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "NameId"}},
-		DoUpdates: clause.Assignments(map[string]interface{}{"name": website.Name, "url": website.Url}),
+		Columns: []clause.Column{{Name: "NameId"}},
+		DoUpdates: clause.Assignments(map[string]interface{}{
+			"name": website.Name, "url": website.Url,
+			"need_proxy": website.NeedProxy,
+			"is_https":   website.IsHttps,
+		}),
 	}).Create(website)
 	if result.Error != nil {
 		log.Error("创建失败:", result.Error)

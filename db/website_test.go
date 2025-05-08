@@ -41,10 +41,11 @@ func TestLog(t *testing.T) {
 func TestWebsiteAdd(t *testing.T) {
 	t.Log("------------ website add ...  start ")
 
+	// 1. 测试项1
 	website := &models.Website{
 		// Id:        1, // 新增时，可以指定id,如果有会更新
 		NameId:    1,
-		Name:      "Test Website",
+		Name:      "Test Website Add",
 		Url:       "http://add.com",
 		NeedProxy: 0,
 		IsHttps:   0,
@@ -61,6 +62,26 @@ func TestWebsiteAdd(t *testing.T) {
 		t.Errorf("【增】测试不通过, got= %v", createdWebsite)
 		panic("【增】测试不通过")
 	}
+
+	// 2. 测试项2 测试needProxy =1 时候
+	website2 := &models.Website{
+		// Id:        2, // 新增时，可以指定id,如果有会更新
+		NameId:    2,
+		Name:      "Test Website Add 2",
+		Url:       "http://add.com2",
+		NeedProxy: 1,
+		IsHttps:   1,
+	}
+	t.Log("website2: ", website2)
+	WebsiteAdd(website2)
+	createdWebsite2 := WebsiteQueryByNameId(website2.NameId) // 调用方法
+	if createdWebsite2.NameId != website2.NameId || createdWebsite2.Name != website2.Name ||
+		createdWebsite2.Url != website2.Url || createdWebsite2.NeedProxy != website2.NeedProxy ||
+		createdWebsite2.IsHttps != website2.IsHttps {
+		t.Errorf("【增】测试不通过, got= %v", createdWebsite2)
+		panic("【增】测试不通过")
+	}
+
 	t.Log("----------- website add ... end ----------------")
 }
 
@@ -88,13 +109,15 @@ func TestWebsiteBatchAdd(t *testing.T) {
 	t.Log("namedis = ", nameIds)
 	createdWebsites, err := WebsitesBatchQueryByNameId(nameIds) // 调用方法
 	if err != nil {
-		t.Errorf("【增-批量】测试不通过, got=  %v", createdWebsites)
+		t.Errorf("【增-批量】测试不通过, 查询nil, got=  %v", createdWebsites)
 		panic("【增-批量】测试不通过")
 	}
+
 	// 判断第1个
 	createdWebsite1 := createdWebsites[0]
 	createdWebsite2 := createdWebsites[1]
-	t.Log("createdWebsites = ", createdWebsite1, createdWebsite2)
+	t.Log("查询结果 createdWebsites = ", createdWebsite1, createdWebsite2)
+	t.Log("website1 = ", website1)
 	if createdWebsite1.NameId != website1.NameId || createdWebsite1.Name != website1.Name ||
 		createdWebsite1.Url != website1.Url || createdWebsite1.NeedProxy != website1.NeedProxy ||
 		createdWebsite1.IsHttps != website1.IsHttps {
