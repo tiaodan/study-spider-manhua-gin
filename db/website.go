@@ -47,6 +47,17 @@ func WebsiteDeleteById(id uint) {
 	}
 }
 
+// 删-通过 nameId
+func WebsiteDeleteByNameId(nameId any) {
+	var website models.Website
+	result := DB.Where("name_id = ?", nameId).Delete(&website)
+	if result.Error != nil {
+		log.Error("删除失败:", result.Error)
+	} else {
+		log.Info("删除成功:", nameId)
+	}
+}
+
 // 删-通过其它
 func WebsiteDeleteByOther(condition string, other any) {
 	var website models.Website
@@ -66,6 +77,17 @@ func WebsitesBatchDeleteById(ids []uint) {
 		log.Error("批量删除失败:", result.Error)
 	} else {
 		log.Debug("批量删除成功:", ids)
+	}
+}
+
+// 批量删-通过nameIds
+func WebsitesBatchDeleteByNameId(nameIds []any) {
+	var websites []models.Website
+	result := DB.Where("name_id IN ?", nameIds...).Delete(&websites)
+	if result.Error != nil {
+		log.Error("批量删除失败:", result.Error)
+	} else {
+		log.Debug("批量删除成功:", nameIds)
 	}
 }
 

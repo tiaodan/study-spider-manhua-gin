@@ -39,16 +39,15 @@ func TestLog(t *testing.T) {
 
 // 增
 func TestWebsiteAdd(t *testing.T) {
-	t.Log("------------ website add ... start ")
-	fmt.Println("----------- website add start --------------")
+	t.Log("------------ website add ...  start ")
 
 	website := &models.Website{
 		// Id:        1, // 新增时，可以指定id,如果有会更新
 		NameId:    1,
 		Name:      "Test Website",
-		Url:       "http://test.com",
-		NeedProxy: 1,
-		IsHttps:   1,
+		Url:       "http://add.com",
+		NeedProxy: 0,
+		IsHttps:   0,
 	}
 	t.Log("website: ", website)
 	WebsiteAdd(website)
@@ -60,12 +59,14 @@ func TestWebsiteAdd(t *testing.T) {
 		createdWebsite.Url != website.Url || createdWebsite.NeedProxy != website.NeedProxy ||
 		createdWebsite.IsHttps != website.IsHttps {
 		t.Errorf("【增】测试不通过, got= %v", createdWebsite)
+		panic("【增】测试不通过")
 	}
-	fmt.Println("----------- website add end --------------")
+	t.Log("----------- website add ... end ----------------")
 }
 
 // 批量增
 func TestWebsiteBatchAdd(t *testing.T) {
+	t.Log("------------ website batch add ... start ----------------")
 	website1 := &models.Website{
 		NameId:    1,
 		Name:      "Test Website1",
@@ -84,48 +85,56 @@ func TestWebsiteBatchAdd(t *testing.T) {
 	websites := []*models.Website{website1, website2}
 	WebsiteBatchAdd(websites)
 	nameIds := []any{website1.NameId, website2.NameId}
-	t.Error("namedis = ", nameIds)
+	t.Log("namedis = ", nameIds)
 	createdWebsites, err := WebsitesBatchQueryByNameId(nameIds) // 调用方法
 	if err != nil {
 		t.Errorf("【增-批量】测试不通过, got=  %v", createdWebsites)
+		panic("【增-批量】测试不通过")
 	}
 	// 判断第1个
 	createdWebsite1 := createdWebsites[0]
 	createdWebsite2 := createdWebsites[1]
+	t.Log("createdWebsites = ", createdWebsite1, createdWebsite2)
 	if createdWebsite1.NameId != website1.NameId || createdWebsite1.Name != website1.Name ||
 		createdWebsite1.Url != website1.Url || createdWebsite1.NeedProxy != website1.NeedProxy ||
 		createdWebsite1.IsHttps != website1.IsHttps {
 		t.Errorf("【增-批量】测试不通过, got 1= %v", createdWebsite1)
+		panic("【增-批量】测试不通过")
 	}
 	// 判断第2个
 	if createdWebsite2.NameId != website2.NameId || createdWebsite2.Name != website2.Name ||
 		createdWebsite2.Url != website2.Url || createdWebsite2.NeedProxy != website2.NeedProxy ||
 		createdWebsite2.IsHttps != website2.IsHttps {
 		t.Errorf("【增-批量】测试不通过, got 2= %v", createdWebsite2)
+		panic("【增-批量】测试不通过")
 	}
-	fmt.Println("----------- website add end --------------")
+
+	t.Log("------------ website batch add ... end ----------------")
 }
 
-// func TestWebsiteDelete(t *testing.T) {
-// 	t.Log("------------ website delete ... start ")
-// 	website := &models.Website{
-// 		NameId:    2,
-// 		Name:      "Test Website for Delete",
-// 		Url:       "http://delete.com",
-// 		NeedProxy: 1,
-// 		IsHttps:   1,
-// 	}
-// 	WebsiteAdd(website)
+func TestWebsiteDeleteById(t *testing.T) {
+	t.Log("------------ website delete by id... start ----------------")
+	website := &models.Website{
+		Id:        1,
+		NameId:    1,
+		Name:      "Test Website for Delete",
+		Url:       "http://delete.com",
+		NeedProxy: 1,
+		IsHttps:   1,
+	}
+	WebsiteAdd(website)
 
-// 	WebsiteDeleteByOther("name_id", website.NameId)
+	WebsiteDeleteById(website.Id)
 
-// 	var deletedWebsite models.Website
-// 	result := testDB.Where("name_id = ?", website.NameId).First(&deletedWebsite)
-// 	if result.Error == nil { // err是空, 说明记录存在
-// 		t.Errorf("【删】测试不通过,删除后仍能查到, =  %v", deletedWebsite)
-// 	}
-// 	t.Log("------------ website delete ... end ")
-// }
+	var deletedWebsite models.Website
+	result := testDB.First(&deletedWebsite, website.Id)
+	// result := testDB.Where("name_id = ?", website.NameId).First(&deletedWebsite)
+	if result.Error == nil { // err是空, 说明记录存在
+		t.Errorf("【删 - by id】测试不通过,删除后仍能查到, =  %v", deletedWebsite)
+		panic("【删 - by id】测试不通过,删除后仍能查到")
+	}
+	t.Log("------------ website delete by id... end ----------------")
+}
 
 // func TestWebsiteUpdate(t *testing.T) {
 // 	t.Log("------------ website update ... start ")
