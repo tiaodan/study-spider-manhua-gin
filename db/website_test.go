@@ -10,14 +10,45 @@ import (
 	"gorm.io/gorm"
 )
 
-var testDB *gorm.DB
-
 // 所有方法思路
 // 1. 清空表
 // 2. 添加数据
 // 3. 增删改查、批量增删改查
 // 4. 检测
 
+// ---------------------------- 变量 start ----------------------------
+// 全局变量
+
+// 局部变量
+var testDB *gorm.DB
+
+var websiteForAddWithIdNoZero *models.Website  // 用于add, 有id, 无0值
+var websiteForAddWithIdHasZero *models.Website // 用于add, 有id, 无0值
+
+// ---------------------------- 变量 end ----------------------------
+
+// ---------------------------- init start ----------------------------
+func init() {
+	websiteForAddWithIdNoZero = &models.Website{
+		Id:        1, // 新增时,可以指定id,gorm会插入指定id,而不是自增
+		NameId:    1,
+		Name:      "Test Website Add",
+		Url:       "http://add.com",
+		NeedProxy: 1,
+		IsHttps:   1,
+	}
+
+	websiteForAddWithIdHasZero = &models.Website{
+		Id:        1, // 新增时,可以指定id,gorm会插入指定id,而不是自增
+		NameId:    1,
+		Name:      "Test Website Add",
+		Url:       "http://add.com",
+		NeedProxy: 0,
+		IsHttps:   0,
+	}
+}
+
+// ---------------------------- init end ----------------------------
 // 测试主函数
 func TestMain(m *testing.M) {
 	// 使用 MySQL 数据库进行测试
@@ -49,14 +80,7 @@ func TestWebsiteAdd(t *testing.T) {
 	t.Log("------------ website add ...  start ")
 
 	// 1. 测试项1
-	website := &models.Website{
-		// Id:        1, // 新增时，可以指定id,如果有会更新
-		NameId:    1,
-		Name:      "Test Website Add",
-		Url:       "http://add.com",
-		NeedProxy: 0,
-		IsHttps:   0,
-	}
+	website := websiteForAddWithIdNoZero
 	t.Log("website: ", website)
 	WebsiteAdd(website)
 
@@ -151,14 +175,7 @@ func TestWebsiteBatchAdd(t *testing.T) {
 // 删-通过id
 func TestWebsiteDeleteById(t *testing.T) {
 	t.Log("------------ website delete by id... start ----------------")
-	website := &models.Website{
-		Id:        1,
-		NameId:    1,
-		Name:      "Test Website for Delete By Id",
-		Url:       "http://delete.com id",
-		NeedProxy: 1,
-		IsHttps:   1,
-	}
+	website := websiteForAddWithIdNoZero
 	WebsiteAdd(website)
 
 	WebsiteDeleteById(website.Id)
@@ -176,13 +193,7 @@ func TestWebsiteDeleteById(t *testing.T) {
 // 删-通过 nameId
 func TestWebsiteDeleteByNameId(t *testing.T) {
 	t.Log("------------ website delete by nameId... start ----------------")
-	website := &models.Website{
-		NameId:    1,
-		Name:      "Test Website for Delete By NameId",
-		Url:       "http://delete.com nameid",
-		NeedProxy: 1,
-		IsHttps:   1,
-	}
+	website := websiteForAddWithIdNoZero
 	WebsiteAdd(website)
 
 	WebsiteDeleteByNameId(website.NameId)
@@ -199,13 +210,7 @@ func TestWebsiteDeleteByNameId(t *testing.T) {
 // 删-通过 其它
 func TestWebsiteDeleteByOther(t *testing.T) {
 	t.Log("------------ website delete by other... start ----------------")
-	website := &models.Website{
-		NameId:    1,
-		Name:      "Test Website for Delete By other",
-		Url:       "http://delete.com other",
-		NeedProxy: 1,
-		IsHttps:   1,
-	}
+	website := websiteForAddWithIdNoZero
 	WebsiteAdd(website)
 
 	WebsiteDeleteByOther("name_id", website.NameId)
@@ -228,14 +233,7 @@ func TestWebsitesBatchDeleteById(t *testing.T) {
 	// 2. 增加数据
 	// 3. 删除数据
 	// 4. 判断
-	website := &models.Website{
-		Id:        1,
-		NameId:    1,
-		Name:      "Test Website for Delete By Id",
-		Url:       "http://delete.com id",
-		NeedProxy: 1,
-		IsHttps:   1,
-	}
+	website := websiteForAddWithIdNoZero
 
 	website2 := &models.Website{
 		Id:        2,

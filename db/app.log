@@ -2098,3 +2098,264 @@
 [32m[INFO ] 2025-05-09 18:09:18 website.go:26 创建成功:&{2 2 Test Website for Query2 http://query.com2 0 0} [0m 
 [34m[DEBUG] 2025-05-09 18:09:18 website.go:36 批量创建第2条成功, website: Test Website for Query2 [0m 
 [34m[DEBUG] 2025-05-09 18:09:18 website.go:261 批量查询成功, 查询到 2 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{1 1 Test Website Add http://add.com 0 0} [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:209 查询成功:{1 1 Test Website Add http://add.com 0 0} [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{2 2 Test Website Add 2 http://add.com2 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:209 查询成功:{2 2 Test Website Add 2 http://add.com2 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{1 1 Test Website1 http://test.com1 0 0} [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:36 批量创建第1条成功, website: Test Website1 [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{2 2 Test Website2 http://test.com2 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:36 批量创建第2条成功, website: Test Website2 [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:246 批量查询成功, 查询到 2 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{1 1 Test Website for Delete By Id http://delete.com id 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:50 删除成功:1 [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{3 1 Test Website for Delete By NameId http://delete.com nameid 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:61 删除成功:1 [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{4 1 Test Website for Delete By other http://delete.com other 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:72 删除成功:1 [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{1 1 Test Website for Delete By Id http://delete.com id 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:36 批量创建第1条成功, website: Test Website for Delete By Id [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{2 2 Test Website for Delete By Id 2 http://delete.com id 2 0 0} [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:36 批量创建第2条成功, website: Test Website for Delete By Id 2 [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:233 批量查询成功, 查询到 2 条记录 [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:83 批量删除成功:[1 2] [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:233 批量查询成功, 查询到 0 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{1 1 Test Website for Delete By nameId http://delete.com id 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:36 批量创建第1条成功, website: Test Website for Delete By nameId [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{2 2 Test Website for Delete By nameId 2 http://delete.com id 2 0 0} [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:36 批量创建第2条成功, website: Test Website for Delete By nameId 2 [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:246 批量查询成功, 查询到 2 条记录 [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:94 批量删除成功:[1 2] [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:246 批量查询成功, 查询到 0 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{1 1 Test Website for Delete By other http://delete.com id 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:36 批量创建第1条成功, website: Test Website for Delete By other [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{2 2 Test Website for Delete By other 2 http://delete.com id 2 0 0} [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:36 批量创建第2条成功, website: Test Website for Delete By other 2 [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:261 批量查询成功, 查询到 2 条记录 [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:106 批量删除成功:[1 2] [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:261 批量查询成功, 查询到 0 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{1 1 Test Website for Update http://update.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:118 修改成功:1 [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:197 查询成功:{1 1 Updated Website http://updated.com 0 0} [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{1 1 Test Website for Update nameId  http://update.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:130 修改成功:1 [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:209 查询成功:{1 1 Updated Website http://updated.com 0 0} [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{1 1 Test Website for Update other  http://update.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:143 修改成功:1 [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:221 查询成功:{1 1 Updated Website http://updated.com 0 0} [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{1 1 Test Website for Update http://update.com 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:36 批量创建第1条成功, website: Test Website for Update [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{2 2 Test Website for Update 2 http://update.com2 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:36 批量创建第2条成功, website: Test Website for Update 2 [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:156 更新网站 1 成功 [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:156 更新网站 2 成功 [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:233 批量查询成功, 查询到 2 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{1 1 Test Website for Update http://update.com 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:36 批量创建第1条成功, website: Test Website for Update [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{2 2 Test Website for Update 2 http://update.com2 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:36 批量创建第2条成功, website: Test Website for Update 2 [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:170 更新网站 %!d(<nil>) 成功 [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:170 更新网站 %!d(<nil>) 成功 [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:246 批量查询成功, 查询到 2 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{1 1 Test Website for Update http://update.com 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:36 批量创建第1条成功, website: Test Website for Update [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{2 2 Test Website for Update 2 http://update.com2 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:36 批量创建第2条成功, website: Test Website for Update 2 [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:184 更新网站 %!d(<nil>) 成功 [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:184 更新网站 %!d(<nil>) 成功 [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:261 批量查询成功, 查询到 2 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{1 1 Test Website for Query http://query.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:197 查询成功:{1 1 Test Website for Query http://query.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{1 1 Test Website for Query http://query.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:209 查询成功:{1 1 Test Website for Query http://query.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{1 1 Test Website for Query http://query.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:221 查询成功:{1 1 Test Website for Query http://query.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{1 1 Test Website for Query http://query.com 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:36 批量创建第1条成功, website: Test Website for Query [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{2 2 Test Website for Query2 http://query.com2 0 0} [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:36 批量创建第2条成功, website: Test Website for Query2 [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:233 批量查询成功, 查询到 2 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{1 1 Test Website for Query http://query.com 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:36 批量创建第1条成功, website: Test Website for Query [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{2 2 Test Website for Query2 http://query.com2 0 0} [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:36 批量创建第2条成功, website: Test Website for Query2 [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:246 批量查询成功, 查询到 2 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{1 1 Test Website for Query http://query.com 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:36 批量创建第1条成功, website: Test Website for Query [0m 
+[32m[INFO ] 2025-05-09 18:14:15 website.go:26 创建成功:&{2 2 Test Website for Query2 http://query.com2 0 0} [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:36 批量创建第2条成功, website: Test Website for Query2 [0m 
+[34m[DEBUG] 2025-05-09 18:14:15 website.go:261 批量查询成功, 查询到 2 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{1 1 Test Website Add http://add.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:209 查询成功:{1 1 Test Website Add http://add.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{2 2 Test Website Add 2 http://add.com2 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:209 查询成功:{2 2 Test Website Add 2 http://add.com2 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{1 1 Test Website1 http://test.com1 0 0} [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:36 批量创建第1条成功, website: Test Website1 [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{2 2 Test Website2 http://test.com2 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:36 批量创建第2条成功, website: Test Website2 [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:246 批量查询成功, 查询到 2 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{1 1 Test Website for Delete By Id http://delete.com id 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:50 删除成功:1 [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{3 1 Test Website for Delete By NameId http://delete.com nameid 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:61 删除成功:1 [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{4 1 Test Website for Delete By other http://delete.com other 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:72 删除成功:1 [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{1 1 Test Website for Delete By Id http://delete.com id 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:36 批量创建第1条成功, website: Test Website for Delete By Id [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{2 2 Test Website for Delete By Id 2 http://delete.com id 2 0 0} [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:36 批量创建第2条成功, website: Test Website for Delete By Id 2 [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:233 批量查询成功, 查询到 2 条记录 [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:83 批量删除成功:[1 2] [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:233 批量查询成功, 查询到 0 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{1 1 Test Website for Delete By nameId http://delete.com id 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:36 批量创建第1条成功, website: Test Website for Delete By nameId [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{2 2 Test Website for Delete By nameId 2 http://delete.com id 2 0 0} [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:36 批量创建第2条成功, website: Test Website for Delete By nameId 2 [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:246 批量查询成功, 查询到 2 条记录 [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:94 批量删除成功:[1 2] [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:246 批量查询成功, 查询到 0 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{1 1 Test Website for Delete By other http://delete.com id 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:36 批量创建第1条成功, website: Test Website for Delete By other [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{2 2 Test Website for Delete By other 2 http://delete.com id 2 0 0} [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:36 批量创建第2条成功, website: Test Website for Delete By other 2 [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:261 批量查询成功, 查询到 2 条记录 [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:106 批量删除成功:[1 2] [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:261 批量查询成功, 查询到 0 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{1 1 Test Website for Update http://update.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:118 修改成功:1 [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:197 查询成功:{1 1 Updated Website http://updated.com 0 0} [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{1 1 Test Website for Update nameId  http://update.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:130 修改成功:1 [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:209 查询成功:{1 1 Updated Website http://updated.com 0 0} [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{1 1 Test Website for Update other  http://update.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:143 修改成功:1 [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:221 查询成功:{1 1 Updated Website http://updated.com 0 0} [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{1 1 Test Website for Update http://update.com 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:36 批量创建第1条成功, website: Test Website for Update [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{2 2 Test Website for Update 2 http://update.com2 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:36 批量创建第2条成功, website: Test Website for Update 2 [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:156 更新网站 1 成功 [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:156 更新网站 2 成功 [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:233 批量查询成功, 查询到 2 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{1 1 Test Website for Update http://update.com 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:36 批量创建第1条成功, website: Test Website for Update [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{2 2 Test Website for Update 2 http://update.com2 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:36 批量创建第2条成功, website: Test Website for Update 2 [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:170 更新网站 %!d(<nil>) 成功 [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:170 更新网站 %!d(<nil>) 成功 [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:246 批量查询成功, 查询到 2 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{1 1 Test Website for Update http://update.com 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:36 批量创建第1条成功, website: Test Website for Update [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{2 2 Test Website for Update 2 http://update.com2 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:36 批量创建第2条成功, website: Test Website for Update 2 [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:184 更新网站 %!d(<nil>) 成功 [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:184 更新网站 %!d(<nil>) 成功 [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:261 批量查询成功, 查询到 2 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{1 1 Test Website for Query http://query.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:197 查询成功:{1 1 Test Website for Query http://query.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{1 1 Test Website for Query http://query.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:209 查询成功:{1 1 Test Website for Query http://query.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{1 1 Test Website for Query http://query.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:221 查询成功:{1 1 Test Website for Query http://query.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{1 1 Test Website for Query http://query.com 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:36 批量创建第1条成功, website: Test Website for Query [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{2 2 Test Website for Query2 http://query.com2 0 0} [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:36 批量创建第2条成功, website: Test Website for Query2 [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:233 批量查询成功, 查询到 2 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{1 1 Test Website for Query http://query.com 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:36 批量创建第1条成功, website: Test Website for Query [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{2 2 Test Website for Query2 http://query.com2 0 0} [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:36 批量创建第2条成功, website: Test Website for Query2 [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:246 批量查询成功, 查询到 2 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{1 1 Test Website for Query http://query.com 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:36 批量创建第1条成功, website: Test Website for Query [0m 
+[32m[INFO ] 2025-05-09 18:29:37 website.go:26 创建成功:&{2 2 Test Website for Query2 http://query.com2 0 0} [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:36 批量创建第2条成功, website: Test Website for Query2 [0m 
+[34m[DEBUG] 2025-05-09 18:29:37 website.go:261 批量查询成功, 查询到 2 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:30:43 website.go:26 创建成功:&{1 1 Test Website Add http://add.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:30:43 website.go:209 查询成功:{1 1 Test Website Add http://add.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:30:43 website.go:26 创建成功:&{2 2 Test Website Add 2 http://add.com2 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:30:43 website.go:209 查询成功:{2 2 Test Website Add 2 http://add.com2 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:30:43 website.go:26 创建成功:&{1 1 Test Website1 http://test.com1 0 0} [0m 
+[34m[DEBUG] 2025-05-09 18:30:43 website.go:36 批量创建第1条成功, website: Test Website1 [0m 
+[32m[INFO ] 2025-05-09 18:30:43 website.go:26 创建成功:&{2 2 Test Website2 http://test.com2 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:30:43 website.go:36 批量创建第2条成功, website: Test Website2 [0m 
+[34m[DEBUG] 2025-05-09 18:30:43 website.go:246 批量查询成功, 查询到 2 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:30:43 website.go:26 创建成功:&{1 1 Test Website Add http://add.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:30:43 website.go:50 删除成功:1 [0m 
+[32m[INFO ] 2025-05-09 18:30:43 website.go:26 创建成功:&{1 1 Test Website Add http://add.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:30:43 website.go:61 删除成功:1 [0m 
+[32m[INFO ] 2025-05-09 18:30:43 website.go:26 创建成功:&{1 1 Test Website Add http://add.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:30:43 website.go:72 删除成功:1 [0m 
+[32m[INFO ] 2025-05-09 18:30:43 website.go:26 创建成功:&{1 1 Test Website for Delete By Id http://delete.com id 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:30:43 website.go:36 批量创建第1条成功, website: Test Website for Delete By Id [0m 
+[32m[INFO ] 2025-05-09 18:30:43 website.go:26 创建成功:&{2 2 Test Website for Delete By Id 2 http://delete.com id 2 0 0} [0m 
+[34m[DEBUG] 2025-05-09 18:30:43 website.go:36 批量创建第2条成功, website: Test Website for Delete By Id 2 [0m 
+[34m[DEBUG] 2025-05-09 18:30:43 website.go:233 批量查询成功, 查询到 2 条记录 [0m 
+[34m[DEBUG] 2025-05-09 18:30:43 website.go:83 批量删除成功:[1 2] [0m 
+[34m[DEBUG] 2025-05-09 18:30:43 website.go:233 批量查询成功, 查询到 0 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:30:43 website.go:26 创建成功:&{1 1 Test Website for Delete By nameId http://delete.com id 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:30:43 website.go:36 批量创建第1条成功, website: Test Website for Delete By nameId [0m 
+[32m[INFO ] 2025-05-09 18:30:43 website.go:26 创建成功:&{2 2 Test Website for Delete By nameId 2 http://delete.com id 2 0 0} [0m 
+[34m[DEBUG] 2025-05-09 18:30:43 website.go:36 批量创建第2条成功, website: Test Website for Delete By nameId 2 [0m 
+[34m[DEBUG] 2025-05-09 18:30:43 website.go:246 批量查询成功, 查询到 2 条记录 [0m 
+[34m[DEBUG] 2025-05-09 18:30:43 website.go:94 批量删除成功:[1 2] [0m 
+[34m[DEBUG] 2025-05-09 18:30:43 website.go:246 批量查询成功, 查询到 0 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:30:43 website.go:26 创建成功:&{1 1 Test Website for Delete By other http://delete.com id 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:30:43 website.go:36 批量创建第1条成功, website: Test Website for Delete By other [0m 
+[32m[INFO ] 2025-05-09 18:30:43 website.go:26 创建成功:&{2 2 Test Website for Delete By other 2 http://delete.com id 2 0 0} [0m 
+[34m[DEBUG] 2025-05-09 18:30:43 website.go:36 批量创建第2条成功, website: Test Website for Delete By other 2 [0m 
+[34m[DEBUG] 2025-05-09 18:30:43 website.go:261 批量查询成功, 查询到 2 条记录 [0m 
+[34m[DEBUG] 2025-05-09 18:30:43 website.go:106 批量删除成功:[1 2] [0m 
+[34m[DEBUG] 2025-05-09 18:30:43 website.go:261 批量查询成功, 查询到 0 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:30:43 website.go:26 创建成功:&{1 1 Test Website for Update http://update.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:30:43 website.go:118 修改成功:1 [0m 
+[32m[INFO ] 2025-05-09 18:30:43 website.go:197 查询成功:{1 1 Updated Website http://updated.com 0 0} [0m 
+[32m[INFO ] 2025-05-09 18:30:43 website.go:26 创建成功:&{1 1 Test Website for Update nameId  http://update.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:30:43 website.go:130 修改成功:1 [0m 
+[32m[INFO ] 2025-05-09 18:30:43 website.go:209 查询成功:{1 1 Updated Website http://updated.com 0 0} [0m 
+[32m[INFO ] 2025-05-09 18:30:43 website.go:26 创建成功:&{1 1 Test Website for Update other  http://update.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:30:43 website.go:143 修改成功:1 [0m 
+[32m[INFO ] 2025-05-09 18:30:43 website.go:221 查询成功:{1 1 Updated Website http://updated.com 0 0} [0m 
+[32m[INFO ] 2025-05-09 18:30:44 website.go:26 创建成功:&{1 1 Test Website for Update http://update.com 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:30:44 website.go:36 批量创建第1条成功, website: Test Website for Update [0m 
+[32m[INFO ] 2025-05-09 18:30:44 website.go:26 创建成功:&{2 2 Test Website for Update 2 http://update.com2 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:30:44 website.go:36 批量创建第2条成功, website: Test Website for Update 2 [0m 
+[34m[DEBUG] 2025-05-09 18:30:44 website.go:156 更新网站 1 成功 [0m 
+[34m[DEBUG] 2025-05-09 18:30:44 website.go:156 更新网站 2 成功 [0m 
+[34m[DEBUG] 2025-05-09 18:30:44 website.go:233 批量查询成功, 查询到 2 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:30:44 website.go:26 创建成功:&{1 1 Test Website for Update http://update.com 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:30:44 website.go:36 批量创建第1条成功, website: Test Website for Update [0m 
+[32m[INFO ] 2025-05-09 18:30:44 website.go:26 创建成功:&{2 2 Test Website for Update 2 http://update.com2 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:30:44 website.go:36 批量创建第2条成功, website: Test Website for Update 2 [0m 
+[34m[DEBUG] 2025-05-09 18:30:44 website.go:170 更新网站 %!d(<nil>) 成功 [0m 
+[34m[DEBUG] 2025-05-09 18:30:44 website.go:170 更新网站 %!d(<nil>) 成功 [0m 
+[34m[DEBUG] 2025-05-09 18:30:44 website.go:246 批量查询成功, 查询到 2 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:30:44 website.go:26 创建成功:&{1 1 Test Website for Update http://update.com 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:30:44 website.go:36 批量创建第1条成功, website: Test Website for Update [0m 
+[32m[INFO ] 2025-05-09 18:30:44 website.go:26 创建成功:&{2 2 Test Website for Update 2 http://update.com2 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:30:44 website.go:36 批量创建第2条成功, website: Test Website for Update 2 [0m 
+[34m[DEBUG] 2025-05-09 18:30:44 website.go:184 更新网站 %!d(<nil>) 成功 [0m 
+[34m[DEBUG] 2025-05-09 18:30:44 website.go:184 更新网站 %!d(<nil>) 成功 [0m 
+[34m[DEBUG] 2025-05-09 18:30:44 website.go:261 批量查询成功, 查询到 2 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:30:44 website.go:26 创建成功:&{1 1 Test Website for Query http://query.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:30:44 website.go:197 查询成功:{1 1 Test Website for Query http://query.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:30:44 website.go:26 创建成功:&{1 1 Test Website for Query http://query.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:30:44 website.go:209 查询成功:{1 1 Test Website for Query http://query.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:30:44 website.go:26 创建成功:&{1 1 Test Website for Query http://query.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:30:44 website.go:221 查询成功:{1 1 Test Website for Query http://query.com 1 1} [0m 
+[32m[INFO ] 2025-05-09 18:30:44 website.go:26 创建成功:&{1 1 Test Website for Query http://query.com 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:30:44 website.go:36 批量创建第1条成功, website: Test Website for Query [0m 
+[32m[INFO ] 2025-05-09 18:30:44 website.go:26 创建成功:&{2 2 Test Website for Query2 http://query.com2 0 0} [0m 
+[34m[DEBUG] 2025-05-09 18:30:44 website.go:36 批量创建第2条成功, website: Test Website for Query2 [0m 
+[34m[DEBUG] 2025-05-09 18:30:44 website.go:233 批量查询成功, 查询到 2 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:30:44 website.go:26 创建成功:&{1 1 Test Website for Query http://query.com 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:30:44 website.go:36 批量创建第1条成功, website: Test Website for Query [0m 
+[32m[INFO ] 2025-05-09 18:30:44 website.go:26 创建成功:&{2 2 Test Website for Query2 http://query.com2 0 0} [0m 
+[34m[DEBUG] 2025-05-09 18:30:44 website.go:36 批量创建第2条成功, website: Test Website for Query2 [0m 
+[34m[DEBUG] 2025-05-09 18:30:44 website.go:246 批量查询成功, 查询到 2 条记录 [0m 
+[32m[INFO ] 2025-05-09 18:30:44 website.go:26 创建成功:&{1 1 Test Website for Query http://query.com 1 1} [0m 
+[34m[DEBUG] 2025-05-09 18:30:44 website.go:36 批量创建第1条成功, website: Test Website for Query [0m 
+[32m[INFO ] 2025-05-09 18:30:44 website.go:26 创建成功:&{2 2 Test Website for Query2 http://query.com2 0 0} [0m 
+[34m[DEBUG] 2025-05-09 18:30:44 website.go:36 批量创建第2条成功, website: Test Website for Query2 [0m 
+[34m[DEBUG] 2025-05-09 18:30:44 website.go:261 批量查询成功, 查询到 2 条记录 [0m 
