@@ -85,9 +85,9 @@ func WebsitesBatchDeleteById(ids []uint) {
 }
 
 // 批量删-通过nameIds
-func WebsitesBatchDeleteByNameId(nameIds []any) {
+func WebsitesBatchDeleteByNameId(nameIds []int) {
 	var websites []models.Website
-	result := DB.Where("name_id IN ?", nameIds...).Delete(&websites)
+	result := DB.Where("name_id IN ?", nameIds).Delete(&websites)
 	if result.Error != nil {
 		log.Error("批量删除失败:", result.Error)
 	} else {
@@ -99,7 +99,7 @@ func WebsitesBatchDeleteByNameId(nameIds []any) {
 func WebsitesBatchDeleteByOther(condition string, others []any) {
 	var websites []models.Website
 	// result := DB.Where(condition+" IN ?", others).Delete(&websites) // other这样写错？
-	result := DB.Where(condition+" IN ?", others...).Delete(&websites)
+	result := DB.Where(condition+" IN ?", others).Delete(&websites)
 	if result.Error != nil {
 		log.Error("批量删除失败:", result.Error)
 	} else {
@@ -119,6 +119,18 @@ func WebsiteUpdateById(id uint, updates map[string]interface{}) {
 	}
 }
 
+// 改 - by nameId
+func WebsiteUpdateByNameId(nameId int, updates map[string]interface{}) {
+	var website models.Website
+	// 解决0值不更新
+	result := DB.Model(&website).Where("name_id = ?", nameId).Select("name", "url", "need_proxy", "is_https").Updates(updates)
+	if result.Error != nil {
+		log.Error("修改失败:", result.Error)
+	} else {
+		log.Info("修改成功:", nameId)
+	}
+}
+
 // 改 - by other
 func WebsiteUpdateByOther(condition string, other any, updates map[string]interface{}) {
 	var website models.Website
@@ -132,16 +144,44 @@ func WebsiteUpdateByOther(condition string, other any, updates map[string]interf
 	}
 }
 
-// 批量改
-func WebsitesBatchUpdateById(updates map[uint]map[string]interface{}) {
-	for nameId, update := range updates {
+// 改 - 批量 by id
+func WebsitesBatchUpdateById(updates []map[string]interface{}) {
+	for _, update := range updates {
 		var website models.Website
 		// 解决0值不更新
-		result := DB.Model(&website).Where("id = ?", nameId).Select("name", "url", "need_proxy", "is_https").Updates(update)
+		result := DB.Model(&website).Where("id = ?", update["Id"]).Select("name", "url", "need_proxy", "is_https").Updates(update)
 		if result.Error != nil {
-			log.Errorf("更新网站 %d 失败: %v", nameId, result.Error)
+			log.Errorf("更新网站 %d 失败: %v", update["Id"], result.Error)
 		} else {
-			log.Debugf("更新网站 %d 成功", nameId)
+			log.Debugf("更新网站 %d 成功", update["Id"])
+		}
+	}
+}
+
+// 改 - 批量 by nameId
+func WebsitesBatchUpdateByNameId(updates []map[string]interface{}) {
+	for _, update := range updates {
+		var website models.Website
+		// 解决0值不更新
+		result := DB.Model(&website).Where("name_id = ?", update["NameId"]).Select("name", "url", "need_proxy", "is_https").Updates(update)
+		if result.Error != nil {
+			log.Errorf("更新网站 %d 失败: %v", update["Id"], result.Error)
+		} else {
+			log.Debugf("更新网站 %d 成功", update["Id"])
+		}
+	}
+}
+
+// 改 - 批量 by other
+func WebsitesBatchUpdateByOther(updates []map[string]interface{}) {
+	for _, update := range updates {
+		var website models.Website
+		// 解决0值不更新
+		result := DB.Model(&website).Where("name_id = ?", update["NameId"]).Select("name", "url", "need_proxy", "is_https").Updates(update)
+		if result.Error != nil {
+			log.Errorf("更新网站 %d 失败: %v", update["Id"], result.Error)
+		} else {
+			log.Debugf("更新网站 %d 成功", update["Id"])
 		}
 	}
 }
@@ -195,9 +235,10 @@ func WebsitesBatchQueryById(ids []uint) ([]*models.Website, error) {
 }
 
 // 批量查 - by nameIds
-func WebsitesBatchQueryByNameId(nameIds []any) ([]*models.Website, error) {
+func WebsitesBatchQueryByNameId(nameIds []int) ([]*models.Website, error) {
 	var websites []*models.Website
-	result := DB.Where("name_id IN ?", nameIds).Find(&websites)
+	result := DB.Where("name_id IN ?", nameIds).Order("name_id").Find(&websites) // 默认升序
+	// result := DB.Where("name_id IN ?", nameIds).Order("name_id DESC")Find(&websites) // 倒序排列
 	if result.Error != nil {
 		log.Error("批量查询失败: ", result.Error)
 		return websites, result.Error
@@ -207,10 +248,12 @@ func WebsitesBatchQueryByNameId(nameIds []any) ([]*models.Website, error) {
 }
 
 // 批量查 - by others
-func WebsitesBatchQueryByOther(condition string, others []any) ([]*models.Website, error) {
+// 参数：orderby 排序字符串 如: name_id   sort 排序方式，ASC 为正序，DESC 为倒序
+func WebsitesBatchQueryByOther(condition string, others []any, orderby string, sort string) ([]*models.Website, error) {
 	var websites []*models.Website
 	// result := DB.Where(condition+" IN ?", others).Find(&websites)  // other这样写错？
-	result := DB.Where(condition+" IN ?", others...).Find(&websites)
+	// result := DB.Where(condition+" IN ?", others).Order("name_id DESC").Find(&websites)
+	result := DB.Where(condition+" IN ?", others).Order(orderby + " " + sort).Find(&websites)
 	if result.Error != nil {
 		log.Error("批量查询失败: ", result.Error)
 		return websites, result.Error

@@ -1,6 +1,7 @@
 package db
 
 import (
+	"fmt"
 	"study-spider-manhua-gin/log"
 	"study-spider-manhua-gin/models"
 	"sync"
@@ -88,4 +89,38 @@ func InsertDefaultData() {
 	}
 	TypesBatchAdd(defaultTypes)
 
+}
+
+// TruncateTable 清空指定模型对应的数据表，同时跳过外键检查（适用于 MySQL）
+func TruncateTable(db *gorm.DB, model interface{}) error {
+	stmt := &gorm.Statement{DB: db}
+	if err := stmt.Parse(model); err != nil {
+		return err
+	}
+	tableName := stmt.Schema.Table
+
+	// 注释部分执行报错，gorm不让一次执行多个语句
+	// sql := fmt.Sprintf(`
+	// 	SET FOREIGN_KEY_CHECKS = 0;
+	// 	TRUNCATE TABLE %s;
+	// 	SET FOREIGN_KEY_CHECKS = 1;
+	// `, tableName)
+
+	// return db.Exec(sql).Error
+
+	// 分开执行每个 SQL 语句
+	db.Exec("SET FOREIGN_KEY_CHECKS = 0;")
+	defer db.Exec("SET FOREIGN_KEY_CHECKS = 1;") // 确保最终恢复外键检查
+
+	return db.Exec(fmt.Sprintf("TRUNCATE TABLE %s;", tableName)).Error
+}
+
+// 删除表所有数据，不用truncate, 生产环境避免用truncate
+func DeleteTableAllData(db *gorm.DB, model interface{}) error {
+	result := db.Where("1 = 1").Delete(&model)
+	if result.Error != nil {
+		log.Error("删除表所有数据失败:", result.Error)
+		return result.Error
+	}
+	return nil
 }
