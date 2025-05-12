@@ -22,14 +22,38 @@ import (
 // 局部变量
 var testDB *gorm.DB
 
-var websiteForAddWithIdNoZero *models.Website  // 用于add, 有id, 无0值
-var websiteForAddWithIdHasZero *models.Website // 用于add, 有id, 无0值
+// 用于 add
+var websiteForAddHasIdNoZero *models.Website  // 用于add, 有id, 无0值
+var websiteForAddHasIdHasZero *models.Website // 用于add, 有id, 无0值
+var websiteForAddNoIdNoZero *models.Website   // 用于add, 无id, 无0值
+var websiteForAddNoIdHasZero *models.Website  // 用于add, 无id, 无0值
+
+// 用于 add batch
+var website2ForAddHasIdNoZero *models.Website  // 用于add, 有id, 无0值
+var website2ForAddHasIdHasZero *models.Website // 用于add, 有id, 无0值
+var website2ForAddNoIdNoZero *models.Website   // 用于add, 无id, 无0值
+var website2ForAddNoIdHasZero *models.Website  // 用于add, 无id, 无0值
+
+// 用于 update
+var websiteForUpdateHasIdNoZero map[string]interface{}  // 用于update, 有id, 无0值
+var websiteForUpdateHasIdHasZero map[string]interface{} // 用于update, 有id, 有0值
+
+var websiteForUpdateNoIdNoZero map[string]interface{}  // 用于update, 无id, 无0值
+var websiteForUpdateNoIdHasZero map[string]interface{} // 用于update, 无id, 有0值
+
+// 用于 update batch
+var website2ForUpdateHasIdNoZero map[string]interface{}  // 用于update, 有id, 无0值
+var website2ForUpdateHasIdHasZero map[string]interface{} // 用于update, 有id, 有0值
+
+var website2ForUpdateNoIdNoZero map[string]interface{}  // 用于update, 无id, 无0值
+var website2ForUpdateNoIdHasZero map[string]interface{} // 用于update, 无id, 有0值
 
 // ---------------------------- 变量 end ----------------------------
 
 // ---------------------------- init start ----------------------------
 func init() {
-	websiteForAddWithIdNoZero = &models.Website{
+	// 用于add, 有id
+	websiteForAddHasIdNoZero = &models.Website{
 		Id:        1, // 新增时,可以指定id,gorm会插入指定id,而不是自增
 		NameId:    1,
 		Name:      "Test Website Add",
@@ -38,13 +62,136 @@ func init() {
 		IsHttps:   1,
 	}
 
-	websiteForAddWithIdHasZero = &models.Website{
+	websiteForAddHasIdHasZero = &models.Website{
 		Id:        1, // 新增时,可以指定id,gorm会插入指定id,而不是自增
 		NameId:    1,
 		Name:      "Test Website Add",
 		Url:       "http://add.com",
 		NeedProxy: 0,
 		IsHttps:   0,
+	}
+
+	// 用于add, 无id
+	websiteForAddNoIdNoZero = &models.Website{
+		NameId:    1,
+		Name:      "Test Website Add",
+		Url:       "http://add.com",
+		NeedProxy: 1,
+		IsHttps:   1,
+	}
+
+	websiteForAddNoIdHasZero = &models.Website{
+		NameId:    1,
+		Name:      "Test Website Add",
+		Url:       "http://add.com",
+		NeedProxy: 0,
+		IsHttps:   0,
+	}
+
+	// 用于add batch, 有id
+	website2ForAddHasIdNoZero = &models.Website{
+		Id:        2, // 新增时,可以指定id,gorm会插入指定id,而不是自增
+		NameId:    2,
+		Name:      "Test Website Add2",
+		Url:       "http://add.com2",
+		NeedProxy: 1,
+		IsHttps:   1,
+	}
+
+	website2ForAddHasIdHasZero = &models.Website{
+		Id:        2, // 新增时,可以指定id,gorm会插入指定id,而不是自增
+		NameId:    2,
+		Name:      "Test Website Add2",
+		Url:       "http://add.com2",
+		NeedProxy: 0,
+		IsHttps:   0,
+	}
+
+	// 用于add batch, 无id
+	website2ForAddNoIdNoZero = &models.Website{
+		NameId:    2,
+		Name:      "Test Website Add2",
+		Url:       "http://add.com2",
+		NeedProxy: 1,
+		IsHttps:   1,
+	}
+
+	website2ForAddNoIdHasZero = &models.Website{
+		NameId:    2,
+		Name:      "Test Website Add2",
+		Url:       "http://add.com2",
+		NeedProxy: 0,
+		IsHttps:   0,
+	}
+
+	// 用于update
+	websiteForUpdateHasIdNoZero = map[string]interface{}{
+		"Id":        uint(1),
+		"NameId":    1,
+		"Name":      "Updated Website",
+		"Url":       "http://updated.com",
+		"NeedProxy": 1,
+		"IsHttps":   1,
+	}
+
+	websiteForUpdateHasIdHasZero = map[string]interface{}{
+		"Id":        uint(1),
+		"NameId":    1,
+		"Name":      "Updated Website",
+		"Url":       "http://updated.com",
+		"NeedProxy": 0,
+		"IsHttps":   0,
+	}
+	// 无id
+	websiteForUpdateNoIdNoZero = map[string]interface{}{
+		"NameId":    1,
+		"Name":      "Updated Website",
+		"Url":       "http://updated.com",
+		"NeedProxy": 1,
+		"IsHttps":   1,
+	}
+
+	websiteForUpdateNoIdHasZero = map[string]interface{}{
+		"NameId":    1,
+		"Name":      "Updated Website",
+		"Url":       "http://updated.com",
+		"NeedProxy": 0,
+		"IsHttps":   0,
+	}
+
+	// 用于update batch
+	website2ForUpdateHasIdNoZero = map[string]interface{}{
+		"Id":        uint(2),
+		"NameId":    2,
+		"Name":      "Updated Website2",
+		"Url":       "http://updated.com2",
+		"NeedProxy": 1,
+		"IsHttps":   1,
+	}
+
+	website2ForUpdateHasIdHasZero = map[string]interface{}{
+		"Id":        uint(2),
+		"NameId":    2,
+		"Name":      "Updated Website2",
+		"Url":       "http://updated.com2",
+		"NeedProxy": 0,
+		"IsHttps":   0,
+	}
+	// 无id
+	website2ForUpdateNoIdNoZero = map[string]interface{}{
+		"NameId":    2,
+		"Name":      "Updated Website2",
+		"Url":       "http://updated.com2",
+		"NeedProxy": 1,
+		"IsHttps":   1,
+	}
+
+	website2ForUpdateNoIdHasZero = map[string]interface{}{
+		"NameId":    2,
+		"Name":      "Updated Website2",
+		"Url":       "http://updated.com2",
+		"NeedProxy": 0,
+		"IsHttps":   0,
 	}
 }
 
@@ -75,43 +222,88 @@ func TestLog(t *testing.T) {
 	fmt.Println("----------- 测试能不能打印日志 fmt.Println --------------")
 }
 
+// 检测函数封装, 对比Id
+// 参数1: 查到的指针 参数2: 要对比的对象指针
+// 参数3: 测试对象指针 t *testing.T  参数4:错误标题字符串，如: 【查 by nameId】中括号里内容
+func CheckHasId(query *models.Website, obj *models.Website, t *testing.T, errTitleStr string) {
+	// 判断第1个
+	if query.Id != obj.Id ||
+		query.NameId != obj.NameId ||
+		query.Name != obj.Name ||
+		query.Url != obj.Url ||
+		query.NeedProxy != obj.NeedProxy ||
+		query.IsHttps != obj.IsHttps {
+		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
+		t.Errorf(" %s 测试不通过, got= %v", errTitleStr, query)
+	}
+}
+
+// 检测函数封装, 不对比Id
+// 参数1: 查到的指针 参数2: 要对比的对象指针
+// 参数3: 测试对象指针 t *testing.T  参数4:错误标题字符串，如: 【查 by nameId】中括号里内容
+func CheckNoId(query *models.Website, obj *models.Website, t *testing.T, errTitleStr string) {
+	// 判断第1个
+	if query.NameId != obj.NameId ||
+		query.Name != obj.Name ||
+		query.Url != obj.Url ||
+		query.NeedProxy != obj.NeedProxy ||
+		query.IsHttps != obj.IsHttps {
+		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
+		t.Errorf(" %s 测试不通过, got= %v", errTitleStr, query)
+	}
+}
+
+// 检测更新函数封装, 对比Id
+// 参数1: 查到的指针 参数2: 更新参数 map[string]interface{}
+// 参数3: 测试对象指针 t *testing.T  参数4:错误标题字符串，如: 【查 by nameId】中括号里内容
+func CheckUpdateHasId(query *models.Website, obj map[string]interface{}, t *testing.T, errTitleStr string) {
+	// 判断第1个
+	if query.Id != obj["Id"] ||
+		query.NameId != obj["NameId"] ||
+		query.Name != obj["Name"] ||
+		query.Url != obj["Url"] ||
+		query.NeedProxy != obj["NeedProxy"] ||
+		query.IsHttps != obj["IsHttps"] {
+		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
+		t.Errorf(" %s 测试不通过, got= %v", errTitleStr, query)
+	}
+}
+
+// 检测更新函数封装, 不对比Id
+// 参数1: 查到的指针 参数2: 更新参数 map[string]interface{}
+// 参数3: 测试对象指针 t *testing.T  参数4:错误标题字符串，如: 【查 by nameId】中括号里内容
+func CheckUpdateNoId(query *models.Website, obj map[string]interface{}, t *testing.T, errTitleStr string) {
+	// 判断第1个
+	if query.NameId != obj["NameId"] ||
+		query.Name != obj["Name"] ||
+		query.Url != obj["Url"] ||
+		query.NeedProxy != obj["NeedProxy"] ||
+		query.IsHttps != obj["IsHttps"] {
+		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
+		t.Errorf(" %s 测试不通过, got= %v", errTitleStr, query)
+	}
+}
+
 // 增
 func TestWebsiteAdd(t *testing.T) {
 	t.Log("------------ website add ...  start ")
 
-	// 1. 测试项1
-	website := websiteForAddWithIdNoZero
+	// 1. 测试项1，有0值
+	website := websiteForAddHasIdHasZero
 	t.Log("website: ", website)
 	WebsiteAdd(website)
 
 	// var createdWebsite *models.Website // 手动写法
 	// testDB.Where("name_id = ?", website.NameId).First(&createdWebsite) // 手动写法,不调用方法
 	createdWebsite := WebsiteQueryByNameId(website.NameId) // 调用方法
-	if createdWebsite.NameId != website.NameId || createdWebsite.Name != website.Name ||
-		createdWebsite.Url != website.Url || createdWebsite.NeedProxy != website.NeedProxy ||
-		createdWebsite.IsHttps != website.IsHttps {
-		t.Errorf("【增】测试不通过, got= %v", createdWebsite)
-		panic("【增】测试不通过")
-	}
+	CheckNoId(createdWebsite, website, t, "【增】")           // 测试第1个
 
-	// 2. 测试项2 测试needProxy =1 时候
-	website2 := &models.Website{
-		// Id:        2, // 新增时，可以指定id,如果有会更新
-		NameId:    2,
-		Name:      "Test Website Add 2",
-		Url:       "http://add.com2",
-		NeedProxy: 1,
-		IsHttps:   1,
-	}
+	// 2. 测试项2 无0值, 测试needProxy =1 时候
+	website2 := websiteForAddHasIdNoZero
 	t.Log("website2: ", website2)
 	WebsiteAdd(website2)
 	createdWebsite2 := WebsiteQueryByNameId(website2.NameId) // 调用方法
-	if createdWebsite2.NameId != website2.NameId || createdWebsite2.Name != website2.Name ||
-		createdWebsite2.Url != website2.Url || createdWebsite2.NeedProxy != website2.NeedProxy ||
-		createdWebsite2.IsHttps != website2.IsHttps {
-		t.Errorf("【增】测试不通过, got= %v", createdWebsite2)
-		panic("【增】测试不通过")
-	}
+	CheckNoId(createdWebsite2, website2, t, "【增】")           // 测试第2个
 
 	t.Log("----------- website add ... end ----------------")
 }
@@ -125,24 +317,12 @@ func TestWebsiteBatchAdd(t *testing.T) {
 	// 2. 增加数据
 	// 3. 删除数据
 	// 4. 判断
-	website1 := &models.Website{
-		NameId:    1,
-		Name:      "Test Website1",
-		Url:       "http://test.com1",
-		NeedProxy: 0,
-		IsHttps:   0,
-	}
+	website := websiteForAddNoIdNoZero
+	website2 := website2ForAddNoIdHasZero
 
-	website2 := &models.Website{
-		NameId:    2,
-		Name:      "Test Website2",
-		Url:       "http://test.com2",
-		NeedProxy: 1,
-		IsHttps:   1,
-	}
-	websites := []*models.Website{website1, website2}
+	websites := []*models.Website{website, website2}
 	WebsiteBatchAdd(websites)
-	nameIds := []int{website1.NameId, website2.NameId}
+	nameIds := []int{website.NameId, website2.NameId}
 	t.Log("namedis = ", nameIds)
 	createdWebsites, err := WebsitesBatchQueryByNameId(nameIds) // 调用方法
 	if err != nil {
@@ -151,31 +331,18 @@ func TestWebsiteBatchAdd(t *testing.T) {
 	}
 
 	// 判断第1个
-	createdWebsite1 := createdWebsites[0]
+	createdWebsite := createdWebsites[0]
 	createdWebsite2 := createdWebsites[1]
-	t.Log("查询结果 createdWebsites = ", createdWebsite1, createdWebsite2)
-	t.Log("website1 = ", website1)
-	if createdWebsite1.NameId != website1.NameId || createdWebsite1.Name != website1.Name ||
-		createdWebsite1.Url != website1.Url || createdWebsite1.NeedProxy != website1.NeedProxy ||
-		createdWebsite1.IsHttps != website1.IsHttps {
-		t.Errorf("【增-批量 】测试不通过, got 1= %v", createdWebsite1)
-		panic("【增-批量 】测试不通过")
-	}
-	// 判断第2个
-	if createdWebsite2.NameId != website2.NameId || createdWebsite2.Name != website2.Name ||
-		createdWebsite2.Url != website2.Url || createdWebsite2.NeedProxy != website2.NeedProxy ||
-		createdWebsite2.IsHttps != website2.IsHttps {
-		t.Errorf("【增-批量 】测试不通过, got 2= %v", createdWebsite2)
-		panic("【增-批量 】测试不通过")
-	}
-
+	t.Log("查询结果 createdWebsites = ", createdWebsite, createdWebsite2)
+	CheckNoId(createdWebsite, website, t, "【增-批量 】")   // 判断第1个
+	CheckNoId(createdWebsite2, website2, t, "【增-批量 】") // 判断第2个
 	t.Log("------------ website batch add ... end ----------------")
 }
 
 // 删-通过id
 func TestWebsiteDeleteById(t *testing.T) {
 	t.Log("------------ website delete by id... start ----------------")
-	website := websiteForAddWithIdNoZero
+	website := websiteForAddHasIdNoZero
 	WebsiteAdd(website)
 
 	WebsiteDeleteById(website.Id)
@@ -193,7 +360,7 @@ func TestWebsiteDeleteById(t *testing.T) {
 // 删-通过 nameId
 func TestWebsiteDeleteByNameId(t *testing.T) {
 	t.Log("------------ website delete by nameId... start ----------------")
-	website := websiteForAddWithIdNoZero
+	website := websiteForAddNoIdNoZero
 	WebsiteAdd(website)
 
 	WebsiteDeleteByNameId(website.NameId)
@@ -210,7 +377,7 @@ func TestWebsiteDeleteByNameId(t *testing.T) {
 // 删-通过 其它
 func TestWebsiteDeleteByOther(t *testing.T) {
 	t.Log("------------ website delete by other... start ----------------")
-	website := websiteForAddWithIdNoZero
+	website := websiteForAddNoIdNoZero
 	WebsiteAdd(website)
 
 	WebsiteDeleteByOther("name_id", website.NameId)
@@ -233,7 +400,7 @@ func TestWebsitesBatchDeleteById(t *testing.T) {
 	// 2. 增加数据
 	// 3. 删除数据
 	// 4. 判断
-	website := websiteForAddWithIdNoZero
+	website := websiteForAddHasIdNoZero
 
 	website2 := &models.Website{
 		Id:        2,
@@ -277,21 +444,9 @@ func TestWebsitesBatchDeleteByNameId(t *testing.T) {
 	// 2. 增加数据
 	// 3. 删除数据
 	// 4. 判断
-	website := &models.Website{
-		NameId:    1,
-		Name:      "Test Website for Delete By nameId",
-		Url:       "http://delete.com id",
-		NeedProxy: 1,
-		IsHttps:   1,
-	}
+	website := websiteForAddNoIdNoZero
+	website2 := website2ForAddNoIdHasZero
 
-	website2 := &models.Website{
-		NameId:    2,
-		Name:      "Test Website for Delete By nameId 2",
-		Url:       "http://delete.com id 2",
-		NeedProxy: 0,
-		IsHttps:   0,
-	}
 	websites := []*models.Website{website, website2}
 	WebsiteBatchAdd(websites) // 添加
 
@@ -325,21 +480,9 @@ func TestWebsitesBatchDeleteByOther(t *testing.T) {
 	// 2. 增加数据
 	// 3. 删除数据
 	// 4. 判断
-	website := &models.Website{
-		NameId:    1,
-		Name:      "Test Website for Delete By other",
-		Url:       "http://delete.com id",
-		NeedProxy: 1,
-		IsHttps:   1,
-	}
+	website := websiteForAddNoIdNoZero
+	website2 := website2ForAddNoIdHasZero
 
-	website2 := &models.Website{
-		NameId:    2,
-		Name:      "Test Website for Delete By other 2",
-		Url:       "http://delete.com id 2",
-		NeedProxy: 0,
-		IsHttps:   0,
-	}
 	websites := []*models.Website{website, website2}
 	WebsiteBatchAdd(websites) // 添加
 
@@ -373,35 +516,24 @@ func TestWebsiteUpdateById(t *testing.T) {
 	// 2. 增加数据
 	// 3. 修改数据
 	// 4. 判断
-	website := &models.Website{
-		Id:        1,
-		NameId:    1,
-		Name:      "Test Website for Update",
-		Url:       "http://update.com",
-		NeedProxy: 1,
-		IsHttps:   1,
-	}
+	website := websiteForAddHasIdNoZero
 	WebsiteAdd(website)
 
-	updates := map[string]interface{}{
-		"NameId":    1,
-		"Name":      "Updated Website",
-		"Url":       "http://updated.com",
-		"NeedProxy": 0,
-		"IsHttps":   0,
-	}
+	updates := websiteForUpdateHasIdHasZero
 	WebsiteUpdateById(website.Id, updates)
 
 	// 检查
 	updatedWebsite := WebsiteQueryById(website.Id)
 	t.Log("更新后 原始数据 updates =", updates)
 	t.Log("更新后 查的 updatedWebsite =", updatedWebsite)
-	if updatedWebsite.Name != updates["Name"] ||
-		updatedWebsite.Url != updates["Url"] ||
-		updatedWebsite.NeedProxy != updates["NeedProxy"] ||
-		updatedWebsite.IsHttps != updates["IsHttps"] {
-		t.Errorf("【改 by id 】测试不通过, got= %v", updatedWebsite)
-	}
+	t.Log("更新后 查的 updatedWebsite.== =", updatedWebsite.Id == updates["Id"]) // 得转成uint
+	t.Log("更新后 查的 updatedWebsite.== =", updatedWebsite.IsHttps == updates["IsHttps"])
+	t.Log("更新后 查的 updatedWebsite.== =", updatedWebsite.NameId == updates["NameId"])
+	t.Log("更新后 查的 updatedWebsite.== =", updatedWebsite.Name == updates["Name"])
+	t.Log("更新后 查的 updatedWebsite.== =", updatedWebsite.Url == updates["Url"])
+	t.Log("更新后 查的 updatedWebsite.== =", updatedWebsite.NeedProxy == updates["NeedProxy"])
+	t.Log("更新后 查的 updatedWebsite.== =", updatedWebsite.IsHttps == updates["IsHttps"])
+	CheckUpdateHasId(updatedWebsite, updates, t, "【改 by id 】")
 	t.Log("------------ website update by id ... end ")
 }
 
@@ -414,34 +546,17 @@ func TestWebsiteUpdateByNameId(t *testing.T) {
 	// 2. 增加数据
 	// 3. 修改数据
 	// 4. 判断
-	website := &models.Website{
-		NameId:    1,
-		Name:      "Test Website for Update nameId ",
-		Url:       "http://update.com",
-		NeedProxy: 1,
-		IsHttps:   1,
-	}
+	website := websiteForAddNoIdNoZero
 	WebsiteAdd(website)
 
-	updates := map[string]interface{}{
-		"NameId":    1,
-		"Name":      "Updated Website",
-		"Url":       "http://updated.com",
-		"NeedProxy": 0,
-		"IsHttps":   0,
-	}
+	updates := websiteForUpdateNoIdHasZero
 	WebsiteUpdateByNameId(website.NameId, updates)
 
 	// 检查
 	updatedWebsite := WebsiteQueryByNameId(website.NameId)
 	t.Log("更新后 原始数据 updates =", updates)
 	t.Log("更新后 查的 updatedWebsite =", updatedWebsite)
-	if updatedWebsite.Name != updates["Name"] ||
-		updatedWebsite.Url != updates["Url"] ||
-		updatedWebsite.NeedProxy != updates["NeedProxy"] ||
-		updatedWebsite.IsHttps != updates["IsHttps"] {
-		t.Errorf("【改 by nameId 】测试不通过, got= %v", updatedWebsite)
-	}
+	CheckUpdateNoId(updatedWebsite, updates, t, "【改 by nameId 】")
 	t.Log("------------ website update by nameId ... end ")
 }
 
@@ -454,34 +569,17 @@ func TestWebsiteUpdateByOther(t *testing.T) {
 	// 2. 增加数据
 	// 3. 修改数据
 	// 4. 判断
-	website := &models.Website{
-		NameId:    1,
-		Name:      "Test Website for Update other ",
-		Url:       "http://update.com",
-		NeedProxy: 1,
-		IsHttps:   1,
-	}
+	website := websiteForAddNoIdNoZero
 	WebsiteAdd(website)
 
-	updates := map[string]interface{}{
-		"NameId":    1,
-		"Name":      "Updated Website",
-		"Url":       "http://updated.com",
-		"NeedProxy": 0,
-		"IsHttps":   0,
-	}
+	updates := websiteForUpdateNoIdHasZero
 	WebsiteUpdateByOther("name_id", website.NameId, updates)
 
 	// 检查
 	updatedWebsite := WebsiteQueryByOther("name_id", website.NameId)
 	t.Log("更新后 原始数据 updates =", updates)
 	t.Log("更新后 查的 updatedWebsite =", updatedWebsite)
-	if updatedWebsite.Name != updates["Name"] ||
-		updatedWebsite.Url != updates["Url"] ||
-		updatedWebsite.NeedProxy != updates["NeedProxy"] ||
-		updatedWebsite.IsHttps != updates["IsHttps"] {
-		t.Errorf("【改 by other 】测试不通过, got= %v", updatedWebsite)
-	}
+	CheckUpdateNoId(updatedWebsite, updates, t, "【改 by other 】")
 	t.Log("------------ website update by other ... end ")
 }
 
@@ -494,43 +592,13 @@ func TestWebsiteBatchUpdateById(t *testing.T) {
 	// 2. 增加数据
 	// 3. 修改数据
 	// 4. 判断
-	website := &models.Website{
-		Id:        1,
-		NameId:    1,
-		Name:      "Test Website for Update",
-		Url:       "http://update.com",
-		NeedProxy: 1,
-		IsHttps:   1,
-	}
-
-	website2 := &models.Website{
-		Id:        2,
-		NameId:    2,
-		Name:      "Test Website for Update 2",
-		Url:       "http://update.com2",
-		NeedProxy: 1,
-		IsHttps:   1,
-	}
+	website := websiteForAddHasIdNoZero
+	website2 := website2ForAddNoIdHasZero
 	websites := []*models.Website{website, website2}
 	WebsiteBatchAdd(websites)
 
-	updates := map[string]interface{}{
-		"Id":        1,
-		"NameId":    1,
-		"Name":      "Updated Website",
-		"Url":       "http://updated.com",
-		"NeedProxy": 0,
-		"IsHttps":   0,
-	}
-
-	updates2 := map[string]interface{}{
-		"Id":        2,
-		"NameId":    2,
-		"Name":      "Updated Website2",
-		"Url":       "http://updated.com2",
-		"NeedProxy": 0,
-		"IsHttps":   0,
-	}
+	updates := websiteForUpdateHasIdNoZero
+	updates2 := website2ForUpdateHasIdHasZero
 	updatesArr := []map[string]interface{}{updates, updates2}
 	WebsitesBatchUpdateById(updatesArr)
 
@@ -543,20 +611,8 @@ func TestWebsiteBatchUpdateById(t *testing.T) {
 
 	updatedWebsite := websites[0]
 	updatedWebsite2 := websites[1]
-	// 检测第1个
-	if updatedWebsite.Name != updates["Name"] ||
-		updatedWebsite.Url != updates["Url"] ||
-		updatedWebsite.NeedProxy != updates["NeedProxy"] ||
-		updatedWebsite.IsHttps != updates["IsHttps"] {
-		t.Errorf("【改 by id 】测试不通过, got= %v", updatedWebsite)
-	}
-	// 检测第2个
-	if updatedWebsite2.Name != updates2["Name"] ||
-		updatedWebsite2.Url != updates2["Url"] ||
-		updatedWebsite2.NeedProxy != updates2["NeedProxy"] ||
-		updatedWebsite2.IsHttps != updates2["IsHttps"] {
-		t.Errorf("【改 by id 】测试不通过, got= %v", updatedWebsite)
-	}
+	CheckUpdateHasId(updatedWebsite, updates, t, "【改 by id 】")   // 检测第1个
+	CheckUpdateHasId(updatedWebsite2, updates2, t, "【改 by id 】") // 检测第1个
 	t.Log("------------ website batch update by id ... end ")
 }
 
@@ -569,41 +625,13 @@ func TestWebsiteBatchUpdateByNameId(t *testing.T) {
 	// 2. 增加数据
 	// 3. 修改数据
 	// 4. 判断
-	website := &models.Website{
-		Id:        1,
-		NameId:    1,
-		Name:      "Test Website for Update",
-		Url:       "http://update.com",
-		NeedProxy: 1,
-		IsHttps:   1,
-	}
-
-	website2 := &models.Website{
-		Id:        2,
-		NameId:    2,
-		Name:      "Test Website for Update 2",
-		Url:       "http://update.com2",
-		NeedProxy: 1,
-		IsHttps:   1,
-	}
+	website := websiteForAddNoIdNoZero
+	website2 := website2ForAddNoIdHasZero
 	websites := []*models.Website{website, website2}
 	WebsiteBatchAdd(websites)
 
-	updates := map[string]interface{}{
-		"NameId":    1,
-		"Name":      "Updated Website",
-		"Url":       "http://updated.com",
-		"NeedProxy": 0,
-		"IsHttps":   0,
-	}
-
-	updates2 := map[string]interface{}{
-		"NameId":    2,
-		"Name":      "Updated Website2",
-		"Url":       "http://updated.com2",
-		"NeedProxy": 0,
-		"IsHttps":   0,
-	}
+	updates := websiteForUpdateNoIdNoZero
+	updates2 := website2ForUpdateNoIdHasZero
 	updatesArr := []map[string]interface{}{updates, updates2}
 	WebsitesBatchUpdateByNameId(updatesArr)
 
@@ -619,20 +647,8 @@ func TestWebsiteBatchUpdateByNameId(t *testing.T) {
 
 	updatedWebsite := websites[0]
 	updatedWebsite2 := websites[1]
-	// 检测第1个
-	if updatedWebsite.Name != updates["Name"] ||
-		updatedWebsite.Url != updates["Url"] ||
-		updatedWebsite.NeedProxy != updates["NeedProxy"] ||
-		updatedWebsite.IsHttps != updates["IsHttps"] {
-		t.Errorf("【改 by nameId 】测试不通过, got= %v", updatedWebsite)
-	}
-	// 检测第2个
-	if updatedWebsite2.Name != updates2["Name"] ||
-		updatedWebsite2.Url != updates2["Url"] ||
-		updatedWebsite2.NeedProxy != updates2["NeedProxy"] ||
-		updatedWebsite2.IsHttps != updates2["IsHttps"] {
-		t.Errorf("【改 by nameId 】测试不通过, got= %v", updatedWebsite)
-	}
+	CheckUpdateNoId(updatedWebsite, updates, t, "【改 by nameId 】")   // 检测第1个
+	CheckUpdateNoId(updatedWebsite2, updates2, t, "【改 by nameId 】") // 检测第1个
 	t.Log("------------ website batch update by nameId ... end ")
 }
 
@@ -645,41 +661,13 @@ func TestWebsiteBatchUpdateByOther(t *testing.T) {
 	// 2. 增加数据
 	// 3. 修改数据
 	// 4. 判断
-	website := &models.Website{
-		Id:        1,
-		NameId:    1,
-		Name:      "Test Website for Update",
-		Url:       "http://update.com",
-		NeedProxy: 1,
-		IsHttps:   1,
-	}
-
-	website2 := &models.Website{
-		Id:        2,
-		NameId:    2,
-		Name:      "Test Website for Update 2",
-		Url:       "http://update.com2",
-		NeedProxy: 1,
-		IsHttps:   1,
-	}
+	website := websiteForAddNoIdNoZero
+	website2 := website2ForAddNoIdHasZero
 	websites := []*models.Website{website, website2}
 	WebsiteBatchAdd(websites)
 
-	updates := map[string]interface{}{
-		"NameId":    1,
-		"Name":      "Updated Website",
-		"Url":       "http://updated.com",
-		"NeedProxy": 0,
-		"IsHttps":   0,
-	}
-
-	updates2 := map[string]interface{}{
-		"NameId":    2,
-		"Name":      "Updated Website2",
-		"Url":       "http://updated.com2",
-		"NeedProxy": 0,
-		"IsHttps":   0,
-	}
+	updates := websiteForUpdateNoIdNoZero
+	updates2 := website2ForUpdateNoIdHasZero
 	updatesArr := []map[string]interface{}{updates, updates2}
 	WebsitesBatchUpdateByOther(updatesArr)
 
@@ -695,20 +683,8 @@ func TestWebsiteBatchUpdateByOther(t *testing.T) {
 
 	updatedWebsite := websites[0]
 	updatedWebsite2 := websites[1]
-	// 检测第1个
-	if updatedWebsite.Name != updates["Name"] ||
-		updatedWebsite.Url != updates["Url"] ||
-		updatedWebsite.NeedProxy != updates["NeedProxy"] ||
-		updatedWebsite.IsHttps != updates["IsHttps"] {
-		t.Errorf("【改 by other 】测试不通过, got= %v", updatedWebsite)
-	}
-	// 检测第2个
-	if updatedWebsite2.Name != updates2["Name"] ||
-		updatedWebsite2.Url != updates2["Url"] ||
-		updatedWebsite2.NeedProxy != updates2["NeedProxy"] ||
-		updatedWebsite2.IsHttps != updates2["IsHttps"] {
-		t.Errorf("【改 by other 】测试不通过, got= %v", updatedWebsite)
-	}
+	CheckUpdateNoId(updatedWebsite, updates, t, "【改 by other 】")   // 检测第1个
+	CheckUpdateNoId(updatedWebsite2, updates2, t, "【改 by other 】") // 检测第1个
 	t.Log("------------ website batch update by other ... end ")
 }
 
@@ -718,25 +694,11 @@ func TestWebsiteQueryById(t *testing.T) {
 	// 1. 清空数据
 	TruncateTable(testDB, &models.Website{}) // 方式1： truncate table
 
-	website := &models.Website{
-		Id:        1,
-		NameId:    1,
-		Name:      "Test Website for Query",
-		Url:       "http://query.com",
-		NeedProxy: 1,
-		IsHttps:   1,
-	}
+	website := websiteForAddHasIdNoZero
 	WebsiteAdd(website)
 
 	queryWebsite := WebsiteQueryById(website.Id)
-	if queryWebsite.Id != website.Id ||
-		queryWebsite.NameId != website.NameId ||
-		queryWebsite.Name != website.Name ||
-		queryWebsite.Url != website.Url ||
-		queryWebsite.NeedProxy != website.NeedProxy ||
-		queryWebsite.IsHttps != website.IsHttps {
-		t.Errorf("【查 by id 】测试不通过, got= %v", queryWebsite)
-	}
+	CheckHasId(queryWebsite, website, t, "【 查 by id 】")
 	t.Log("------------ website query by id ... start ")
 }
 
@@ -746,23 +708,11 @@ func TestWebsiteQueryByNameId(t *testing.T) {
 	// 1. 清空数据
 	TruncateTable(testDB, &models.Website{}) // 方式1： truncate table
 
-	website := &models.Website{
-		NameId:    1,
-		Name:      "Test Website for Query",
-		Url:       "http://query.com",
-		NeedProxy: 1,
-		IsHttps:   1,
-	}
+	website := websiteForAddNoIdNoZero
 	WebsiteAdd(website)
 
 	queryWebsite := WebsiteQueryByNameId(website.NameId)
-	if queryWebsite.NameId != website.NameId ||
-		queryWebsite.Name != website.Name ||
-		queryWebsite.Url != website.Url ||
-		queryWebsite.NeedProxy != website.NeedProxy ||
-		queryWebsite.IsHttps != website.IsHttps {
-		t.Errorf("【查 by nameId 】测试不通过, got= %v", queryWebsite)
-	}
+	CheckNoId(queryWebsite, website, t, "【 查 by nameId 】")
 	t.Log("------------ website query by nameId ... start ")
 }
 
@@ -772,23 +722,11 @@ func TestWebsiteQueryByOther(t *testing.T) {
 	// 1. 清空数据
 	TruncateTable(testDB, &models.Website{}) // 方式1： truncate table
 
-	website := &models.Website{
-		NameId:    1,
-		Name:      "Test Website for Query",
-		Url:       "http://query.com",
-		NeedProxy: 1,
-		IsHttps:   1,
-	}
+	website := websiteForAddNoIdNoZero
 	WebsiteAdd(website)
 
 	queryWebsite := WebsiteQueryByOther("name_id", website.NameId)
-	if queryWebsite.NameId != website.NameId ||
-		queryWebsite.Name != website.Name ||
-		queryWebsite.Url != website.Url ||
-		queryWebsite.NeedProxy != website.NeedProxy ||
-		queryWebsite.IsHttps != website.IsHttps {
-		t.Errorf("【查 by other 】测试不通过, got= %v", queryWebsite)
-	}
+	CheckNoId(queryWebsite, website, t, "【 查 by other 】")
 	t.Log("------------ website query by other ... start ")
 }
 
@@ -798,22 +736,8 @@ func TestWebsiteBatchQueryById(t *testing.T) {
 	// 1. 清空数据
 	TruncateTable(testDB, &models.Website{}) // 方式1： truncate table
 
-	website := &models.Website{
-		Id:        1,
-		NameId:    1,
-		Name:      "Test Website for Query",
-		Url:       "http://query.com",
-		NeedProxy: 1,
-		IsHttps:   1,
-	}
-	website2 := &models.Website{
-		Id:        2,
-		NameId:    2,
-		Name:      "Test Website for Query2",
-		Url:       "http://query.com2",
-		NeedProxy: 0,
-		IsHttps:   0,
-	}
+	website := websiteForAddHasIdNoZero
+	website2 := website2ForAddHasIdHasZero
 	websites := []*models.Website{website, website2}
 	WebsiteBatchAdd(websites)
 
@@ -825,24 +749,8 @@ func TestWebsiteBatchQueryById(t *testing.T) {
 
 	queryWebsite := queryWebsites[0]
 	queryWebsite2 := queryWebsites[1]
-	// 判断第1个
-	if queryWebsite.Id != website.Id ||
-		queryWebsite.NameId != website.NameId ||
-		queryWebsite.Name != website.Name ||
-		queryWebsite.Url != website.Url ||
-		queryWebsite.NeedProxy != website.NeedProxy ||
-		queryWebsite.IsHttps != website.IsHttps {
-		t.Errorf("【查 by id 】测试不通过, got= %v", queryWebsite)
-	}
-	// 判断第2个
-	if queryWebsite2.Id != website2.Id ||
-		queryWebsite2.NameId != website2.NameId ||
-		queryWebsite2.Name != website2.Name ||
-		queryWebsite2.Url != website2.Url ||
-		queryWebsite2.NeedProxy != website2.NeedProxy ||
-		queryWebsite2.IsHttps != website2.IsHttps {
-		t.Errorf("【查 by id 】测试不通过, got= %v", queryWebsite)
-	}
+	CheckHasId(queryWebsite, website, t, "【 查 by id 】")   // 判断第1个
+	CheckHasId(queryWebsite2, website2, t, "【 查 by id 】") // 判断第2个
 	t.Log("------------ website batch query by id ... start ")
 }
 
@@ -852,20 +760,8 @@ func TestWebsiteBatchQueryByNameId(t *testing.T) {
 	// 1. 清空数据
 	TruncateTable(testDB, &models.Website{}) // 方式1： truncate table
 
-	website := &models.Website{
-		NameId:    1,
-		Name:      "Test Website for Query",
-		Url:       "http://query.com",
-		NeedProxy: 1,
-		IsHttps:   1,
-	}
-	website2 := &models.Website{
-		NameId:    2,
-		Name:      "Test Website for Query2",
-		Url:       "http://query.com2",
-		NeedProxy: 0,
-		IsHttps:   0,
-	}
+	website := websiteForAddNoIdNoZero
+	website2 := website2ForAddNoIdHasZero
 	websites := []*models.Website{website, website2}
 	WebsiteBatchAdd(websites)
 
@@ -877,24 +773,8 @@ func TestWebsiteBatchQueryByNameId(t *testing.T) {
 
 	queryWebsite := queryWebsites[0]
 	queryWebsite2 := queryWebsites[1]
-	// 判断第1个
-	if queryWebsite.Id != website.Id ||
-		queryWebsite.NameId != website.NameId ||
-		queryWebsite.Name != website.Name ||
-		queryWebsite.Url != website.Url ||
-		queryWebsite.NeedProxy != website.NeedProxy ||
-		queryWebsite.IsHttps != website.IsHttps {
-		t.Errorf("【查 by nameId 】测试不通过, got= %v", queryWebsite)
-	}
-	// 判断第2个
-	if queryWebsite2.Id != website2.Id ||
-		queryWebsite2.NameId != website2.NameId ||
-		queryWebsite2.Name != website2.Name ||
-		queryWebsite2.Url != website2.Url ||
-		queryWebsite2.NeedProxy != website2.NeedProxy ||
-		queryWebsite2.IsHttps != website2.IsHttps {
-		t.Errorf("【查 by nameId 】测试不通过, got= %v", queryWebsite)
-	}
+	CheckNoId(queryWebsite, website, t, "【 查 by nameId 】")   // 判断第1个
+	CheckNoId(queryWebsite2, website2, t, "【 查 by nameId 】") // 判断第2个
 	t.Log("------------ website batch query by nameId ... start ")
 }
 
@@ -904,20 +784,8 @@ func TestWebsiteBatchQueryByOther(t *testing.T) {
 	// 1. 清空数据
 	TruncateTable(testDB, &models.Website{}) // 方式1： truncate table
 
-	website := &models.Website{
-		NameId:    1,
-		Name:      "Test Website for Query",
-		Url:       "http://query.com",
-		NeedProxy: 1,
-		IsHttps:   1,
-	}
-	website2 := &models.Website{
-		NameId:    2,
-		Name:      "Test Website for Query2",
-		Url:       "http://query.com2",
-		NeedProxy: 0,
-		IsHttps:   0,
-	}
+	website := websiteForAddNoIdNoZero
+	website2 := website2ForAddNoIdHasZero
 	websites := []*models.Website{website, website2}
 	WebsiteBatchAdd(websites)
 
@@ -929,23 +797,7 @@ func TestWebsiteBatchQueryByOther(t *testing.T) {
 
 	queryWebsite := queryWebsites[0]
 	queryWebsite2 := queryWebsites[1]
-	// 判断第1个
-	if queryWebsite.Id != website.Id ||
-		queryWebsite.NameId != website.NameId ||
-		queryWebsite.Name != website.Name ||
-		queryWebsite.Url != website.Url ||
-		queryWebsite.NeedProxy != website.NeedProxy ||
-		queryWebsite.IsHttps != website.IsHttps {
-		t.Errorf("【查 by nameId 】测试不通过, got= %v", queryWebsite)
-	}
-	// 判断第2个
-	if queryWebsite2.Id != website2.Id ||
-		queryWebsite2.NameId != website2.NameId ||
-		queryWebsite2.Name != website2.Name ||
-		queryWebsite2.Url != website2.Url ||
-		queryWebsite2.NeedProxy != website2.NeedProxy ||
-		queryWebsite2.IsHttps != website2.IsHttps {
-		t.Errorf("【查 by nameId 】测试不通过, got= %v", queryWebsite)
-	}
+	CheckNoId(queryWebsite, website, t, "【 查 by other 】")   // 判断第1个
+	CheckNoId(queryWebsite2, website2, t, "【 查 by other 】") // 判断第2个
 	t.Log("------------ website batch query by other ... start ")
 }
