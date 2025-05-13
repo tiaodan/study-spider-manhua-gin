@@ -6,7 +6,6 @@ import (
 	"study-spider-manhua-gin/models"
 	"testing"
 
-	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
@@ -199,17 +198,10 @@ func init() {
 // 测试主函数
 func TestMain(m *testing.M) {
 	// 使用 MySQL 数据库进行测试
-	var err error
-	dsn := "root:password@tcp(127.0.0.1:3306)/comic_test?charset=utf8mb4&parseTime=True&loc=Local"
-	testDB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
-
-	if err != nil {
-		fmt.Println("----------- 连接测试数据失败 test database: ", err)
-		panic(err)
-	}
 
 	// 设置全局 db 变量，防止调用方法DB.xx报错
-	DB = testDB
+	InitDB("mysql", "comic_test", "root", "password")
+	testDB = DB
 
 	// 自动迁移表结构
 	testDB.AutoMigrate(&models.Website{})
