@@ -1,12 +1,8 @@
 package db
 
 import (
-	"fmt"
-	"os"
 	"study-spider-manhua-gin/models"
 	"testing"
-
-	"gorm.io/gorm"
 )
 
 // 所有方法思路
@@ -16,10 +12,6 @@ import (
 // 4. 检测
 
 // ---------------------------- 变量 start ----------------------------
-// 全局变量
-
-// 局部变量
-var testDB *gorm.DB
 
 // 用于 add
 var websiteForAddHasIdNoZero *models.Website  // 用于add, 有id, 无0值
@@ -195,29 +187,11 @@ func init() {
 }
 
 // ---------------------------- init end ----------------------------
-// 测试主函数
-func TestMain(m *testing.M) {
-	// 使用 MySQL 数据库进行测试
-
-	// 设置全局 db 变量，防止调用方法DB.xx报错
-	InitDB("mysql", "comic_test", "root", "password")
-	testDB = DB
-
-	// 自动迁移表结构
-	testDB.AutoMigrate(&models.Website{})
-
-	// 运行测试
-	os.Exit(m.Run())
-}
-func TestLog(t *testing.T) {
-	// t.Log("----------- 测试能不能打印日志 --------------")
-	fmt.Println("----------- 测试能不能打印日志 fmt.Println --------------")
-}
 
 // 检测函数封装, 对比Id
 // 参数1: 查到的指针 参数2: 要对比的对象指针
 // 参数3: 测试对象指针 t *testing.T  参数4:错误标题字符串，如: 【查 by nameId】中括号里内容
-func CheckHasId(query *models.Website, obj *models.Website, t *testing.T, errTitleStr string) {
+func WebsiteCheckHasId(query *models.Website, obj *models.Website, t *testing.T, errTitleStr string) {
 	// 判断第1个
 	if query.Id != obj.Id ||
 		query.NameId != obj.NameId ||
@@ -233,7 +207,7 @@ func CheckHasId(query *models.Website, obj *models.Website, t *testing.T, errTit
 // 检测函数封装, 不对比Id
 // 参数1: 查到的指针 参数2: 要对比的对象指针
 // 参数3: 测试对象指针 t *testing.T  参数4:错误标题字符串，如: 【查 by nameId】中括号里内容
-func CheckNoId(query *models.Website, obj *models.Website, t *testing.T, errTitleStr string) {
+func WebsiteCheckNoId(query *models.Website, obj *models.Website, t *testing.T, errTitleStr string) {
 	// 判断第1个
 	if query.NameId != obj.NameId ||
 		query.Name != obj.Name ||
@@ -248,7 +222,7 @@ func CheckNoId(query *models.Website, obj *models.Website, t *testing.T, errTitl
 // 检测更新函数封装, 对比Id
 // 参数1: 查到的指针 参数2: 更新参数 map[string]interface{}
 // 参数3: 测试对象指针 t *testing.T  参数4:错误标题字符串，如: 【查 by nameId】中括号里内容
-func CheckUpdateHasId(query *models.Website, obj map[string]interface{}, t *testing.T, errTitleStr string) {
+func WebsiteCheckUpdateHasId(query *models.Website, obj map[string]interface{}, t *testing.T, errTitleStr string) {
 	// 判断第1个
 	if query.Id != obj["Id"] ||
 		query.NameId != obj["NameId"] ||
@@ -264,7 +238,7 @@ func CheckUpdateHasId(query *models.Website, obj map[string]interface{}, t *test
 // 检测更新函数封装, 不对比Id
 // 参数1: 查到的指针 参数2: 更新参数 map[string]interface{}
 // 参数3: 测试对象指针 t *testing.T  参数4:错误标题字符串，如: 【查 by nameId】中括号里内容
-func CheckUpdateNoId(query *models.Website, obj map[string]interface{}, t *testing.T, errTitleStr string) {
+func WebsiteCheckUpdateNoId(query *models.Website, obj map[string]interface{}, t *testing.T, errTitleStr string) {
 	// 判断第1个
 	if query.NameId != obj["NameId"] ||
 		query.Name != obj["Name"] ||
@@ -288,14 +262,14 @@ func TestWebsiteAdd(t *testing.T) {
 	// var createdWebsite *models.Website // 手动写法
 	// testDB.Where("name_id = ?", website.NameId).First(&createdWebsite) // 手动写法,不调用方法
 	createdWebsite := WebsiteQueryByNameId(website.NameId) // 调用方法
-	CheckNoId(createdWebsite, website, t, "【增】")           // 测试第1个
+	WebsiteCheckNoId(createdWebsite, website, t, "【增】")    // 测试第1个
 
 	// 2. 测试项2 无0值, 测试needProxy =1 时候
 	website2 := websiteForAddHasIdNoZero
 	t.Log("website2: ", website2)
 	WebsiteAdd(website2)
 	createdWebsite2 := WebsiteQueryByNameId(website2.NameId) // 调用方法
-	CheckNoId(createdWebsite2, website2, t, "【增】")           // 测试第2个
+	WebsiteCheckNoId(createdWebsite2, website2, t, "【增】")    // 测试第2个
 
 	t.Log("----------- website add ... end ----------------")
 }
@@ -326,8 +300,8 @@ func TestWebsiteBatchAdd(t *testing.T) {
 	createdWebsite := createdWebsites[0]
 	createdWebsite2 := createdWebsites[1]
 	t.Log("查询结果 createdWebsites = ", createdWebsite, createdWebsite2)
-	CheckNoId(createdWebsite, website, t, "【增-批量 】")   // 判断第1个
-	CheckNoId(createdWebsite2, website2, t, "【增-批量 】") // 判断第2个
+	WebsiteCheckNoId(createdWebsite, website, t, "【增-批量 】")   // 判断第1个
+	WebsiteCheckNoId(createdWebsite2, website2, t, "【增-批量 】") // 判断第2个
 	t.Log("------------ website batch add ... end ----------------")
 }
 
@@ -525,7 +499,7 @@ func TestWebsiteUpdateById(t *testing.T) {
 	t.Log("更新后 查的 updatedWebsite.== =", updatedWebsite.Url == updates["Url"])
 	t.Log("更新后 查的 updatedWebsite.== =", updatedWebsite.NeedProxy == updates["NeedProxy"])
 	t.Log("更新后 查的 updatedWebsite.== =", updatedWebsite.IsHttps == updates["IsHttps"])
-	CheckUpdateHasId(updatedWebsite, updates, t, "【改 by id 】")
+	WebsiteCheckUpdateHasId(updatedWebsite, updates, t, "【改 by id 】")
 	t.Log("------------ website update by id ... end ")
 }
 
@@ -548,7 +522,7 @@ func TestWebsiteUpdateByNameId(t *testing.T) {
 	updatedWebsite := WebsiteQueryByNameId(website.NameId)
 	t.Log("更新后 原始数据 updates =", updates)
 	t.Log("更新后 查的 updatedWebsite =", updatedWebsite)
-	CheckUpdateNoId(updatedWebsite, updates, t, "【改 by nameId 】")
+	WebsiteCheckUpdateNoId(updatedWebsite, updates, t, "【改 by nameId 】")
 	t.Log("------------ website update by nameId ... end ")
 }
 
@@ -571,7 +545,7 @@ func TestWebsiteUpdateByOther(t *testing.T) {
 	updatedWebsite := WebsiteQueryByOther("name_id", website.NameId)
 	t.Log("更新后 原始数据 updates =", updates)
 	t.Log("更新后 查的 updatedWebsite =", updatedWebsite)
-	CheckUpdateNoId(updatedWebsite, updates, t, "【改 by other 】")
+	WebsiteCheckUpdateNoId(updatedWebsite, updates, t, "【改 by other 】")
 	t.Log("------------ website update by other ... end ")
 }
 
@@ -603,8 +577,8 @@ func TestWebsiteBatchUpdateById(t *testing.T) {
 
 	updatedWebsite := websites[0]
 	updatedWebsite2 := websites[1]
-	CheckUpdateHasId(updatedWebsite, updates, t, "【改 by id 】")   // 检测第1个
-	CheckUpdateHasId(updatedWebsite2, updates2, t, "【改 by id 】") // 检测第1个
+	WebsiteCheckUpdateHasId(updatedWebsite, updates, t, "【改 by id 】")   // 检测第1个
+	WebsiteCheckUpdateHasId(updatedWebsite2, updates2, t, "【改 by id 】") // 检测第1个
 	t.Log("------------ website batch update by id ... end ")
 }
 
@@ -639,8 +613,8 @@ func TestWebsiteBatchUpdateByNameId(t *testing.T) {
 
 	updatedWebsite := websites[0]
 	updatedWebsite2 := websites[1]
-	CheckUpdateNoId(updatedWebsite, updates, t, "【改 by nameId 】")   // 检测第1个
-	CheckUpdateNoId(updatedWebsite2, updates2, t, "【改 by nameId 】") // 检测第1个
+	WebsiteCheckUpdateNoId(updatedWebsite, updates, t, "【改 by nameId 】")   // 检测第1个
+	WebsiteCheckUpdateNoId(updatedWebsite2, updates2, t, "【改 by nameId 】") // 检测第1个
 	t.Log("------------ website batch update by nameId ... end ")
 }
 
@@ -675,8 +649,8 @@ func TestWebsiteBatchUpdateByOther(t *testing.T) {
 
 	updatedWebsite := websites[0]
 	updatedWebsite2 := websites[1]
-	CheckUpdateNoId(updatedWebsite, updates, t, "【改 by other 】")   // 检测第1个
-	CheckUpdateNoId(updatedWebsite2, updates2, t, "【改 by other 】") // 检测第1个
+	WebsiteCheckUpdateNoId(updatedWebsite, updates, t, "【改 by other 】")   // 检测第1个
+	WebsiteCheckUpdateNoId(updatedWebsite2, updates2, t, "【改 by other 】") // 检测第1个
 	t.Log("------------ website batch update by other ... end ")
 }
 
@@ -690,7 +664,7 @@ func TestWebsiteQueryById(t *testing.T) {
 	WebsiteAdd(website)
 
 	queryWebsite := WebsiteQueryById(website.Id)
-	CheckHasId(queryWebsite, website, t, "【 查 by id 】")
+	WebsiteCheckHasId(queryWebsite, website, t, "【 查 by id 】")
 	t.Log("------------ website query by id ... start ")
 }
 
@@ -704,7 +678,7 @@ func TestWebsiteQueryByNameId(t *testing.T) {
 	WebsiteAdd(website)
 
 	queryWebsite := WebsiteQueryByNameId(website.NameId)
-	CheckNoId(queryWebsite, website, t, "【 查 by nameId 】")
+	WebsiteCheckNoId(queryWebsite, website, t, "【 查 by nameId 】")
 	t.Log("------------ website query by nameId ... start ")
 }
 
@@ -718,7 +692,7 @@ func TestWebsiteQueryByOther(t *testing.T) {
 	WebsiteAdd(website)
 
 	queryWebsite := WebsiteQueryByOther("name_id", website.NameId)
-	CheckNoId(queryWebsite, website, t, "【 查 by other 】")
+	WebsiteCheckNoId(queryWebsite, website, t, "【 查 by other 】")
 	t.Log("------------ website query by other ... start ")
 }
 
@@ -741,8 +715,8 @@ func TestWebsiteBatchQueryById(t *testing.T) {
 
 	queryWebsite := queryWebsites[0]
 	queryWebsite2 := queryWebsites[1]
-	CheckHasId(queryWebsite, website, t, "【 查 by id 】")   // 判断第1个
-	CheckHasId(queryWebsite2, website2, t, "【 查 by id 】") // 判断第2个
+	WebsiteCheckHasId(queryWebsite, website, t, "【 查 by id 】")   // 判断第1个
+	WebsiteCheckHasId(queryWebsite2, website2, t, "【 查 by id 】") // 判断第2个
 	t.Log("------------ website batch query by id ... start ")
 }
 
@@ -765,8 +739,8 @@ func TestWebsiteBatchQueryByNameId(t *testing.T) {
 
 	queryWebsite := queryWebsites[0]
 	queryWebsite2 := queryWebsites[1]
-	CheckNoId(queryWebsite, website, t, "【 查 by nameId 】")   // 判断第1个
-	CheckNoId(queryWebsite2, website2, t, "【 查 by nameId 】") // 判断第2个
+	WebsiteCheckNoId(queryWebsite, website, t, "【 查 by nameId 】")   // 判断第1个
+	WebsiteCheckNoId(queryWebsite2, website2, t, "【 查 by nameId 】") // 判断第2个
 	t.Log("------------ website batch query by nameId ... start ")
 }
 
@@ -789,7 +763,7 @@ func TestWebsiteBatchQueryByOther(t *testing.T) {
 
 	queryWebsite := queryWebsites[0]
 	queryWebsite2 := queryWebsites[1]
-	CheckNoId(queryWebsite, website, t, "【 查 by other 】")   // 判断第1个
-	CheckNoId(queryWebsite2, website2, t, "【 查 by other 】") // 判断第2个
+	WebsiteCheckNoId(queryWebsite, website, t, "【 查 by other 】")   // 判断第1个
+	WebsiteCheckNoId(queryWebsite2, website2, t, "【 查 by other 】") // 判断第2个
 	t.Log("------------ website batch query by other ... start ")
 }
