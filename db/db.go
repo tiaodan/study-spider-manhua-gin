@@ -87,7 +87,7 @@ func InsertDefaultData() {
 		typeDefaultRealPerson, typeDefault3D, typeDefaultAmeraica,
 		typeDefaultSameSex,
 	}
-	TypesBatchAdd(defaultTypes)
+	TypeBatchAdd(defaultTypes)
 
 }
 

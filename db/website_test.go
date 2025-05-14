@@ -493,12 +493,6 @@ func TestWebsiteUpdateById(t *testing.T) {
 	t.Log("更新后 原始数据 updates =", updates)
 	t.Log("更新后 查的 updatedWebsite =", updatedWebsite)
 	t.Log("更新后 查的 updatedWebsite.== =", updatedWebsite.Id == updates["Id"]) // 得转成uint
-	t.Log("更新后 查的 updatedWebsite.== =", updatedWebsite.IsHttps == updates["IsHttps"])
-	t.Log("更新后 查的 updatedWebsite.== =", updatedWebsite.NameId == updates["NameId"])
-	t.Log("更新后 查的 updatedWebsite.== =", updatedWebsite.Name == updates["Name"])
-	t.Log("更新后 查的 updatedWebsite.== =", updatedWebsite.Url == updates["Url"])
-	t.Log("更新后 查的 updatedWebsite.== =", updatedWebsite.NeedProxy == updates["NeedProxy"])
-	t.Log("更新后 查的 updatedWebsite.== =", updatedWebsite.IsHttps == updates["IsHttps"])
 	WebsiteCheckUpdateHasId(updatedWebsite, updates, t, "【改 by id 】")
 	t.Log("------------ website update by id ... end ")
 }

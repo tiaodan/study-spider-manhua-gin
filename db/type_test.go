@@ -46,144 +46,128 @@ var comicType2ForUpdateNoIdHasZero map[string]interface{} // 用于update, 无id
 func init() {
 	// 用于add, 有id
 	comicTypeForAddHasIdNoZero = &models.Type{
-		Id:        1, // 新增时,可以指定id,gorm会插入指定id,而不是自增
-		NameId:    1,
-		Name:      "Test Type Add",
-		Url:       "http://add.com",
-		NeedProxy: 1,
-		IsHttps:   1,
+		Id:     1, // 新增时,可以指定id,gorm会插入指定id,而不是自增
+		NameId: 1,
+		Name:   "Test Type Add",
+		Level:  1,
+		Parent: 1,
 	}
 
 	comicTypeForAddHasIdHasZero = &models.Type{
-		Id:        1, // 新增时,可以指定id,gorm会插入指定id,而不是自增
-		NameId:    1,
-		Name:      "Test Type Add",
-		Url:       "http://add.com",
-		NeedProxy: 0,
-		IsHttps:   0,
+		Id:     1, // 新增时,可以指定id,gorm会插入指定id,而不是自增
+		NameId: 1,
+		Name:   "Test Type Add",
+		Level:  0,
+		Parent: 0,
 	}
 
 	// 用于add, 无id
 	comicTypeForAddNoIdNoZero = &models.Type{
-		NameId:    1,
-		Name:      "Test Type Add",
-		Url:       "http://add.com",
-		NeedProxy: 1,
-		IsHttps:   1,
+		NameId: 1,
+		Name:   "Test Type Add",
+		Level:  1,
+		Parent: 1,
 	}
 
 	comicTypeForAddNoIdHasZero = &models.Type{
-		NameId:    1,
-		Name:      "Test Type Add",
-		Url:       "http://add.com",
-		NeedProxy: 0,
-		IsHttps:   0,
+		NameId: 1,
+		Name:   "Test Type Add",
+		Level:  0,
+		Parent: 0,
 	}
 
 	// 用于add batch, 有id
 	comicType2ForAddHasIdNoZero = &models.Type{
-		Id:        2, // 新增时,可以指定id,gorm会插入指定id,而不是自增
-		NameId:    2,
-		Name:      "Test Type Add2",
-		Url:       "http://add.com2",
-		NeedProxy: 1,
-		IsHttps:   1,
+		Id:     2, // 新增时,可以指定id,gorm会插入指定id,而不是自增
+		NameId: 2,
+		Name:   "Test Type Add2",
+		Level:  2,
+		Parent: 2,
 	}
 
 	comicType2ForAddHasIdHasZero = &models.Type{
-		Id:        2, // 新增时,可以指定id,gorm会插入指定id,而不是自增
-		NameId:    2,
-		Name:      "Test Type Add2",
-		Url:       "http://add.com2",
-		NeedProxy: 0,
-		IsHttps:   0,
+		Id:     2, // 新增时,可以指定id,gorm会插入指定id,而不是自增
+		NameId: 2,
+		Name:   "Test Type Add2",
+		Level:  0,
+		Parent: 0,
 	}
 
 	// 用于add batch, 无id
 	comicType2ForAddNoIdNoZero = &models.Type{
-		NameId:    2,
-		Name:      "Test Type Add2",
-		Url:       "http://add.com2",
-		NeedProxy: 1,
-		IsHttps:   1,
+		NameId: 2,
+		Name:   "Test Type Add2",
+		Level:  2,
+		Parent: 2,
 	}
 
 	comicType2ForAddNoIdHasZero = &models.Type{
-		NameId:    2,
-		Name:      "Test Type Add2",
-		Url:       "http://add.com2",
-		NeedProxy: 0,
-		IsHttps:   0,
+		NameId: 2,
+		Name:   "Test Type Add2",
+		Level:  0,
+		Parent: 0,
 	}
 
 	// 用于update
 	comicTypeForUpdateHasIdNoZero = map[string]interface{}{
-		"Id":        uint(1),
-		"NameId":    1,
-		"Name":      "Updated Type",
-		"Url":       "http://updated.com",
-		"NeedProxy": 1,
-		"IsHttps":   1,
+		"Id":     uint(1),
+		"NameId": 1,
+		"Name":   "Updated Type",
+		"Level":  1,
+		"Parent": 1,
 	}
 
 	comicTypeForUpdateHasIdHasZero = map[string]interface{}{
-		"Id":        uint(1),
-		"NameId":    1,
-		"Name":      "Updated Type",
-		"Url":       "http://updated.com",
-		"NeedProxy": 0,
-		"IsHttps":   0,
+		"Id":     uint(1),
+		"NameId": 1,
+		"Name":   "Updated Type",
+		"Level":  0,
+		"Parent": 0,
 	}
 	// 无id
 	comicTypeForUpdateNoIdNoZero = map[string]interface{}{
-		"NameId":    1,
-		"Name":      "Updated Type",
-		"Url":       "http://updated.com",
-		"NeedProxy": 1,
-		"IsHttps":   1,
+		"NameId": 1,
+		"Name":   "Updated Type",
+		"Level":  1,
+		"Parent": 1,
 	}
 
 	comicTypeForUpdateNoIdHasZero = map[string]interface{}{
-		"NameId":    1,
-		"Name":      "Updated Type",
-		"Url":       "http://updated.com",
-		"NeedProxy": 0,
-		"IsHttps":   0,
+		"NameId": 1,
+		"Name":   "Updated Type",
+		"Level":  0,
+		"Parent": 0,
 	}
 
 	// 用于update batch
 	comicType2ForUpdateHasIdNoZero = map[string]interface{}{
-		"Id":        uint(2),
-		"NameId":    2,
-		"Name":      "Updated Type2",
-		"Url":       "http://updated.com2",
-		"NeedProxy": 1,
-		"IsHttps":   1,
+		"Id":     uint(2),
+		"NameId": 2,
+		"Name":   "Updated Type2",
+		"Level":  2,
+		"Parent": 2,
 	}
 
 	comicType2ForUpdateHasIdHasZero = map[string]interface{}{
-		"Id":        uint(2),
-		"NameId":    2,
-		"Name":      "Updated Type2",
-		"Url":       "http://updated.com2",
-		"NeedProxy": 0,
-		"IsHttps":   0,
+		"Id":     uint(2),
+		"NameId": 2,
+		"Name":   "Updated Type2",
+		"Level":  0,
+		"Parent": 0,
 	}
 	// 无id
 	comicType2ForUpdateNoIdNoZero = map[string]interface{}{
-		"NameId":    2,
-		"Name":      "Updated Type2",
-		"Url":       "http://updated.com2",
-		"NeedProxy": 1,
-		"IsHttps":   1,
+		"NameId": 2,
+		"Name":   "Updated Type2",
+		"Level":  2,
+		"Parent": 2,
 	}
 
 	comicType2ForUpdateNoIdHasZero = map[string]interface{}{
-		"NameId":    2,
-		"Name":      "Updated Type2",
-		"Url":       "http://updated.com2",
-		"NeedProxy": 0,
-		"IsHttps":   0,
+		"NameId": 2,
+		"Name":   "Updated Type2",
+		"Level":  0,
+		"Parent": 0,
 	}
 }
 
@@ -211,7 +195,6 @@ func TypeCheckNoId(query *models.Type, obj *models.Type, t *testing.T, errTitleS
 	// 判断第1个
 	if query.NameId != obj.NameId ||
 		query.Name != obj.Name ||
-		query.Url != obj.Url ||
 		query.Level != obj.Level ||
 		query.Parent != obj.Parent {
 		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
@@ -227,9 +210,8 @@ func TypeCheckUpdateHasId(query *models.Type, obj map[string]interface{}, t *tes
 	if query.Id != obj["Id"] ||
 		query.NameId != obj["NameId"] ||
 		query.Name != obj["Name"] ||
-		query.Url != obj["Url"] ||
-		query.NeedProxy != obj["NeedProxy"] ||
-		query.IsHttps != obj["IsHttps"] {
+		query.Level != obj["Level"] ||
+		query.Parent != obj["Parent"] {
 		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
 		t.Errorf(" %s 测试不通过, got= %v", errTitleStr, query)
 	}
@@ -242,9 +224,8 @@ func TypeCheckUpdateNoId(query *models.Type, obj map[string]interface{}, t *test
 	// 判断第1个
 	if query.NameId != obj["NameId"] ||
 		query.Name != obj["Name"] ||
-		query.Url != obj["Url"] ||
-		query.NeedProxy != obj["NeedProxy"] ||
-		query.IsHttps != obj["IsHttps"] {
+		query.Level != obj["Level"] ||
+		query.Parent != obj["Parent"] {
 		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
 		t.Errorf(" %s 测试不通过, got= %v", errTitleStr, query)
 	}
@@ -369,12 +350,11 @@ func TestTypesBatchDeleteById(t *testing.T) {
 	comicType := comicTypeForAddHasIdNoZero
 
 	comicType2 := &models.Type{
-		Id:        2,
-		NameId:    2,
-		Name:      "Test Type for Delete By Id 2",
-		Url:       "http://delete.com id 2",
-		NeedProxy: 0,
-		IsHttps:   0,
+		Id:     2,
+		NameId: 2,
+		Name:   "Test Type for Delete By Id 2",
+		Level:  2,
+		Parent: 2,
 	}
 	comicTypes := []*models.Type{comicType, comicType2}
 	TypeBatchAdd(comicTypes) // 添加
@@ -490,15 +470,13 @@ func TestTypeUpdateById(t *testing.T) {
 
 	// 检查
 	updatedType := TypeQueryById(comicType.Id)
-	t.Log("更新后 原始数据 updates =", updates)
-	t.Log("更新后 查的 updatedType =", updatedType)
-	t.Log("更新后 查的 updatedType.== =", updatedType.Id == updates["Id"]) // 得转成uint
-	t.Log("更新后 查的 updatedType.== =", updatedType.IsHttps == updates["IsHttps"])
-	t.Log("更新后 查的 updatedType.== =", updatedType.NameId == updates["NameId"])
-	t.Log("更新后 查的 updatedType.== =", updatedType.Name == updates["Name"])
-	t.Log("更新后 查的 updatedType.== =", updatedType.Url == updates["Url"])
-	t.Log("更新后 查的 updatedType.== =", updatedType.NeedProxy == updates["NeedProxy"])
-	t.Log("更新后 查的 updatedType.== =", updatedType.IsHttps == updates["IsHttps"])
+	t.Log("原始数据 updates =", updates)
+	t.Log("更新后  updatedType =", updatedType)
+	t.Log("更新后 查的 updatedType.Id== =", updatedType.Id == updates["Id"])              // 得转成uint
+	t.Log("更新后 查的 updatedType.NameId == =", updatedType.NameId == updates["NameId"]) // 得转成uint
+	t.Log("更新后 查的 updatedType.Name== =", updatedType.Name == updates["Name"])        // 得转成uint
+	t.Log("更新后 查的 updatedType.Level== =", updatedType.Level == updates["Level"])     // 得转成uint
+	t.Log("更新后 查的 updatedType.Parent== =", updatedType.Parent == updates["Parent"])  // 得转成uint
 	TypeCheckUpdateHasId(updatedType, updates, t, "【改 by id 】")
 	t.Log("------------ comicType update by id ... end ")
 }
