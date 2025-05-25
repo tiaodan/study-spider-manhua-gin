@@ -2,8 +2,10 @@
 package db
 
 import (
+	"strings"
 	"study-spider-manhua-gin/log"
 	"study-spider-manhua-gin/models"
+	"study-spider-manhua-gin/util/stringutil"
 
 	// 导入 clause 包
 	"gorm.io/gorm/clause"
@@ -11,10 +13,15 @@ import (
 
 // 增
 func WebsiteAdd(website *models.Website) error {
+	// 预处理空格
+	website.Name = strings.TrimSpace(website.Name)
+	website.Url = strings.TrimSpace(website.Url)
+
 	result := DB.Clauses(clause.OnConflict{
 		Columns: []clause.Column{{Name: "NameId"}},
 		DoUpdates: clause.Assignments(map[string]interface{}{
-			"name": website.Name, "url": website.Url,
+			"name":       website.Name,
+			"url":        website.Url,
 			"need_proxy": website.NeedProxy,
 			"is_https":   website.IsHttps,
 		}),
@@ -109,6 +116,9 @@ func WebsitesBatchDeleteByOther(condition string, others []any) {
 
 // 改 - by Id
 func WebsiteUpdateById(id uint, updates map[string]interface{}) {
+	// 预处理：去除字符串字段的首尾空格
+	stringutil.TrimSpaceMap(updates)
+
 	var website models.Website
 	// 解决0值不更新
 	result := DB.Model(&website).Where("id = ?", id).Select("name", "url", "need_proxy", "is_https").Updates(updates)
@@ -121,6 +131,9 @@ func WebsiteUpdateById(id uint, updates map[string]interface{}) {
 
 // 改 - by nameId
 func WebsiteUpdateByNameId(nameId int, updates map[string]interface{}) {
+	// 预处理：去除字符串字段的首尾空格
+	stringutil.TrimSpaceMap(updates)
+
 	var website models.Website
 	// 解决0值不更新
 	result := DB.Model(&website).Where("name_id = ?", nameId).Select("name", "url", "need_proxy", "is_https").Updates(updates)
@@ -133,6 +146,9 @@ func WebsiteUpdateByNameId(nameId int, updates map[string]interface{}) {
 
 // 改 - by other
 func WebsiteUpdateByOther(condition string, other any, updates map[string]interface{}) {
+	// 预处理：去除字符串字段的首尾空格
+	stringutil.TrimSpaceMap(updates)
+
 	var website models.Website
 	// 解决0值不更新
 	// result := DB.Model(&website).Where("name_id = ?", nameId).Select("name", "url", "need_proxy", "is_https").Updates(updates)  // 之前写法
@@ -147,6 +163,9 @@ func WebsiteUpdateByOther(condition string, other any, updates map[string]interf
 // 改 - 批量 by id
 func WebsitesBatchUpdateById(updates []map[string]interface{}) {
 	for _, update := range updates {
+		// 预处理：去除字符串字段的首尾空格
+		stringutil.TrimSpaceMap(update)
+
 		var website models.Website
 		// 解决0值不更新
 		result := DB.Model(&website).Where("id = ?", update["Id"]).Select("name", "url", "need_proxy", "is_https").Updates(update)
@@ -161,6 +180,9 @@ func WebsitesBatchUpdateById(updates []map[string]interface{}) {
 // 改 - 批量 by nameId
 func WebsitesBatchUpdateByNameId(updates []map[string]interface{}) {
 	for _, update := range updates {
+		// 预处理：去除字符串字段的首尾空格
+		stringutil.TrimSpaceMap(update)
+
 		var website models.Website
 		// 解决0值不更新
 		result := DB.Model(&website).Where("name_id = ?", update["NameId"]).Select("name", "url", "need_proxy", "is_https").Updates(update)
@@ -175,6 +197,9 @@ func WebsitesBatchUpdateByNameId(updates []map[string]interface{}) {
 // 改 - 批量 by other
 func WebsitesBatchUpdateByOther(updates []map[string]interface{}) {
 	for _, update := range updates {
+		// 预处理：去除字符串字段的首尾空格
+		stringutil.TrimSpaceMap(update)
+
 		var website models.Website
 		// 解决0值不更新
 		result := DB.Model(&website).Where("name_id = ?", update["NameId"]).Select("name", "url", "need_proxy", "is_https").Updates(update)

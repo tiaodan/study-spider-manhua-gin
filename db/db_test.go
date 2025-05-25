@@ -36,3 +36,18 @@ func TestLog(t *testing.T) {
 	t.Log("----------- 测试能不能打印日志 --------------")
 	fmt.Println("----------- 测试能不能打印日志 fmt.Println --------------")
 }
+
+// 封装中断进程函数,如果有错误就t.FailNow()
+func ProcessFail(t *testing.T, err error, errTitleStr string) {
+	if err != nil {
+		t.Error(errTitleStr, err)
+		t.FailNow()
+	}
+}
+
+// 封装中断进程函数,不判断err
+func ProcessFailNoCheckErr(t *testing.T, err error, errTitleStr string) {
+	t.Error(errTitleStr, err)
+	t.FailNow()
+	panic("-----------------") // 测试的时候用panic,实际使用时注释掉
+}
