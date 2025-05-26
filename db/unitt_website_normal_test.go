@@ -20,6 +20,8 @@ import (
 	"strings"
 	"study-spider-manhua-gin/models"
 	"testing"
+
+	"gorm.io/gorm"
 )
 
 // 所有方法思路
@@ -208,6 +210,7 @@ func init() {
 
 // ---------------------------- init end ----------------------------
 
+// ---------------------------- 阶段一：每个用例都是一个函数 end ----------------------------
 // 检测函数封装, 对比Id
 // 参数1: 查到的指针 参数2: 要对比的对象指针
 // 参数3: 测试对象指针 t *testing.T  参数4:错误标题字符串，如: 【查 by nameId】中括号里内容
@@ -828,3 +831,34 @@ func TestWebsiteBatchQueryByOther(t *testing.T) {
 	WebsiteCheckNoId(queryWebsite2, website2, t, "【 查 by other 】") // 判断第2个
 	t.Log("------------ website batch query by other ... start ")
 }
+
+// ---------------------------- 阶段一：每个用例都是一个函数 end ----------------------------
+
+// ---------------------------- 阶段二：封装通用测试函数 start ----------------------------
+// 参数1：t  *testing.T 。 测试对象
+// 参数1：testDb。var testDB *gorm.DB。测试db对象指针
+// 参数2: tableName string 。表名
+// 参数3：functionName string。功能名称。增删改查、批量增删改查标签 如：add delete update batchAdd batchDelete batchUpdate
+// 所有方法思路
+// 1. 清空表
+// 2. 添加数据
+// 3. 增删改查、批量增删改查操作
+// 4. 检测
+func commonDbTest(t *testing.T, testDB *gorm.DB, tableName string, functionName string) {
+	t.Logf("------------ %s %s ... start ", functionName, functionName)
+	// 1. 清空表
+	TruncateTable(testDB.Table(tableName), nil) // 方式1： truncate table。 通过表名清空表
+
+	// 2. 添加数据
+	// 增删改查默认都会添加第一个数据，不用判断 方法名
+	WebsiteAdd(websiteForAddHasIdNoZero)
+	t.Logf("------------ %s %s ... end ", functionName, functionName)
+
+}
+
+// 测试通过方法
+func TestCommon(t *testing.T) {
+	commonDbTest(t, testDB, "website", "add")
+}
+
+// ---------------------------- 阶段二：封装通用测试函数 end ----------------------------
