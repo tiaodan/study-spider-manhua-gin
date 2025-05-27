@@ -10,28 +10,42 @@ import (
 	"gorm.io/gorm"
 )
 
+// ---------------------------- 变量 start ----------------------------
 var DB *gorm.DB
 var once sync.Once // 使用 sync.Once 确保单例
 
 // 定义统一的操作接口,方便单元测试的时候调用. 为了把所有表的增删改查都叫Add
-type TableOperations interface {
-	Add(modelPointer interface{})
+type TableOperations[T any] interface { // 定义泛型接口
+	Add(modelPointer interface{}) // 原来的写法 Add(modelPointer interface{})
 	DeleteById(id uint)
 	DeleteByNameId(nameid any)
 	DeleteByOther(condition string, other any)
+	UpdateById(id uint, updates map[string]interface{})
+	UpdateByNameId(nameId int, updates map[string]interface{})
+	UpdateByOther(condition string, other any, updates map[string]interface{})
+	QueryById(id uint)
+	QueryByNameId(nameId int)
+	QueryByOther(condition string, other any)
 
-	Update(id uint, data map[string]interface{})
-	Query(id uint) interface{}
-
-	BatchAdd(modelPointers []interface{})
+	BatchAdd(modelPointers []T) // 接收特定类型的切片
 	BatchDeleteById(ids []uint)
 	BatchDeleteByNameId(nameIds []int)
 	BatchDeleteByOther(condition string, others []any)
+	BatchUpdateById(updates []map[string]interface{})
+	BatchUpdateByNameId(updates []map[string]interface{})
+	BatchUpdateByOther(updates []map[string]interface{})
 
-	BatchUpdate(ids []uint)
-	BatchQuery(ids []uint)
+	BatchQueryById(ids []uint)
+	BatchQueryByNameId(nameIds []int)
+	BatchQueryByOther(condition string, others any, orderby string, sort string)
 }
 
+// 实例化接口操作对象
+var WebsiteOps WebsiteOperations // 另一种写法: var WebsiteOps = WebsiteOperations{}
+
+// ---------------------------- 变量 end ----------------------------
+
+// ---------------------------- 初始化 start ----------------------------
 // 初始化数据库连接
 /*
 参数：
@@ -60,6 +74,9 @@ func InitDB(dbType, dbName, dbUser, dbPass string) {
 	})
 }
 
+// ---------------------------- 初始化 end ----------------------------
+
+// ---------------------------- 函数 start ----------------------------
 // 插入默认数据
 /*
 思路:
@@ -72,7 +89,7 @@ func InsertDefaultData() {
 	websiteDefaultNoClass := &models.Website{Name: "待分类", NameId: 0, Url: "未知", NeedProxy: 0, IsHttps: 0}
 	websiteDefaultJ88d := &models.Website{Name: "j88d", NameId: 1, Url: "http://www.j88d.com", NeedProxy: 0, IsHttps: 0} // 请求url 时带上http://
 	defaultWebsites := []*models.Website{websiteDefaultNoClass, websiteDefaultJ88d}
-	WebsiteBatchAdd(defaultWebsites)
+	WebsiteOps.BatchAdd(defaultWebsites)
 
 	// 插入默认数据-category 类别
 	classDefaultNoCategory := &models.Category{Name: "待分类", NameId: 0}
@@ -143,3 +160,5 @@ func DeleteTableAllData(db *gorm.DB, model interface{}) error {
 	}
 	return nil
 }
+
+// ---------------------------- 函数 end ----------------------------

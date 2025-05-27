@@ -322,19 +322,19 @@ func TestWebsiteAdd(t *testing.T) {
 	// 1. 测试项1，有0值
 	website := websiteForAddHasIdHasZero
 	t.Log("website: ", website)
-	WebsiteAdd(website)
+	WebsiteOps.Add(website)
 
 	// var createdWebsite *models.Website // 手动写法
 	// testDB.Where("name_id = ?", website.NameId).First(&createdWebsite) // 手动写法,不调用方法
-	createdWebsite := WebsiteQueryByNameId(website.NameId) // 调用方法
-	WebsiteCheckNoId(createdWebsite, website, t, "【增】")    // 测试第1个
+	createdWebsite := WebsiteOps.QueryByNameId(website.NameId) // 调用方法
+	WebsiteCheckNoId(createdWebsite, website, t, "【增】")        // 测试第1个
 
 	// 2. 测试项2 无0值, 测试needProxy =1 时候
 	website2 := websiteForAddHasIdNoZero
 	t.Log("website2: ", website2)
-	WebsiteAdd(website2)
-	createdWebsite2 := WebsiteQueryByNameId(website2.NameId) // 调用方法
-	WebsiteCheckNoId(createdWebsite2, website2, t, "【增】")    // 测试第2个
+	WebsiteOps.Add(website2)
+	createdWebsite2 := WebsiteOps.QueryByNameId(website2.NameId) // 调用方法
+	WebsiteCheckNoId(createdWebsite2, website2, t, "【增】")        // 测试第2个
 
 	t.Log("----------- website add ... end ----------------")
 }
@@ -352,10 +352,10 @@ func TestWebsiteBatchAdd(t *testing.T) {
 	website2 := website2ForAddNoIdHasZero
 
 	websites := []*models.Website{website, website2}
-	WebsiteBatchAdd(websites)
+	WebsiteOps.BatchAdd(websites)
 	nameIds := []int{website.NameId, website2.NameId}
 	t.Log("namedis = ", nameIds)
-	createdWebsites, err := WebsitesBatchQueryByNameId(nameIds) // 调用方法
+	createdWebsites, err := WebsiteOps.BatchQueryByNameId(nameIds) // 调用方法
 	if err != nil {
 		t.Errorf("【增-批量】测试不通过, 查询nil, got=  %v", createdWebsites)
 		ProcessFail(t, nil, "测试不通过")
@@ -374,9 +374,9 @@ func TestWebsiteBatchAdd(t *testing.T) {
 func TestWebsiteDeleteById(t *testing.T) {
 	t.Log("------------ website delete by id... start ----------------")
 	website := websiteForAddHasIdNoZero
-	WebsiteAdd(website)
+	WebsiteOps.Add(website)
 
-	WebsiteDeleteById(website.Id)
+	WebsiteOps.DeleteById(website.Id)
 
 	var deletedWebsite models.Website
 	result := testDB.First(&deletedWebsite, website.Id)
@@ -392,9 +392,9 @@ func TestWebsiteDeleteById(t *testing.T) {
 func TestWebsiteDeleteByNameId(t *testing.T) {
 	t.Log("------------ website delete by nameId... start ----------------")
 	website := websiteForAddNoIdNoZero
-	WebsiteAdd(website)
+	WebsiteOps.Add(website)
 
-	WebsiteDeleteByNameId(website.NameId)
+	WebsiteOps.DeleteByNameId(website.NameId)
 
 	var deletedWebsite models.Website
 	result := testDB.Where("name_id = ?", website.NameId).First(&deletedWebsite)
@@ -409,9 +409,9 @@ func TestWebsiteDeleteByNameId(t *testing.T) {
 func TestWebsiteDeleteByOther(t *testing.T) {
 	t.Log("------------ website delete by other... start ----------------")
 	website := websiteForAddNoIdNoZero
-	WebsiteAdd(website)
+	WebsiteOps.Add(website)
 
-	WebsiteDeleteByOther("name_id", website.NameId)
+	WebsiteOps.DeleteByOther("name_id", website.NameId)
 
 	var deletedWebsite models.Website
 	result := testDB.Where("name_id = ?", website.NameId).First(&deletedWebsite)
@@ -442,22 +442,22 @@ func TestWebsitesBatchDeleteById(t *testing.T) {
 		IsHttps:   0,
 	}
 	websites := []*models.Website{website, website2}
-	WebsiteBatchAdd(websites) // 添加
+	WebsiteOps.BatchAdd(websites) // 添加
 
 	ids := []uint{website.Id, website2.Id}
 	t.Log("ids = ", ids)
 
 	// 判断是否添加了2个
-	websites, err := WebsitesBatchQueryById(ids)
+	websites, err := WebsiteOps.BatchQueryById(ids)
 	if len(websites) != 2 || err != nil {
 		t.Errorf("【删 批量- by id】测试不通过,删除后仍能查到, got %v", websites)
 		// panic("【删 批量 - by id 】测试不通过,删除后仍能查到") // 测试v原本不能用pnic
 	}
 
-	WebsitesBatchDeleteById(ids) // 删除
+	WebsiteOps.BatchDeleteById(ids) // 删除
 
 	// 检测，如果报错，或者 结果>0
-	websites, err = WebsitesBatchQueryById(ids)
+	websites, err = WebsiteOps.BatchQueryById(ids)
 
 	if len(websites) > 0 || err != nil { // 判断错放后面，因为是 ||, 第一个不通过，就不判断第2个
 		t.Errorf("【删 批量- by id】测试不通过,删除后仍能查到, got %v", websites)
@@ -480,22 +480,22 @@ func TestWebsitesBatchDeleteByNameId(t *testing.T) {
 	website2 := website2ForAddNoIdHasZero
 
 	websites := []*models.Website{website, website2}
-	WebsiteBatchAdd(websites) // 添加
+	WebsiteOps.BatchAdd(websites) // 添加
 
 	nameIds := []int{website.NameId, website2.NameId}
 	t.Log("nameIds = ", nameIds)
 
 	// 判断是否添加了2个
-	websites, err := WebsitesBatchQueryByNameId(nameIds)
+	websites, err := WebsiteOps.BatchQueryByNameId(nameIds)
 	if len(websites) != 2 || err != nil {
 		t.Errorf("【删 批量- by nameId 】测试不通过,删除后仍能查到, got %v", websites)
 		ProcessFail(t, nil, "测试不通过")
 	}
 
-	WebsitesBatchDeleteByNameId(nameIds) // 删除
+	WebsiteOps.BatchDeleteByNameId(nameIds) // 删除
 
 	// 检测，如果报错，或者 结果>0
-	websites, err = WebsitesBatchQueryByNameId(nameIds)
+	websites, err = WebsiteOps.BatchQueryByNameId(nameIds)
 
 	if len(websites) > 0 || err != nil { // 判断错放后面，因为是 ||, 第一个不通过，就不判断第2个
 		t.Errorf("【删 批量- by nameId 】测试不通过,删除后仍能查到, got %v", websites)
@@ -518,22 +518,22 @@ func TestWebsitesBatchDeleteByOther(t *testing.T) {
 	website2 := website2ForAddNoIdHasZero
 
 	websites := []*models.Website{website, website2}
-	WebsiteBatchAdd(websites) // 添加
+	WebsiteOps.BatchAdd(websites) // 添加
 
 	others := []any{website.NameId, website2.NameId}
 	t.Log("others = ", others)
 
 	// 判断是否添加了2个
-	websites, err := WebsitesBatchQueryByOther("name_id", others, "name_id", "ASC")
+	websites, err := WebsiteOps.BatchQueryByOther("name_id", others, "name_id", "ASC")
 	if len(websites) != 2 || err != nil {
 		t.Errorf("【删 批量- by other 】测试不通过,删除后仍能查到, got %v", websites)
 		ProcessFail(t, nil, "测试不通过")
 	}
 
-	WebsitesBatchDeleteByOther("name_id", others) // 删除
+	WebsiteOps.BatchDeleteByOther("name_id", others) // 删除
 
 	// 检测，如果报错，或者 结果>0
-	websites, err = WebsitesBatchQueryByOther("name_id", others, "name_id", "ASC")
+	websites, err = WebsiteOps.BatchQueryByOther("name_id", others, "name_id", "ASC")
 
 	if len(websites) > 0 || err != nil { // 判断错放后面，因为是 ||, 第一个不通过，就不判断第2个
 		t.Errorf("【删 批量- by other 】测试不通过,删除后仍能查到, got %v", websites)
@@ -553,13 +553,13 @@ func TestWebsiteUpdateById(t *testing.T) {
 	// 3. 修改数据
 	// 4. 判断
 	website := websiteForAddHasIdNoZero
-	WebsiteAdd(website)
+	WebsiteOps.Add(website)
 
 	updates := websiteForUpdateHasIdHasZero
-	WebsiteUpdateById(website.Id, updates)
+	WebsiteOps.UpdateById(website.Id, updates)
 
 	// 检查
-	updatedWebsite := WebsiteQueryById(website.Id)
+	updatedWebsite := WebsiteOps.QueryById(website.Id)
 	t.Log("更新后 原始数据 updates =", updates)
 	t.Log("更新后 查的 updatedWebsite =", updatedWebsite)
 	t.Log("更新后 查的 updatedWebsite.== =", updatedWebsite.Id == updates["Id"]) // 得转成uint
@@ -577,13 +577,13 @@ func TestWebsiteUpdateByNameId(t *testing.T) {
 	// 3. 修改数据
 	// 4. 判断
 	website := websiteForAddNoIdNoZero
-	WebsiteAdd(website)
+	WebsiteOps.Add(website)
 
 	updates := websiteForUpdateNoIdHasZero
-	WebsiteUpdateByNameId(website.NameId, updates)
+	WebsiteOps.UpdateByNameId(website.NameId, updates)
 
 	// 检查
-	updatedWebsite := WebsiteQueryByNameId(website.NameId)
+	updatedWebsite := WebsiteOps.QueryByNameId(website.NameId)
 	t.Log("更新后 原始数据 updates =", updates)
 	t.Log("更新后 查的 updatedWebsite =", updatedWebsite)
 	WebsiteCheckUpdateNoId(updatedWebsite, updates, t, "【改 by nameId 】")
@@ -600,13 +600,13 @@ func TestWebsiteUpdateByOther(t *testing.T) {
 	// 3. 修改数据
 	// 4. 判断
 	website := websiteForAddNoIdNoZero
-	WebsiteAdd(website)
+	WebsiteOps.Add(website)
 
 	updates := websiteForUpdateNoIdHasZero
-	WebsiteUpdateByOther("name_id", website.NameId, updates)
+	WebsiteOps.UpdateByOther("name_id", website.NameId, updates)
 
 	// 检查
-	updatedWebsite := WebsiteQueryByOther("name_id", website.NameId)
+	updatedWebsite := WebsiteOps.QueryByOther("name_id", website.NameId)
 	t.Log("更新后 原始数据 updates =", updates)
 	t.Log("更新后 查的 updatedWebsite =", updatedWebsite)
 	WebsiteCheckUpdateNoId(updatedWebsite, updates, t, "【改 by other 】")
@@ -625,16 +625,16 @@ func TestWebsiteBatchUpdateById(t *testing.T) {
 	website := websiteForAddHasIdNoZero
 	website2 := website2ForAddNoIdHasZero
 	websites := []*models.Website{website, website2}
-	WebsiteBatchAdd(websites)
+	WebsiteOps.BatchAdd(websites)
 
 	updates := websiteForUpdateHasIdNoZero
 	updates2 := website2ForUpdateHasIdHasZero
 	updatesArr := []map[string]interface{}{updates, updates2}
-	WebsitesBatchUpdateById(updatesArr)
+	WebsiteOps.BatchUpdateById(updatesArr)
 
 	// 检测，如果报错
 	ids := []uint{1, 2}
-	websites, err := WebsitesBatchQueryById(ids)
+	websites, err := WebsiteOps.BatchQueryById(ids)
 	if err != nil {
 		t.Errorf("【改 by id 】测试不通过, got= %v", websites)
 	}
@@ -658,19 +658,19 @@ func TestWebsiteBatchUpdateByNameId(t *testing.T) {
 	website := websiteForAddNoIdNoZero
 	website2 := website2ForAddNoIdHasZero
 	websites := []*models.Website{website, website2}
-	WebsiteBatchAdd(websites)
+	WebsiteOps.BatchAdd(websites)
 
 	updates := websiteForUpdateNoIdNoZero
 	updates2 := website2ForUpdateNoIdHasZero
 	updatesArr := []map[string]interface{}{updates, updates2}
-	WebsitesBatchUpdateByNameId(updatesArr)
+	WebsiteOps.BatchUpdateByNameId(updatesArr)
 
 	// 检测，如果报错
 	nameIds := []int{
 		updates["NameId"].(int),
 		updates2["NameId"].(int),
 	}
-	websites, err := WebsitesBatchQueryByNameId(nameIds)
+	websites, err := WebsiteOps.BatchQueryByNameId(nameIds)
 	if err != nil {
 		t.Errorf("【改 by nameId 】测试不通过, got= %v", websites)
 	}
@@ -694,19 +694,19 @@ func TestWebsiteBatchUpdateByOther(t *testing.T) {
 	website := websiteForAddNoIdNoZero
 	website2 := website2ForAddNoIdHasZero
 	websites := []*models.Website{website, website2}
-	WebsiteBatchAdd(websites)
+	WebsiteOps.BatchAdd(websites)
 
 	updates := websiteForUpdateNoIdNoZero
 	updates2 := website2ForUpdateNoIdHasZero
 	updatesArr := []map[string]interface{}{updates, updates2}
-	WebsitesBatchUpdateByOther(updatesArr)
+	WebsiteOps.BatchUpdateByOther(updatesArr)
 
 	// 检测，如果报错
 	others := []any{
 		updates["NameId"],
 		updates2["NameId"],
 	}
-	websites, err := WebsitesBatchQueryByOther("name_id", others, "name_id", "ASC")
+	websites, err := WebsiteOps.BatchQueryByOther("name_id", others, "name_id", "ASC")
 	if err != nil {
 		t.Errorf("【改 by other 】测试不通过, got= %v", websites)
 	}
@@ -725,9 +725,9 @@ func TestWebsiteQueryById(t *testing.T) {
 	TruncateTable(testDB, &models.Website{}) // 方式1： truncate table
 
 	website := websiteForAddHasIdNoZero
-	WebsiteAdd(website)
+	WebsiteOps.Add(website)
 
-	queryWebsite := WebsiteQueryById(website.Id)
+	queryWebsite := WebsiteOps.QueryById(website.Id)
 	WebsiteCheckHasId(queryWebsite, website, t, "【 查 by id 】")
 	t.Log("------------ website query by id ... start ")
 }
@@ -739,9 +739,9 @@ func TestWebsiteQueryByNameId(t *testing.T) {
 	TruncateTable(testDB, &models.Website{}) // 方式1： truncate table
 
 	website := websiteForAddNoIdNoZero
-	WebsiteAdd(website)
+	WebsiteOps.Add(website)
 
-	queryWebsite := WebsiteQueryByNameId(website.NameId)
+	queryWebsite := WebsiteOps.QueryByNameId(website.NameId)
 	WebsiteCheckNoId(queryWebsite, website, t, "【 查 by nameId 】")
 	t.Log("------------ website query by nameId ... start ")
 }
@@ -753,9 +753,9 @@ func TestWebsiteQueryByOther(t *testing.T) {
 	TruncateTable(testDB, &models.Website{}) // 方式1： truncate table
 
 	website := websiteForAddNoIdNoZero
-	WebsiteAdd(website)
+	WebsiteOps.Add(website)
 
-	queryWebsite := WebsiteQueryByOther("name_id", website.NameId)
+	queryWebsite := WebsiteOps.QueryByOther("name_id", website.NameId)
 	WebsiteCheckNoId(queryWebsite, website, t, "【 查 by other 】")
 	t.Log("------------ website query by other ... start ")
 }
@@ -769,10 +769,10 @@ func TestWebsiteBatchQueryById(t *testing.T) {
 	website := websiteForAddHasIdNoZero
 	website2 := website2ForAddHasIdHasZero
 	websites := []*models.Website{website, website2}
-	WebsiteBatchAdd(websites)
+	WebsiteOps.BatchAdd(websites)
 
 	ids := []uint{website.Id, website2.Id}
-	queryWebsites, err := WebsitesBatchQueryById(ids)
+	queryWebsites, err := WebsiteOps.BatchQueryById(ids)
 	if err != nil {
 		t.Errorf("【查 by id 】测试不通过, got= %v", queryWebsites)
 	}
@@ -793,10 +793,10 @@ func TestWebsiteBatchQueryByNameId(t *testing.T) {
 	website := websiteForAddNoIdNoZero
 	website2 := website2ForAddNoIdHasZero
 	websites := []*models.Website{website, website2}
-	WebsiteBatchAdd(websites)
+	WebsiteOps.BatchAdd(websites)
 
 	nameIds := []int{website.NameId, website2.NameId}
-	queryWebsites, err := WebsitesBatchQueryByNameId(nameIds)
+	queryWebsites, err := WebsiteOps.BatchQueryByNameId(nameIds)
 	if err != nil {
 		t.Errorf("【查 by nameId 】测试不通过, got= %v", queryWebsites)
 	}
@@ -817,10 +817,10 @@ func TestWebsiteBatchQueryByOther(t *testing.T) {
 	website := websiteForAddNoIdNoZero
 	website2 := website2ForAddNoIdHasZero
 	websites := []*models.Website{website, website2}
-	WebsiteBatchAdd(websites)
+	WebsiteOps.BatchAdd(websites)
 
 	others := []any{website.NameId, website2.NameId}
-	queryWebsites, err := WebsitesBatchQueryByOther("name_id", others, "name_id", "ASC")
+	queryWebsites, err := WebsiteOps.BatchQueryByOther("name_id", others, "name_id", "ASC")
 	if err != nil {
 		t.Errorf("【查 by nameId 】测试不通过, got= %v", queryWebsites)
 	}
@@ -860,35 +860,8 @@ func commonDbTest(t *testing.T, testDB *gorm.DB, tableName string, functionName 
 	// }
 	// 通过tableNameMap["websiteAdd"] 调用其对应的方法
 
-	// 2. 定义操作 map，每个值都是无参数的函数
-	operationMap := map[string]func(){
-		"websiteAdd": func() {
-			WebsiteAdd(websiteForAddHasIdNoZero)
-		},
-		"websiteDelete": func() {
-			WebsiteDeleteById(1)
-		},
-		"websiteUpdate": func() {
-			WebsiteUpdateById(1, websiteForUpdateHasIdNoZero)
-		},
-		"websiteBatchAdd": func() {
-			websites := []*models.Website{websiteForAddHasIdNoZero, website2ForAddHasIdHasZero}
-			WebsiteBatchAdd(websites)
-		},
-		"websiteBatchDelete": func() {
-			ids := []uint{1, 2}
-			WebsitesBatchDeleteById(ids)
-		},
-	}
-	// 3. 执行对应的操作
-	key := tableName + functionName // 例如: "websiteAdd"
-	if operation, exists := operationMap[key]; exists {
-		operation() // 直接调用函数
-	} else {
-		t.Errorf("未找到操作: %s", key)
-	}
 	t.Logf("------------ %s %s ... end ", functionName, functionName)
-	panic("----------")
+	// panic("----------")
 
 }
 

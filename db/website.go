@@ -119,7 +119,7 @@ func (w WebsiteOperations) BatchDeleteByOther(condition string, others []any) {
 }
 
 // 改 - by Id
-func WebsiteUpdateById(id uint, updates map[string]interface{}) {
+func (w WebsiteOperations) UpdateById(id uint, updates map[string]interface{}) {
 	// 预处理：去除字符串字段的首尾空格
 	stringutil.TrimSpaceMap(updates)
 
@@ -134,7 +134,7 @@ func WebsiteUpdateById(id uint, updates map[string]interface{}) {
 }
 
 // 改 - by nameId
-func WebsiteUpdateByNameId(nameId int, updates map[string]interface{}) {
+func (w WebsiteOperations) UpdateByNameId(nameId int, updates map[string]interface{}) {
 	// 预处理：去除字符串字段的首尾空格
 	stringutil.TrimSpaceMap(updates)
 
@@ -149,7 +149,7 @@ func WebsiteUpdateByNameId(nameId int, updates map[string]interface{}) {
 }
 
 // 改 - by other
-func WebsiteUpdateByOther(condition string, other any, updates map[string]interface{}) {
+func (w WebsiteOperations) UpdateByOther(condition string, other any, updates map[string]interface{}) {
 	// 预处理：去除字符串字段的首尾空格
 	stringutil.TrimSpaceMap(updates)
 
@@ -165,7 +165,7 @@ func WebsiteUpdateByOther(condition string, other any, updates map[string]interf
 }
 
 // 改 - 批量 by id
-func WebsitesBatchUpdateById(updates []map[string]interface{}) {
+func (w WebsiteOperations) BatchUpdateById(updates []map[string]interface{}) {
 	for _, update := range updates {
 		// 预处理：去除字符串字段的首尾空格
 		stringutil.TrimSpaceMap(update)
@@ -182,7 +182,7 @@ func WebsitesBatchUpdateById(updates []map[string]interface{}) {
 }
 
 // 改 - 批量 by nameId
-func WebsitesBatchUpdateByNameId(updates []map[string]interface{}) {
+func (w WebsiteOperations) BatchUpdateByNameId(updates []map[string]interface{}) {
 	for _, update := range updates {
 		// 预处理：去除字符串字段的首尾空格
 		stringutil.TrimSpaceMap(update)
@@ -199,7 +199,7 @@ func WebsitesBatchUpdateByNameId(updates []map[string]interface{}) {
 }
 
 // 改 - 批量 by other
-func WebsitesBatchUpdateByOther(updates []map[string]interface{}) {
+func (w WebsiteOperations) BatchUpdateByOther(updates []map[string]interface{}) {
 	for _, update := range updates {
 		// 预处理：去除字符串字段的首尾空格
 		stringutil.TrimSpaceMap(update)
@@ -216,7 +216,7 @@ func WebsitesBatchUpdateByOther(updates []map[string]interface{}) {
 }
 
 // 查 - by id
-func WebsiteQueryById(id uint) *models.Website {
+func (w WebsiteOperations) QueryById(id uint) *models.Website {
 	var website models.Website
 	result := DB.First(&website, id)
 	if result.Error != nil {
@@ -228,7 +228,7 @@ func WebsiteQueryById(id uint) *models.Website {
 }
 
 // 查 - by nameId
-func WebsiteQueryByNameId(nameId int) *models.Website {
+func (w WebsiteOperations) QueryByNameId(nameId int) *models.Website {
 	var website models.Website
 	result := DB.Where("name_id = ?", nameId).First(&website)
 	if result.Error != nil {
@@ -240,7 +240,7 @@ func WebsiteQueryByNameId(nameId int) *models.Website {
 }
 
 // 查 - by other
-func WebsiteQueryByOther(condition string, other any) *models.Website {
+func (w WebsiteOperations) QueryByOther(condition string, other any) *models.Website {
 	var website models.Website
 	result := DB.Where(condition+" = ?", other).First(&website)
 	if result.Error != nil {
@@ -252,7 +252,7 @@ func WebsiteQueryByOther(condition string, other any) *models.Website {
 }
 
 // 批量查 - by ids
-func WebsitesBatchQueryById(ids []uint) ([]*models.Website, error) {
+func (w WebsiteOperations) BatchQueryById(ids []uint) ([]*models.Website, error) {
 	var websites []*models.Website
 	result := DB.Find(&websites, ids)
 	if result.Error != nil {
@@ -264,7 +264,7 @@ func WebsitesBatchQueryById(ids []uint) ([]*models.Website, error) {
 }
 
 // 批量查 - by nameIds
-func WebsitesBatchQueryByNameId(nameIds []int) ([]*models.Website, error) {
+func (w WebsiteOperations) BatchQueryByNameId(nameIds []int) ([]*models.Website, error) {
 	var websites []*models.Website
 	result := DB.Where("name_id IN ?", nameIds).Order("name_id").Find(&websites) // 默认升序
 	// result := DB.Where("name_id IN ?", nameIds).Order("name_id DESC")Find(&websites) // 倒序排列
@@ -278,7 +278,7 @@ func WebsitesBatchQueryByNameId(nameIds []int) ([]*models.Website, error) {
 
 // 批量查 - by others
 // 参数：orderby 排序字符串 如: name_id   sort 排序方式，ASC 为正序，DESC 为倒序
-func WebsitesBatchQueryByOther(condition string, others []any, orderby string, sort string) ([]*models.Website, error) {
+func (w WebsiteOperations) BatchQueryByOther(condition string, others []any, orderby string, sort string) ([]*models.Website, error) {
 	var websites []*models.Website
 	// result := DB.Where(condition+" IN ?", others).Find(&websites)  // other这样写错？
 	// result := DB.Where(condition+" IN ?", others).Order("name_id DESC").Find(&websites)

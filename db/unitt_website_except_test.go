@@ -229,9 +229,9 @@ func websiteExceptAdd_null(t *testing.T) {
 	// 1 单个值 - 有id  -- name
 	//  清空表
 	TruncateTable(testDB, &models.Website{})
-	err := WebsiteAdd(var_websiteExcept_forAdd_caseNullOneValue_hasId_name) // 能加成功
+	err := WebsiteOps.Add(var_websiteExcept_forAdd_caseNullOneValue_hasId_name) // 能加成功
 	// 判断能否插入成功。如果查询空, 报错
-	query := WebsiteQueryById(var_websiteExcept_forAdd_caseNullOneValue_hasId_name.Id)
+	query := WebsiteOps.QueryById(var_websiteExcept_forAdd_caseNullOneValue_hasId_name.Id)
 	if query == nil {
 		ProcessFailNoCheckErr(t, err, "没插入成功")
 	}
@@ -241,9 +241,9 @@ func websiteExceptAdd_null(t *testing.T) {
 	// 1 单个值 - 有id  -- url
 	//  清空表
 	TruncateTable(testDB, &models.Website{})
-	err = WebsiteAdd(var_websiteExcept_forAdd_caseNullOneValue_hasId_url) // 能加成功
+	err = WebsiteOps.Add(var_websiteExcept_forAdd_caseNullOneValue_hasId_url) // 能加成功
 	// 判断能否插入成功。如果查询空, 报错
-	query = WebsiteQueryById(var_websiteExcept_forAdd_caseNullOneValue_hasId_url.Id)
+	query = WebsiteOps.QueryById(var_websiteExcept_forAdd_caseNullOneValue_hasId_url.Id)
 	if query == nil {
 		ProcessFailNoCheckErr(t, err, "没插入成功")
 	}
@@ -253,9 +253,9 @@ func websiteExceptAdd_null(t *testing.T) {
 	// 2 单个值 - 无id  -- name
 	//  清空表
 	TruncateTable(testDB, &models.Website{})
-	err = WebsiteAdd(var_websiteExcept_forAdd_caseNullOneValue_noId_name) // 能加成功
+	err = WebsiteOps.Add(var_websiteExcept_forAdd_caseNullOneValue_noId_name) // 能加成功
 	// 判断能否插入成功。如果查询空, 报错
-	query = WebsiteQueryByNameId(var_websiteExcept_forAdd_caseNullOneValue_noId_name.NameId)
+	query = WebsiteOps.QueryByNameId(var_websiteExcept_forAdd_caseNullOneValue_noId_name.NameId)
 	if query == nil {
 		ProcessFailNoCheckErr(t, err, "没插入成功")
 	}
@@ -265,9 +265,9 @@ func websiteExceptAdd_null(t *testing.T) {
 	// 2 单个值 - 无id  -- url
 	//  清空表
 	TruncateTable(testDB, &models.Website{})
-	err = WebsiteAdd(var_websiteExcept_forAdd_caseNullOneValue_noId_url) // 能加成功
+	err = WebsiteOps.Add(var_websiteExcept_forAdd_caseNullOneValue_noId_url) // 能加成功
 	// 判断能否插入成功。如果查询空, 报错
-	query = WebsiteQueryByNameId(var_websiteExcept_forAdd_caseNullOneValue_noId_url.NameId)
+	query = WebsiteOps.QueryByNameId(var_websiteExcept_forAdd_caseNullOneValue_noId_url.NameId)
 	if query == nil {
 		ProcessFailNoCheckErr(t, err, "没插入成功")
 	}
@@ -277,9 +277,9 @@ func websiteExceptAdd_null(t *testing.T) {
 	// 3 多个值 - 有id
 	//  清空表
 	TruncateTable(testDB, &models.Website{})
-	err = WebsiteAdd(var_websiteExcept_forAdd_caseNullManyValue_hasId) // 能加成功
+	err = WebsiteOps.Add(var_websiteExcept_forAdd_caseNullManyValue_hasId) // 能加成功
 	// 判断能否插入成功。如果查询空, 报错
-	query = WebsiteQueryById(var_websiteExcept_forAdd_caseNullManyValue_hasId.Id)
+	query = WebsiteOps.QueryById(var_websiteExcept_forAdd_caseNullManyValue_hasId.Id)
 	if query == nil {
 		ProcessFailNoCheckErr(t, err, "没插入成功")
 	}
@@ -289,9 +289,9 @@ func websiteExceptAdd_null(t *testing.T) {
 	// 3 多个值 - 无id
 	//  清空表
 	TruncateTable(testDB, &models.Website{})
-	err = WebsiteAdd(var_websiteExcept_forAdd_caseNullManyValue_noId) // 能加成功
+	err = WebsiteOps.Add(var_websiteExcept_forAdd_caseNullManyValue_noId) // 能加成功
 	// 判断能否插入成功。如果查询空, 报错
-	query = WebsiteQueryByNameId(var_websiteExcept_forAdd_caseNullManyValue_noId.NameId)
+	query = WebsiteOps.QueryByNameId(var_websiteExcept_forAdd_caseNullManyValue_noId.NameId)
 	if query == nil {
 		ProcessFailNoCheckErr(t, err, "没插入成功")
 	}
@@ -317,9 +317,9 @@ func websiteExceptAdd_space(t *testing.T) {
 	t.Log("插入前，变量有没有空格=  ", var_noPointer_websiteExcept_forAdd_caseSpaceOneValue_hasId_name)
 	copy := var_noPointer_websiteExcept_forAdd_caseSpaceOneValue_hasId_name
 	copyPointer := &copy
-	err := WebsiteAdd(copyPointer) // 能加成功
+	err := WebsiteOps.Add(copyPointer) // 能加成功
 	// 判断能否插入成功。如果查询空, 报错
-	query := WebsiteQueryById(copyPointer.Id)
+	query := WebsiteOps.QueryById(copyPointer.Id)
 	if query == nil {
 		ProcessFailNoCheckErr(t, err, "没插入成功")
 	}
@@ -333,9 +333,9 @@ func websiteExceptAdd_space(t *testing.T) {
 	t.Log("插入前，变量有没有空格=  ", var_noPointer_websiteExcept_forAdd_caseSpaceOneValue_hasId_url)
 	copy = var_noPointer_websiteExcept_forAdd_caseSpaceOneValue_hasId_url
 	copyPointer = &copy
-	err = WebsiteAdd(copyPointer) // 能加成功
+	err = WebsiteOps.Add(copyPointer) // 能加成功
 	// 判断能否插入成功。如果查询空, 报错
-	query = WebsiteQueryById(copyPointer.Id)
+	query = WebsiteOps.QueryById(copyPointer.Id)
 	if query == nil {
 		ProcessFailNoCheckErr(t, err, "没插入成功")
 	}
@@ -349,9 +349,9 @@ func websiteExceptAdd_space(t *testing.T) {
 	t.Log("插入前，变量有没有空格=  ", var_noPointer_websiteExcept_forAdd_caseSpaceOneValue_noId_name)
 	copy = var_noPointer_websiteExcept_forAdd_caseSpaceOneValue_noId_name
 	copyPointer = &copy
-	err = WebsiteAdd(copyPointer) // 能加成功
+	err = WebsiteOps.Add(copyPointer) // 能加成功
 	// 判断能否插入成功。如果查询空, 报错
-	query = WebsiteQueryByNameId(copyPointer.NameId)
+	query = WebsiteOps.QueryByNameId(copyPointer.NameId)
 	if query == nil {
 		ProcessFailNoCheckErr(t, err, "没插入成功")
 	}
@@ -365,9 +365,9 @@ func websiteExceptAdd_space(t *testing.T) {
 	t.Log("插入前，变量有没有空格=  ", var_noPointer_websiteExcept_forAdd_caseSpaceOneValue_noId_url)
 	copy = var_noPointer_websiteExcept_forAdd_caseSpaceOneValue_noId_url
 	copyPointer = &copy
-	err = WebsiteAdd(copyPointer) // 能加成功
+	err = WebsiteOps.Add(copyPointer) // 能加成功
 	// 判断能否插入成功。如果查询空, 报错
-	query = WebsiteQueryByNameId(copyPointer.NameId)
+	query = WebsiteOps.QueryByNameId(copyPointer.NameId)
 	if query == nil {
 		ProcessFailNoCheckErr(t, err, "没插入成功")
 	}
@@ -381,9 +381,9 @@ func websiteExceptAdd_space(t *testing.T) {
 	t.Log("插入前，变量有没有空格=  ", var_noPointer_websiteExcept_forAdd_caseSpaceManyValue_hasId)
 	copy = var_noPointer_websiteExcept_forAdd_caseSpaceManyValue_hasId
 	copyPointer = &copy
-	err = WebsiteAdd(copyPointer) // 能加成功
+	err = WebsiteOps.Add(copyPointer) // 能加成功
 	// 判断能否插入成功。如果查询空, 报错
-	query = WebsiteQueryById(copyPointer.Id)
+	query = WebsiteOps.QueryById(copyPointer.Id)
 	if query == nil {
 		ProcessFailNoCheckErr(t, err, "没插入成功")
 	}
@@ -396,9 +396,9 @@ func websiteExceptAdd_space(t *testing.T) {
 	t.Log("插入前，变量有没有空格=  ", var_noPointer_websiteExcept_forAdd_caseSpaceManyValue_noId)
 	copy = var_noPointer_websiteExcept_forAdd_caseSpaceManyValue_noId
 	copyPointer = &copy
-	err = WebsiteAdd(copyPointer) // 能加成功
+	err = WebsiteOps.Add(copyPointer) // 能加成功
 	// 判断能否插入成功。如果查询空, 报错
-	query = WebsiteQueryByNameId(copyPointer.NameId)
+	query = WebsiteOps.QueryByNameId(copyPointer.NameId)
 	if query == nil {
 		ProcessFailNoCheckErr(t, err, "没插入成功")
 	}
