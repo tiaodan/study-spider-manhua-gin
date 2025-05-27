@@ -11,8 +11,12 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+// 初始化
+// 为 Website 表实现完整的操作接口
+type WebsiteOperations struct{}
+
 // 增
-func WebsiteAdd(website *models.Website) error {
+func (w WebsiteOperations) Add(website *models.Website) error {
 	// 预处理空格
 	website.Name = strings.TrimSpace(website.Name)
 	website.Url = strings.TrimSpace(website.Url)
@@ -36,9 +40,9 @@ func WebsiteAdd(website *models.Website) error {
 }
 
 // 批量增
-func WebsiteBatchAdd(websites []*models.Website) {
+func (w WebsiteOperations) BatchAdd(websites []*models.Website) {
 	for i, website := range websites {
-		err := WebsiteAdd(website)
+		err := w.Add(website)
 		if err == nil {
 			log.Debugf("批量创建第%d条成功, website: %v", i+1, website.Name)
 		} else {
@@ -48,7 +52,7 @@ func WebsiteBatchAdd(websites []*models.Website) {
 }
 
 // 删-通过id
-func WebsiteDeleteById(id uint) {
+func (w WebsiteOperations) DeleteById(id uint) {
 	var website models.Website
 	result := DB.Delete(&website, id)
 	if result.Error != nil {
@@ -59,7 +63,7 @@ func WebsiteDeleteById(id uint) {
 }
 
 // 删-通过 nameId
-func WebsiteDeleteByNameId(nameId any) {
+func (W WebsiteOperations) DeleteByNameId(nameId any) {
 	var website models.Website
 	result := DB.Where("name_id = ?", nameId).Delete(&website)
 	if result.Error != nil {
@@ -70,7 +74,7 @@ func WebsiteDeleteByNameId(nameId any) {
 }
 
 // 删-通过其它
-func WebsiteDeleteByOther(condition string, other any) {
+func (w WebsiteOperations) DeleteByOther(condition string, other any) {
 	var website models.Website
 	result := DB.Where(condition+" = ?", other).Delete(&website)
 	if result.Error != nil {
@@ -81,7 +85,7 @@ func WebsiteDeleteByOther(condition string, other any) {
 }
 
 // 批量删-通过id
-func WebsitesBatchDeleteById(ids []uint) {
+func (w WebsiteOperations) BatchDeleteById(ids []uint) {
 	var websites []models.Website
 	result := DB.Delete(&websites, ids)
 	if result.Error != nil {
@@ -92,7 +96,7 @@ func WebsitesBatchDeleteById(ids []uint) {
 }
 
 // 批量删-通过nameIds
-func WebsitesBatchDeleteByNameId(nameIds []int) {
+func (w WebsiteOperations) BatchDeleteByNameId(nameIds []int) {
 	var websites []models.Website
 	result := DB.Where("name_id IN ?", nameIds).Delete(&websites)
 	if result.Error != nil {
@@ -103,7 +107,7 @@ func WebsitesBatchDeleteByNameId(nameIds []int) {
 }
 
 // 批量删-通过other
-func WebsitesBatchDeleteByOther(condition string, others []any) {
+func (w WebsiteOperations) BatchDeleteByOther(condition string, others []any) {
 	var websites []models.Website
 	// result := DB.Where(condition+" IN ?", others).Delete(&websites) // other这样写错？
 	result := DB.Where(condition+" IN ?", others).Delete(&websites)

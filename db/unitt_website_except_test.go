@@ -406,7 +406,6 @@ func websiteExceptAdd_space(t *testing.T) {
 	WebsiteCheckSpaceNoId(query, &var_noPointer_websiteExcept_forAdd_caseSpaceManyValue_noId, t, "【不通过】")
 
 	t.Log("------------ website add except ... [test: space ] end ----------------")
-	panic("s----")
 }
 
 // ---------------------------- 被调用函数 end ----------------------------

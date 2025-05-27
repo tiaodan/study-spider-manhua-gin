@@ -851,8 +851,44 @@ func commonDbTest(t *testing.T, testDB *gorm.DB, tableName string, functionName 
 
 	// 2. 添加数据
 	// 增删改查默认都会添加第一个数据，不用判断 方法名
-	WebsiteAdd(websiteForAddHasIdNoZero)
+	// tableNameMap := map[string]interface{}{
+	// 	"websiteAdd": WebsiteAdd(),
+	// 	// "delete":      websiteForAddHasIdNoZero,
+	// 	// "update":      websiteForAddHasIdNoZero,
+	// 	// "batchAdd":    []*models.Website{websiteForAddHasIdNoZero, website2ForAddHasIdHasZero},
+	// 	// "batchDelete": []*models.Website{websiteForAddHasIdNoZero, website2ForAddHasIdHasZero},
+	// }
+	// 通过tableNameMap["websiteAdd"] 调用其对应的方法
+
+	// 2. 定义操作 map，每个值都是无参数的函数
+	operationMap := map[string]func(){
+		"websiteAdd": func() {
+			WebsiteAdd(websiteForAddHasIdNoZero)
+		},
+		"websiteDelete": func() {
+			WebsiteDeleteById(1)
+		},
+		"websiteUpdate": func() {
+			WebsiteUpdateById(1, websiteForUpdateHasIdNoZero)
+		},
+		"websiteBatchAdd": func() {
+			websites := []*models.Website{websiteForAddHasIdNoZero, website2ForAddHasIdHasZero}
+			WebsiteBatchAdd(websites)
+		},
+		"websiteBatchDelete": func() {
+			ids := []uint{1, 2}
+			WebsitesBatchDeleteById(ids)
+		},
+	}
+	// 3. 执行对应的操作
+	key := tableName + functionName // 例如: "websiteAdd"
+	if operation, exists := operationMap[key]; exists {
+		operation() // 直接调用函数
+	} else {
+		t.Errorf("未找到操作: %s", key)
+	}
 	t.Logf("------------ %s %s ... end ", functionName, functionName)
+	panic("----------")
 
 }
 

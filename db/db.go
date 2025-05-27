@@ -13,6 +13,25 @@ import (
 var DB *gorm.DB
 var once sync.Once // 使用 sync.Once 确保单例
 
+// 定义统一的操作接口,方便单元测试的时候调用. 为了把所有表的增删改查都叫Add
+type TableOperations interface {
+	Add(modelPointer interface{})
+	DeleteById(id uint)
+	DeleteByNameId(nameid any)
+	DeleteByOther(condition string, other any)
+
+	Update(id uint, data map[string]interface{})
+	Query(id uint) interface{}
+
+	BatchAdd(modelPointers []interface{})
+	BatchDeleteById(ids []uint)
+	BatchDeleteByNameId(nameIds []int)
+	BatchDeleteByOther(condition string, others []any)
+
+	BatchUpdate(ids []uint)
+	BatchQuery(ids []uint)
+}
+
 // 初始化数据库连接
 /*
 参数：
