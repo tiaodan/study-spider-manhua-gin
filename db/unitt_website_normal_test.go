@@ -21,6 +21,7 @@ import (
 	"study-spider-manhua-gin/models"
 	"testing"
 
+	"github.com/jinzhu/inflection"
 	"gorm.io/gorm"
 )
 
@@ -210,7 +211,37 @@ func init() {
 
 // ---------------------------- init end ----------------------------
 
-// ---------------------------- 阶段一：每个用例都是一个函数 end ----------------------------
+// 检测函数封装, 自动判断Id
+// 参数1: 查到的指针 参数2: 要对比的对象指针
+// 参数3: 测试对象指针 t *testing.T  参数4:错误标题字符串，如: 【查 by nameId】中括号里内容
+func WebsiteCheck(query *models.Website, obj *models.Website, t *testing.T, errTitleStr string) {
+	if obj.Id == 0 { // 无id
+		if query.NameId != obj.NameId ||
+			query.Name != obj.Name ||
+			query.Url != obj.Url ||
+			query.NeedProxy != obj.NeedProxy ||
+			query.IsHttps != obj.IsHttps {
+			// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
+			t.Errorf("[ %s ] 测试不通过, got= %v", errTitleStr, query)
+			t.Errorf("[ %s ] 测试不通过, obj= %v", errTitleStr, obj)
+			ProcessFail(t, nil, "测试不通过")
+		}
+		return // 退出
+	}
+	// 判断第1个, 默认判断id
+	if query.Id != obj.Id ||
+		query.NameId != obj.NameId ||
+		query.Name != obj.Name ||
+		query.Url != obj.Url ||
+		query.NeedProxy != obj.NeedProxy ||
+		query.IsHttps != obj.IsHttps {
+		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
+		t.Errorf("[ %s ] 测试不通过, got= %v", errTitleStr, query)
+		t.Errorf("[ %s ] 测试不通过, obj= %v", errTitleStr, obj)
+		ProcessFail(t, nil, "测试不通过")
+	}
+}
+
 // 检测函数封装, 对比Id
 // 参数1: 查到的指针 参数2: 要对比的对象指针
 // 参数3: 测试对象指针 t *testing.T  参数4:错误标题字符串，如: 【查 by nameId】中括号里内容
@@ -223,8 +254,8 @@ func WebsiteCheckHasId(query *models.Website, obj *models.Website, t *testing.T,
 		query.NeedProxy != obj.NeedProxy ||
 		query.IsHttps != obj.IsHttps {
 		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
-		t.Errorf(" %s 测试不通过, got= %v", errTitleStr, query)
-		t.Errorf(" %s 测试不通过, obj= %v", errTitleStr, obj)
+		t.Errorf("[ %s ] 测试不通过, got= %v", errTitleStr, query)
+		t.Errorf("[ %s ] 测试不通过, obj= %v", errTitleStr, obj)
 		ProcessFail(t, nil, "测试不通过")
 	}
 }
@@ -240,8 +271,41 @@ func WebsiteCheckNoId(query *models.Website, obj *models.Website, t *testing.T, 
 		query.NeedProxy != obj.NeedProxy ||
 		query.IsHttps != obj.IsHttps {
 		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
-		t.Errorf(" %s 测试不通过, got= %v", errTitleStr, query)
-		t.Errorf(" %s 测试不通过, obj= %v", errTitleStr, obj)
+		t.Errorf("[ %s ] 测试不通过, got= %v", errTitleStr, query)
+		t.Errorf("[ %s ] 测试不通过, obj= %v", errTitleStr, obj)
+		ProcessFail(t, nil, "测试不通过")
+	}
+}
+
+// 检测函数封装,检测空白 自动对比Id
+// 参数1: 查到的指针 参数2: 要对比的对象指针
+// 参数3: 测试对象指针 t *testing.T  参数4:错误标题字符串，如: 【查 by nameId】中括号里内容
+func WebsiteCheckSpace(query *models.Website, obj *models.Website, t *testing.T, errTitleStr string) {
+	// 判断第1个
+	if obj.Id == 0 { // 无id
+		if query.NameId != obj.NameId ||
+			query.Name != strings.TrimSpace(obj.Name) ||
+			query.Url != strings.TrimSpace(obj.Url) ||
+			query.NeedProxy != obj.NeedProxy ||
+			query.IsHttps != obj.IsHttps {
+			// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
+			t.Errorf("[ %s ] 测试不通过, got= %v", errTitleStr, query)
+			t.Errorf("[ %s ] 测试不通过, obj= %v", errTitleStr, obj)
+			ProcessFail(t, nil, "测试不通过")
+		}
+		return
+	}
+
+	// 默认判断id
+	if query.Id != obj.Id ||
+		query.NameId != obj.NameId ||
+		query.Name != strings.TrimSpace(obj.Name) ||
+		query.Url != strings.TrimSpace(obj.Url) ||
+		query.NeedProxy != obj.NeedProxy ||
+		query.IsHttps != obj.IsHttps {
+		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
+		t.Errorf("[ %s ] 测试不通过, got= %v", errTitleStr, query)
+		t.Errorf("[ %s ] 测试不通过, obj= %v", errTitleStr, obj)
 		ProcessFail(t, nil, "测试不通过")
 	}
 }
@@ -258,8 +322,8 @@ func WebsiteCheckSpaceHasId(query *models.Website, obj *models.Website, t *testi
 		query.NeedProxy != obj.NeedProxy ||
 		query.IsHttps != obj.IsHttps {
 		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
-		t.Errorf(" %s 测试不通过, got= %v", errTitleStr, query)
-		t.Errorf(" %s 测试不通过, obj= %v", errTitleStr, obj)
+		t.Errorf("[ %s ] 测试不通过, got= %v", errTitleStr, query)
+		t.Errorf("[ %s ] 测试不通过, obj= %v", errTitleStr, obj)
 		ProcessFail(t, nil, "测试不通过")
 	}
 }
@@ -275,8 +339,52 @@ func WebsiteCheckSpaceNoId(query *models.Website, obj *models.Website, t *testin
 		query.NeedProxy != obj.NeedProxy ||
 		query.IsHttps != obj.IsHttps {
 		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
-		t.Errorf(" %s 测试不通过, got= %v", errTitleStr, query)
-		t.Errorf(" %s 测试不通过, obj= %v", errTitleStr, obj)
+		t.Errorf("[ %s ] 测试不通过, got= %v", errTitleStr, query)
+		t.Errorf("[ %s ] 测试不通过, obj= %v", errTitleStr, obj)
+		ProcessFail(t, nil, "测试不通过")
+	}
+}
+
+// 检测函数封装, 删
+// 参数1: 查到的指针arr 参数2: 要对比的对象指针arr
+// 参数3: 测试对象指针 t *testing.T  参数4:错误标题字符串，如: 【查 by nameId】中括号里内容
+func WebsiteCheckDelete(queries []*models.Website, objs []*models.Website, t *testing.T, errTitleStr string) {
+	if len(queries) == 0 {
+		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
+		t.Errorf("[ %s ] 测试不通过, got= %v", errTitleStr, queries)
+		t.Errorf("[ %s ] 测试不通过, obj= %v", errTitleStr, objs)
+		ProcessFail(t, nil, "测试不通过")
+	}
+}
+
+// 检测更新函数封装, 自动对比Id
+// 参数1: 查到的指针 参数2: 更新参数 map[string]interface{}
+// 参数3: 测试对象指针 t *testing.T  参数4:错误标题字符串，如: 【查 by nameId】中括号里内容
+func WebsiteCheckUpdate(query *models.Website, obj map[string]interface{}, t *testing.T, errTitleStr string) {
+	if obj["Id"] == 0 { // 无id
+		if query.NameId != obj["NameId"] ||
+			query.Name != obj["Name"] ||
+			query.Url != obj["Url"] ||
+			query.NeedProxy != obj["NeedProxy"] ||
+			query.IsHttps != obj["IsHttps"] {
+			// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
+			t.Errorf("[ %s ] 测试不通过, got= %v", errTitleStr, query)
+			t.Errorf("[ %s ] 测试不通过, obj= %v", errTitleStr, obj)
+			ProcessFail(t, nil, "测试不通过")
+		}
+		return
+	}
+
+	// 判断第1个,默认检测id
+	if query.Id != obj["Id"] ||
+		query.NameId != obj["NameId"] ||
+		query.Name != obj["Name"] ||
+		query.Url != obj["Url"] ||
+		query.NeedProxy != obj["NeedProxy"] ||
+		query.IsHttps != obj["IsHttps"] {
+		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
+		t.Errorf("[ %s ] 测试不通过, got= %v", errTitleStr, query)
+		t.Errorf("[ %s ] 测试不通过, obj= %v", errTitleStr, obj)
 		ProcessFail(t, nil, "测试不通过")
 	}
 }
@@ -293,8 +401,8 @@ func WebsiteCheckUpdateHasId(query *models.Website, obj map[string]interface{}, 
 		query.NeedProxy != obj["NeedProxy"] ||
 		query.IsHttps != obj["IsHttps"] {
 		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
-		t.Errorf(" %s 测试不通过, got= %v", errTitleStr, query)
-		t.Errorf(" %s 测试不通过, obj= %v", errTitleStr, obj)
+		t.Errorf("[ %s ] 测试不通过, got= %v", errTitleStr, query)
+		t.Errorf("[ %s ] 测试不通过, obj= %v", errTitleStr, obj)
 		ProcessFail(t, nil, "测试不通过")
 	}
 }
@@ -310,12 +418,135 @@ func WebsiteCheckUpdateNoId(query *models.Website, obj map[string]interface{}, t
 		query.NeedProxy != obj["NeedProxy"] ||
 		query.IsHttps != obj["IsHttps"] {
 		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
-		t.Errorf(" %s 测试不通过, got= %v", errTitleStr, query)
-		t.Errorf(" %s 测试不通过, obj= %v", errTitleStr, obj)
+		t.Errorf("[ %s ] 测试不通过, got= %v", errTitleStr, query)
+		t.Errorf("[ %s ] 测试不通过, obj= %v", errTitleStr, obj)
 		ProcessFail(t, nil, "测试不通过")
 	}
 }
 
+// ---------------------------- 阶段二：封装通用测试函数 start ----------------------------
+// 参数1：t  *testing.T 。 测试对象
+// 参数2：testDb。var testDB *gorm.DB。测试db对象指针
+// 参数3：dbOps 。db操作对象。如WebsiteOperations
+// 参数4: tableNameSingular string 。表名
+// 参数5：functionName string。功能名称。增删改查、批量增删改查标签 如：add delete update batchAdd batchDelete batchUpdate
+// 参数6：objs []*models.Website // 要添加 arr
+// 参数7：queries []*models.Website  // 这个不用加，得进入函数后查询
+// 参数8：updates []map[string]interface{} // 要更新为的 arr
+// 所有方法思路
+// 1. 清空表
+// 2. 添加数据
+// 3. 增删改查、批量增删改查操作
+// 4. 查询数据,赋值给query变量
+// 4. 检测对比
+func commonDbTest(t *testing.T, testDB *gorm.DB, tableNameSingular string, functionName string,
+	objs []*models.Website, updates []map[string]interface{}) {
+
+	t.Logf("------------ %s %s ... start ", functionName, functionName)
+	// 1. 清空表
+	tableName := inflection.Plural(tableNameSingular) // 单数英文，转复数 如 website -> websites
+	t.Log("清空表, tableName = ", tableName)
+	TruncateTable(testDB.Table(tableName), nil) // 方式1： truncate table。 通过表名清空表
+
+	// 2. 添加数据
+	// 增删改查默认都会添加第一个数据，不用判断 方法名
+	for _, obj := range objs {
+		WebsiteOps.Add(obj)
+		// 判断functionName是否是批量操作，添加第二条数据
+		if !strings.Contains(functionName, "batch") {
+			break
+		}
+	}
+
+	// 3. 增删改查、批量增删改查操作
+	// 不带batch,只操作第一条数据。 带batch，操作第二条数据
+	switch {
+	case strings.Contains(functionName, "delete"):
+		for _, obj := range objs {
+			if obj.Id == 0 { // Id字段是空的，用DeleteByNameId
+				WebsiteOps.DeleteByNameId(obj.NameId)
+			} else {
+				WebsiteOps.DeleteById(obj.Id) // 默认通过id删除
+			}
+
+			// 判断是否操作 第二条数据
+			if !strings.Contains(functionName, "batch") {
+				break
+			}
+		}
+	case strings.Contains(functionName, "update"):
+		for i, obj := range objs {
+			if obj.Id == 0 { // Id字段是空的，用DeleteByNameId
+				WebsiteOps.UpdateByNameId(obj.NameId, updates[i])
+			} else {
+				WebsiteOps.UpdateById(obj.Id, updates[i]) // 默认通过id删除
+			}
+
+			// 判断是否操作 第二条数据
+			if !strings.Contains(functionName, "batch") { // 没有批量操作，就退出
+				break
+			}
+		}
+	default:
+		t.Log("functionName 未匹配到【 删改 】操作, functionName = ", functionName)
+	}
+
+	// 4. 查询数据,赋值给query变量
+	var nameIds []int
+	for _, obj := range objs { // init nameids
+		nameIds = append(nameIds, obj.NameId)
+		if !strings.Contains(functionName, "batch") { // 没有批量操作，就退出
+			break
+		}
+	}
+	queries, _ := WebsiteOps.BatchQueryByNameId(nameIds)
+
+	// 5. 检测对比
+	switch functionName {
+	case "add":
+		for i, obj := range objs {
+			WebsiteCheck(queries[i], obj, t, functionName)
+			if !strings.Contains(functionName, "batch") { // 没有批量操作，就退出
+				break
+			}
+		}
+	case "delete":
+		WebsiteCheckDelete(queries, objs, t, functionName)
+	case "update":
+		for i, update := range updates {
+			WebsiteCheckUpdate(queries[i], update, t, functionName)
+			if !strings.Contains(functionName, "batch") { // 没有批量操作，就退出
+				break
+			}
+		}
+	case "query":
+		for i, obj := range objs {
+			WebsiteCheck(queries[i], obj, t, functionName)
+			if !strings.Contains(functionName, "batch") { // 没有批量操作，就退出
+				break
+			}
+		}
+	}
+
+	// 检测。
+	t.Logf("------------ %s %s ... end ", functionName, functionName)
+}
+
+// 测试通过方法
+func TestCommon(t *testing.T) {
+	// 测试用例
+	// case - normal - 增
+	objs := []*models.Website{
+		{NameId: 1, Name: "1", Url: "1", NeedProxy: 1, IsHttps: 1},
+	}
+	commonDbTest(t, testDB, "website", "add", objs, nil)
+	panic("---")
+}
+
+// ---------------------------- 阶段二：封装通用测试函数 end ----------------------------
+
+// ---------------------------- 阶段一：每个用例都是一个函数 start ----------------------------
+/*
 // 增
 func TestWebsiteAdd(t *testing.T) {
 	t.Log("------------ website add ...  start ")
@@ -831,43 +1062,6 @@ func TestWebsiteBatchQueryByOther(t *testing.T) {
 	WebsiteCheckNoId(queryWebsite2, website2, t, "【 查 by other 】") // 判断第2个
 	t.Log("------------ website batch query by other ... start ")
 }
+*/
 
 // ---------------------------- 阶段一：每个用例都是一个函数 end ----------------------------
-
-// ---------------------------- 阶段二：封装通用测试函数 start ----------------------------
-// 参数1：t  *testing.T 。 测试对象
-// 参数1：testDb。var testDB *gorm.DB。测试db对象指针
-// 参数2: tableName string 。表名
-// 参数3：functionName string。功能名称。增删改查、批量增删改查标签 如：add delete update batchAdd batchDelete batchUpdate
-// 所有方法思路
-// 1. 清空表
-// 2. 添加数据
-// 3. 增删改查、批量增删改查操作
-// 4. 检测
-func commonDbTest(t *testing.T, testDB *gorm.DB, tableName string, functionName string) {
-	t.Logf("------------ %s %s ... start ", functionName, functionName)
-	// 1. 清空表
-	TruncateTable(testDB.Table(tableName), nil) // 方式1： truncate table。 通过表名清空表
-
-	// 2. 添加数据
-	// 增删改查默认都会添加第一个数据，不用判断 方法名
-	// tableNameMap := map[string]interface{}{
-	// 	"websiteAdd": WebsiteAdd(),
-	// 	// "delete":      websiteForAddHasIdNoZero,
-	// 	// "update":      websiteForAddHasIdNoZero,
-	// 	// "batchAdd":    []*models.Website{websiteForAddHasIdNoZero, website2ForAddHasIdHasZero},
-	// 	// "batchDelete": []*models.Website{websiteForAddHasIdNoZero, website2ForAddHasIdHasZero},
-	// }
-	// 通过tableNameMap["websiteAdd"] 调用其对应的方法
-
-	t.Logf("------------ %s %s ... end ", functionName, functionName)
-	// panic("----------")
-
-}
-
-// 测试通过方法
-func TestCommon(t *testing.T) {
-	commonDbTest(t, testDB, "website", "add")
-}
-
-// ---------------------------- 阶段二：封装通用测试函数 end ----------------------------

@@ -15,19 +15,28 @@ var DB *gorm.DB
 var once sync.Once // 使用 sync.Once 确保单例
 
 // 定义统一的操作接口,方便单元测试的时候调用. 为了把所有表的增删改查都叫Add
-type TableOperations[T any] interface { // 定义泛型接口
-	Add(modelPointer interface{}) // 原来的写法 Add(modelPointer interface{})
+// 定义 model 约束
+type Model interface {
+	*models.Website | *models.Country | *models.Category | *models.Type | *models.Comic
+	// 或者定义通用方法
+	// GetID() uint
+	// GetNameID() int
+}
+
+// type TableOperations[T any] interface { // 定义泛型接口  不能用，方法实现时不兼容
+type TableOperations[T Model] interface { // 定义泛型接口  也能用
+	Add(modelPointer T) error // 原来的写法 Add(modelPointer interface{})  泛型写法：Add(modelPointer T)
 	DeleteById(id uint)
 	DeleteByNameId(nameid any)
 	DeleteByOther(condition string, other any)
 	UpdateById(id uint, updates map[string]interface{})
 	UpdateByNameId(nameId int, updates map[string]interface{})
 	UpdateByOther(condition string, other any, updates map[string]interface{})
-	QueryById(id uint)
-	QueryByNameId(nameId int)
-	QueryByOther(condition string, other any)
+	QueryById(id uint) T
+	QueryByNameId(nameId int) T
+	QueryByOther(condition string, other any) T
 
-	BatchAdd(modelPointers []T) // 接收特定类型的切片
+	BatchAdd(modelPointers []T) // 接收特定类型的切片 泛型写法：BatchAdd(modelPointers []T)
 	BatchDeleteById(ids []uint)
 	BatchDeleteByNameId(nameIds []int)
 	BatchDeleteByOther(condition string, others []any)
@@ -35,13 +44,14 @@ type TableOperations[T any] interface { // 定义泛型接口
 	BatchUpdateByNameId(updates []map[string]interface{})
 	BatchUpdateByOther(updates []map[string]interface{})
 
-	BatchQueryById(ids []uint)
-	BatchQueryByNameId(nameIds []int)
-	BatchQueryByOther(condition string, others any, orderby string, sort string)
+	BatchQueryById(ids []uint) ([]T, error)
+	BatchQueryByNameId(nameIds []int) ([]T, error)
+	BatchQueryByOther(condition string, others []any, orderby string, sort string) ([]T, error)
 }
 
 // 实例化接口操作对象
 var WebsiteOps WebsiteOperations // 另一种写法: var WebsiteOps = WebsiteOperations{}
+var CountryOps CountryOperations // 另一种写法: var WebsiteOps = WebsiteOperations{}
 
 // ---------------------------- 变量 end ----------------------------
 
@@ -105,7 +115,7 @@ func InsertDefaultData() {
 	countryDefaultAmerica := &models.Country{Name: "欧美", NameId: 3}
 	countryDefaultJapan := &models.Country{Name: "日本", NameId: 4}
 	countries := []*models.Country{countryDefaultNoType, countryDefaultChina, countryDefaultKoren, countryDefaultAmerica, countryDefaultJapan}
-	CountriesBatchAdd(countries)
+	CountryOps.BatchAdd(countries)
 
 	// 插入默认数据-type
 	// 一级分类
@@ -134,6 +144,9 @@ func TruncateTable(db *gorm.DB, model interface{}) error {
 		return err
 	}
 	tableName := stmt.Schema.Table
+	log.Debug("清空表: ", tableName)
+
+	// 使用事务执行多个 SQL 语句
 
 	// 注释部分执行报错，gorm不让一次执行多个语句
 	// sql := fmt.Sprintf(`
