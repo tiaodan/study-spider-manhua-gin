@@ -139,11 +139,22 @@ func InsertDefaultData() {
 
 // TruncateTable 清空指定模型对应的数据表，同时跳过外键检查（适用于 MySQL）
 func TruncateTable(db *gorm.DB, model interface{}) error {
-	stmt := &gorm.Statement{DB: db}
-	if err := stmt.Parse(model); err != nil {
-		return err
+	// 优先从 db.Statement 获取表名
+	tableName := db.Statement.Table
+
+	// 如果 db.Statement 未设置表名，尝试解析 model
+	if tableName == "" && model != nil {
+		stmt := &gorm.Statement{DB: db}
+		if err := stmt.Parse(model); err == nil {
+			tableName = stmt.Schema.Table
+		}
 	}
-	tableName := stmt.Schema.Table
+
+	// 解析不到table，就return
+	if tableName == "" {
+		return fmt.Errorf("无法确定表名")
+	}
+
 	log.Debug("清空表: ", tableName)
 
 	// 使用事务执行多个 SQL 语句

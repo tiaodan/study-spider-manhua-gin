@@ -537,9 +537,17 @@ func TestCommon(t *testing.T) {
 	// 测试用例
 	// case - normal - 增
 	objs := []*models.Website{
-		{NameId: 1, Name: "1", Url: "1", NeedProxy: 1, IsHttps: 1},
+		// {NameId: 1, Name: "1", Url: "1", NeedProxy: 1, IsHttps: 1},
+		websiteForAddHasIdHasZero,
+		websiteForAddHasIdNoZero,
+		websiteForAddNoIdHasZero,
+		websiteForAddNoIdNoZero,
 	}
-	commonDbTest(t, testDB, "website", "add", objs, nil)
+	commonDbTest(t, testDB, "website", "add", objs[:1], nil) // 增 - 有id - 有0值
+	// commonDbTest(t, testDB, "website", "add", objs[1], nil)  // 增 - 有id - 无0值
+	// commonDbTest(t, testDB, "website", "add", objs[2], nil)  // 增 - 无id - 有0值
+	// commonDbTest(t, testDB, "website", "add", objs[3], nil)  // 增 - 无id - 无0值
+	// commonDbTest(t, testDB, "website", "delete")         // 删
 	panic("---")
 }
 
