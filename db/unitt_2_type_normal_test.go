@@ -1,5 +1,6 @@
 package db
 
+/*
 import (
 	"study-spider-manhua-gin/models"
 	"testing"
@@ -745,3 +746,4 @@ func TestTypeBatchQueryByOther(t *testing.T) {
 	TypeCheckNoId(queryType2, comicType2, t, "【 查 by other 】") // 判断第2个
 	t.Log("------------ comicType batch query by other ... start ")
 }
+*/

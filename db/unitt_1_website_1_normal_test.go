@@ -543,12 +543,12 @@ func TestCommon(t *testing.T) {
 		websiteForAddNoIdHasZero,
 		websiteForAddNoIdNoZero,
 	}
-	commonDbTest(t, testDB, "website", "add", objs[:1], nil) // 增 - 有id - 有0值
-	// commonDbTest(t, testDB, "website", "add", objs[1], nil)  // 增 - 有id - 无0值
-	// commonDbTest(t, testDB, "website", "add", objs[2], nil)  // 增 - 无id - 有0值
-	// commonDbTest(t, testDB, "website", "add", objs[3], nil)  // 增 - 无id - 无0值
+	commonDbTest(t, testDB, "website", "add", objs[0:1], nil) // 增 - 有id - 有0值 (1个0/全0)
+	commonDbTest(t, testDB, "website", "add", objs[1:2], nil) // 增 - 有id - 无0值
+	commonDbTest(t, testDB, "website", "add", objs[2:2], nil) // 增 - 无id - 有0值
+	commonDbTest(t, testDB, "website", "add", objs[3:], nil)  // 增 - 无id - 无0值
 	// commonDbTest(t, testDB, "website", "delete")         // 删
-	panic("---")
+	// panic("---")
 }
 
 // ---------------------------- 阶段二：封装通用测试函数 end ----------------------------
