@@ -2,6 +2,7 @@
 package db
 
 import (
+	"reflect"
 	"strings"
 	"study-spider-manhua-gin/log"
 	"study-spider-manhua-gin/models"
@@ -290,3 +291,135 @@ func (w WebsiteOperations) BatchQueryByOther(condition string, others []any, ord
 	log.Debugf("批量查询成功, 查询到 %d 条记录", len(websites)) // 原 log.Debug无需修改
 	return websites, nil
 }
+
+// 批量查 - all
+// 参数：orderby 排序字符串 如: name_id   sort 排序方式，ASC 为正序，DESC 为倒序
+func (w WebsiteOperations) BatchQueryAll() ([]*models.Website, error) {
+	var websites []*models.Website
+	result := DB.Find(&websites)
+	if result.Error != nil {
+		log.Error("批量查询失败: ", result.Error)
+		return websites, result.Error
+	}
+	log.Debugf("批量查询成功, 查询到 %d 条记录", len(websites)) // 原 log.Debug无需修改
+	return websites, nil
+}
+
+// ----------- 测试用例封装 start --------------
+// 根据给的对象， 生成有0值, 单个为0 的对象 (不判断Id + NameId)
+// 参数: 有id/无id 的 int值全是1的对象
+// 返回：有0值, 单个为0 的对象arr
+// 思路：1 有id一种思路 2 无id一种思路。不用区分id
+func (w WebsiteOperations) returnObjZeroOne(obj models.Website) []models.Website {
+	var forAddHasZeroOneArr []models.Website
+	// 复制一份
+	forAddHasZeroOne := obj
+
+	// 使用反射修改 int 类型字段为 0
+	value := reflect.ValueOf(&forAddHasZeroOne).Elem()
+	typ := value.Type()
+
+	// 不判断Id(index: 0) + NameId(index: 1),i 从2开始
+	typNum := typ.NumField()
+	if typNum < 2 {
+		return forAddHasZeroOneArr
+	}
+	for i := 2; i < typNum; i++ {
+
+		fieldValue := value.Field(i)
+
+		// 检查字段类型是否为 int
+		switch fieldValue.Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			// 将字段值设置为0
+			fieldValue.SetInt(0) // 一般要判断: if fieldValue.CanSet()
+			// 加入数组
+			forAddHasZeroOneArr = append(forAddHasZeroOneArr, forAddHasZeroOne)
+
+			// 重置变量
+			forAddHasZeroOne = obj
+		}
+	}
+	return forAddHasZeroOneArr
+
+	// v1 写法 -------------------- start
+	// 	// // 复制一份
+	// websiteForAddHasIdHasZeroOne := websiteForAddHasIdNoZero
+
+	// // 使用反射修改 int 类型字段为 0
+	// value := reflect.ValueOf(&websiteForAddHasIdHasZeroOne).Elem()
+	// typ := value.Type()
+
+	// for i := 0; i < typ.NumField(); i++ {
+	// 	fieldValue := value.Field(i)
+
+	// 	// 检查字段类型是否为 int
+	// 	switch fieldValue.Kind() {
+	// 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+	// 		// 将字段值设置为0
+	// 		fieldValue.SetInt(0) // 一般要判断: if fieldValue.CanSet()
+	// 		// 加入数组
+	// 		websitesForAddHasIdHasZeroOne = append(websitesForAddHasIdHasZeroOne, websiteForAddHasIdHasZeroOne)
+
+	// 		// 重置变量
+	// 		websiteForAddHasIdHasZeroOne = websiteForAddHasIdNoZero
+	// 	}
+	// }
+	// v1 写法 -------------------- end
+}
+
+// 根据给的对象， 生成有0值, all为0 的对象 (不判断Id + NameId)
+// 参数: 有id/无id 的 int值全是1的对象
+// 返回：有0值, 单个为0 的对象arr
+// 思路：1 有id一种思路 2 无id一种思路。不用区分id
+func (w WebsiteOperations) returnObjZeroAll(obj models.Website) models.Website {
+	// 复制一份
+	forAddHasZeroAll := obj
+
+	// 使用反射修改 int 类型字段为 0
+	value := reflect.ValueOf(&forAddHasZeroAll).Elem()
+	typ := value.Type()
+
+	// 不判断Id(index: 0) + NameId(index: 1),i 从2开始
+	typNum := typ.NumField()
+	if typNum < 2 {
+		return forAddHasZeroAll
+	}
+	for i := 2; i < typNum; i++ {
+		fieldValue := value.Field(i)
+
+		// 检查字段类型是否为 int
+		switch fieldValue.Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			// 将字段值设置为0
+			fieldValue.SetInt(0) // 一般要判断: if fieldValue.CanSet()
+		}
+	}
+	return forAddHasZeroAll
+
+	// v1.0 写法 -------------------- start
+	// // 复制一份
+	// websiteForAddHasIdHasZeroAll = websiteForAddHasIdNoZero
+
+	// // 使用反射修改 int 类型字段为 0
+	// value = reflect.ValueOf(&websiteForAddHasIdHasZeroAll).Elem()
+	// typ = value.Type()
+	// // fmt.Println("value = ", value) // {1 1 Test Website Add http://add.com 1 1}
+	// // fmt.Println("typ = ", typ)     // typ =  models.Website
+
+	// for i := 0; i < typ.NumField(); i++ {
+	// 	fieldValue := value.Field(i)
+	// 	// fmt.Println("fieldValue = ", fieldValue)  // 测试打印
+	// 	// fmt.Println("fieldValue.Kind() = ", fieldValue.Kind()) // 测试打印
+
+	// 	// 检查字段类型是否为 int
+	// 	switch fieldValue.Kind() {
+	// 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+	// 		// 将字段值设置为0
+	// 		fieldValue.SetInt(0) // 一般要判断: if fieldValue.CanSet()
+	// 	}
+	// }
+	// v1.0 写法 -------------------- end
+}
+
+// ----------- 测试用例封装 end --------------

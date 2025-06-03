@@ -14,6 +14,21 @@ import (
 
 // db包 全局变量
 var testDB *gorm.DB
+var casePool []CaseContent // 测试用例池
+
+// 测试case 类型定义
+type CaseContent struct {
+	db             *gorm.DB
+	tbNameSingular string // 表名 tableNameSingular
+	funcName       string // 方法名
+	objs           []*models.Website
+	updates        []map[string]interface{}
+	caseTree1      string // 用例树顶层名字
+	caseTree2      string // 用例树2层名字
+	caseTree3      string // 用例树3层名字
+	caseTree4      string
+	caseTree5      string
+}
 
 // 测试主函数
 func TestMain(m *testing.M) {
@@ -48,6 +63,6 @@ func ProcessFail(t *testing.T, err error, errTitleStr string) {
 // 封装中断进程函数,不判断err
 func ProcessFailNoCheckErr(t *testing.T, err error, errTitleStr string) {
 	t.Error(errTitleStr, err)
-	t.FailNow()
-	panic("-----------------") // 测试的时候用panic,实际使用时注释掉
+	// t.FailNow()  // 不用了, 好像不管用
+	// panic("-----------------") // 测试的时候用panic,实际使用时注释掉
 }

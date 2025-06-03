@@ -17,8 +17,10 @@
 package db
 
 import (
+	"fmt"
 	"strings"
 	"study-spider-manhua-gin/models"
+	"sync"
 	"testing"
 
 	"github.com/jinzhu/inflection"
@@ -35,18 +37,23 @@ import (
 //
 
 // ---------------------------- 变量 start ----------------------------
+var onceTestCase sync.Once // 单例
 
 // 用于 add
-var websiteForAddHasIdNoZero *models.Website  // 用于add, 有id, 无0值
-var websiteForAddHasIdHasZero *models.Website // 用于add, 有id, 无0值
-var websiteForAddNoIdNoZero *models.Website   // 用于add, 无id, 无0值
-var websiteForAddNoIdHasZero *models.Website  // 用于add, 无id, 无0值
+var websiteForAddHasIdNoZero models.Website        // 用于add, 有id, 无0值
+var websitesForAddHasIdHasZeroOne []models.Website // 用于add, 有id, 无0值-单个为0
+var websiteForAddHasIdHasZeroAll models.Website    // 用于add, 有id, 无0值-全为0
+var websiteForAddNoIdNoZero models.Website         // 用于add, 无id, 无0值
+var websitesForAddNoIdHasZeroOne []models.Website  // 用于add, 无id, 无0值-单个为0
+var websiteForAddNoIdHasZeroAll models.Website     // 用于add, 有id, 无0值-全为0
 
 // 用于 add batch
-var website2ForAddHasIdNoZero *models.Website  // 用于add, 有id, 无0值
-var website2ForAddHasIdHasZero *models.Website // 用于add, 有id, 无0值
-var website2ForAddNoIdNoZero *models.Website   // 用于add, 无id, 无0值
-var website2ForAddNoIdHasZero *models.Website  // 用于add, 无id, 无0值
+var website2ForAddHasIdNoZero models.Website        // 用于add, 有id, 无0值
+var websites2ForAddHasIdHasZeroOne []models.Website // 用于add, 有id, 无0值-单个为0
+var website2ForAddHasIdHasZeroAll models.Website    // 用于add, 有id, 无0值-全为0
+var website2ForAddNoIdNoZero models.Website         // 用于add, 无id, 无0值
+var websites2ForAddNoIdHasZeroOne []models.Website  // 用于add, 无id, 无0值-单个为0
+var website2ForAddNoIdHasZeroAll models.Website     // 用于add, 有id, 无0值-全为0
 
 // 用于 update
 var websiteForUpdateHasIdNoZero map[string]interface{}  // 用于update, 有id, 无0值
@@ -66,8 +73,9 @@ var website2ForUpdateNoIdHasZero map[string]interface{} // 用于update, 无id, 
 
 // ---------------------------- init start ----------------------------
 func init() {
-	// 用于add, 有id
-	websiteForAddHasIdNoZero = &models.Website{
+	//---------- 用于add
+	// // // 有id
+	websiteForAddHasIdNoZero = models.Website{
 		Id:        1, // 新增时,可以指定id,gorm会插入指定id,而不是自增
 		NameId:    1,
 		Name:      "Test Website Add",
@@ -75,35 +83,22 @@ func init() {
 		NeedProxy: 1,
 		IsHttps:   1,
 	}
-
-	websiteForAddHasIdHasZero = &models.Website{
-		Id:        1, // 新增时,可以指定id,gorm会插入指定id,而不是自增
-		NameId:    1,
-		Name:      "Test Website Add",
-		Url:       "http://add.com",
-		NeedProxy: 0,
-		IsHttps:   0,
-	}
-
-	// 用于add, 无id
-	websiteForAddNoIdNoZero = &models.Website{
+	websitesForAddHasIdHasZeroOne = WebsiteOps.returnObjZeroOne(websiteForAddHasIdNoZero) // 用于add, 有id, 无0值-单个为0 数组
+	websiteForAddHasIdHasZeroAll = WebsiteOps.returnObjZeroAll(websiteForAddHasIdNoZero)  // 用于add, 有id, 无0值-全为0
+	// // // 无id
+	websiteForAddNoIdNoZero = models.Website{
 		NameId:    1,
 		Name:      "Test Website Add",
 		Url:       "http://add.com",
 		NeedProxy: 1,
 		IsHttps:   1,
 	}
+	websitesForAddNoIdHasZeroOne = WebsiteOps.returnObjZeroOne(websiteForAddNoIdNoZero) // 用于add, 无id, 无0值-单个为0 数组
+	websiteForAddNoIdHasZeroAll = WebsiteOps.returnObjZeroAll(websiteForAddNoIdNoZero)  // 用于add, 无id, 无0值-全为0
 
-	websiteForAddNoIdHasZero = &models.Website{
-		NameId:    1,
-		Name:      "Test Website Add",
-		Url:       "http://add.com",
-		NeedProxy: 0,
-		IsHttps:   0,
-	}
-
-	// 用于add batch, 有id
-	website2ForAddHasIdNoZero = &models.Website{
+	//---------- 用于add batch
+	// // // 有id
+	website2ForAddHasIdNoZero = models.Website{
 		Id:        2, // 新增时,可以指定id,gorm会插入指定id,而不是自增
 		NameId:    2,
 		Name:      "Test Website Add2",
@@ -111,32 +106,19 @@ func init() {
 		NeedProxy: 1,
 		IsHttps:   1,
 	}
+	websites2ForAddHasIdHasZeroOne = WebsiteOps.returnObjZeroOne(website2ForAddHasIdNoZero) // 用于add, 有id, 无0值-单个为0 数组
+	website2ForAddHasIdHasZeroAll = WebsiteOps.returnObjZeroAll(website2ForAddHasIdNoZero)  // 用于add, 有id, 无0值-全为0
 
-	website2ForAddHasIdHasZero = &models.Website{
-		Id:        2, // 新增时,可以指定id,gorm会插入指定id,而不是自增
-		NameId:    2,
-		Name:      "Test Website Add2",
-		Url:       "http://add.com2",
-		NeedProxy: 0,
-		IsHttps:   0,
-	}
-
-	// 用于add batch, 无id
-	website2ForAddNoIdNoZero = &models.Website{
+	// // // 无id
+	website2ForAddNoIdNoZero = models.Website{
 		NameId:    2,
 		Name:      "Test Website Add2",
 		Url:       "http://add.com2",
 		NeedProxy: 1,
 		IsHttps:   1,
 	}
-
-	website2ForAddNoIdHasZero = &models.Website{
-		NameId:    2,
-		Name:      "Test Website Add2",
-		Url:       "http://add.com2",
-		NeedProxy: 0,
-		IsHttps:   0,
-	}
+	websites2ForAddNoIdHasZeroOne = WebsiteOps.returnObjZeroOne(website2ForAddNoIdNoZero) // 用于add, 无id, 无0值-单个为0 数组
+	website2ForAddNoIdHasZeroAll = WebsiteOps.returnObjZeroAll(website2ForAddNoIdNoZero)  // 用于add, 无id, 无0值-全为0
 
 	// 用于update
 	websiteForUpdateHasIdNoZero = map[string]interface{}{
@@ -207,6 +189,193 @@ func init() {
 		"NeedProxy": 0,
 		"IsHttps":   0,
 	}
+}
+
+// 初始化测试用例池
+// 返回用例池
+// func initTestCasePoll() []CaseContent { // 不用返回了，已经修改了全局变量了
+func initTestCasePoll() { // 不用返回了，已经修改了全局变量了
+	// 单例
+	onceTestCase.Do(func() {
+		// 思路：
+		// 1. add
+		// 2. batch add
+		// 3. update
+		// 4. batch update
+		// 5. delete
+		// 6. batch delete
+		// 7. query
+		// 8. batch query
+		// 1) 生成用例: 有id用例, 参考xmind
+		// 2) 生成用例: 无id用例, 参考xmind
+
+		// 生成用例
+		// 1. 生成用例: 有id用例, 参考xmind
+		// var casePool []CaseContent //  不用这个了，已经有全局变量了
+
+		// 1. add ------------- start --------------------
+		// 有id,无0值，
+		testCase := CaseContent{
+			caseTree1:      "有id",
+			caseTree2:      "无0值",
+			db:             testDB,    // db Pointer
+			tbNameSingular: "website", // tbName
+			funcName:       "add",
+			objs:           []*models.Website{&websiteForAddHasIdNoZero},
+			updates:        []map[string]interface{}{},
+		}
+		casePool = append(casePool, testCase)
+
+		// 有id,有0值，1个0
+		for _, v := range websitesForAddHasIdHasZeroOne {
+			testCase := CaseContent{
+				caseTree1:      "有id",
+				caseTree2:      "有0值",
+				caseTree3:      "单个为0",
+				db:             testDB,    // db Pointer
+				tbNameSingular: "website", // tbName
+				funcName:       "add",
+				objs:           []*models.Website{&v},
+			}
+			casePool = append(casePool, testCase)
+		}
+
+		// 有id,有0值，全0
+		testCase = CaseContent{
+			caseTree1:      "有id",
+			caseTree2:      "无0值",
+			caseTree3:      "全为0",
+			db:             testDB,    // db Pointer
+			tbNameSingular: "website", // tbName
+			funcName:       "add",
+			objs:           []*models.Website{&websiteForAddHasIdHasZeroAll},
+			updates:        []map[string]interface{}{},
+		}
+		casePool = append(casePool, testCase)
+
+		// 2. 生成用例: 无id用例, 参考xmind
+		// 无id,无0值，
+		testCase = CaseContent{
+			caseTree1:      "无id",
+			caseTree2:      "无0值",
+			db:             testDB,    // db Pointer
+			tbNameSingular: "website", // tbName
+			funcName:       "add",
+			objs:           []*models.Website{&websiteForAddNoIdNoZero},
+			updates:        []map[string]interface{}{},
+		}
+		casePool = append(casePool, testCase)
+
+		// 无id,有0值，1个0
+		for _, v := range websitesForAddNoIdHasZeroOne {
+			testCase := CaseContent{
+				caseTree1:      "无id",
+				caseTree2:      "有0值",
+				caseTree3:      "单个为0",
+				db:             testDB,    // db Pointer
+				tbNameSingular: "website", // tbName
+				funcName:       "add",
+				objs:           []*models.Website{&v},
+			}
+			casePool = append(casePool, testCase)
+		}
+
+		// 无id,有0值，全0
+		testCase = CaseContent{
+			caseTree1:      "无id",
+			caseTree2:      "无0值",
+			caseTree3:      "全为0",
+			db:             testDB,    // db Pointer
+			tbNameSingular: "website", // tbName
+			funcName:       "add",
+			objs:           []*models.Website{&websiteForAddNoIdHasZeroAll},
+			updates:        []map[string]interface{}{},
+		}
+		casePool = append(casePool, testCase)
+		// 1. add ------------- end --------------------
+
+		// 2. batch add ------------- start --------------------
+		// 有id,无0值，
+		testCase = CaseContent{
+			caseTree1:      "有id",
+			caseTree2:      "无0值",
+			db:             testDB,    // db Pointer
+			tbNameSingular: "website", // tbName
+			funcName:       "batch add",
+			objs:           []*models.Website{&websiteForAddHasIdNoZero, &website2ForAddHasIdNoZero},
+			updates:        []map[string]interface{}{},
+		}
+		casePool = append(casePool, testCase)
+
+		// 有id,有0值，1个0
+		for i, v := range websitesForAddHasIdHasZeroOne {
+			testCase := CaseContent{
+				caseTree1:      "有id",
+				caseTree2:      "有0值",
+				caseTree3:      "单个为0",
+				db:             testDB,    // db Pointer
+				tbNameSingular: "website", // tbName
+				funcName:       "batch add",
+				objs:           []*models.Website{&v, &websites2ForAddHasIdHasZeroOne[i]},
+			}
+			casePool = append(casePool, testCase)
+		}
+
+		// 有id,有0值，全0
+		testCase = CaseContent{
+			caseTree1:      "有id",
+			caseTree2:      "无0值",
+			caseTree3:      "全为0",
+			db:             testDB,    // db Pointer
+			tbNameSingular: "website", // tbName
+			funcName:       "batch add",
+			objs:           []*models.Website{&websiteForAddHasIdHasZeroAll, &website2ForAddHasIdHasZeroAll},
+			updates:        []map[string]interface{}{},
+		}
+		casePool = append(casePool, testCase)
+
+		// 2) 生成用例: 无id用例, 参考xmind
+		// 无id,无0值，
+		testCase = CaseContent{
+			caseTree1:      "无id",
+			caseTree2:      "无0值",
+			db:             testDB,    // db Pointer
+			tbNameSingular: "website", // tbName
+			funcName:       "batch add",
+			objs:           []*models.Website{&websiteForAddNoIdNoZero, &website2ForAddNoIdNoZero},
+			updates:        []map[string]interface{}{},
+		}
+		casePool = append(casePool, testCase)
+
+		// 无id,有0值，1个0
+		for i, v := range websitesForAddNoIdHasZeroOne {
+			testCase := CaseContent{
+				caseTree1:      "无id",
+				caseTree2:      "有0值",
+				caseTree3:      "单个为0",
+				db:             testDB,    // db Pointer
+				tbNameSingular: "website", // tbName
+				funcName:       "batch add",
+				objs:           []*models.Website{&v, &websites2ForAddNoIdHasZeroOne[i]},
+			}
+			casePool = append(casePool, testCase)
+		}
+
+		// 无id,有0值，全0
+		testCase = CaseContent{
+			caseTree1:      "无id",
+			caseTree2:      "无0值",
+			caseTree3:      "全为0",
+			db:             testDB,    // db Pointer
+			tbNameSingular: "website", // tbName
+			funcName:       "batch add",
+			objs:           []*models.Website{&websiteForAddNoIdHasZeroAll, &website2ForAddNoIdHasZeroAll},
+			updates:        []map[string]interface{}{},
+		}
+		casePool = append(casePool, testCase)
+		// 2. batch add ------------- end --------------------
+	})
+	// return casePool // 不用返回了，已经修改了全局变量了
 }
 
 // ---------------------------- init end ----------------------------
@@ -442,7 +611,7 @@ func WebsiteCheckUpdateNoId(query *models.Website, obj map[string]interface{}, t
 func commonDbTest(t *testing.T, testDB *gorm.DB, tableNameSingular string, functionName string,
 	objs []*models.Website, updates []map[string]interface{}) {
 
-	t.Logf("------------ %s %s ... start ", functionName, functionName)
+	t.Logf("------------  %s ... start ", functionName)
 	// 1. 清空表
 	tableName := inflection.Plural(tableNameSingular) // 单数英文，转复数 如 website -> websites
 	t.Log("清空表, tableName = ", tableName)
@@ -455,6 +624,15 @@ func commonDbTest(t *testing.T, testDB *gorm.DB, tableNameSingular string, funct
 		// 判断functionName是否是批量操作，添加第二条数据
 		if !strings.Contains(functionName, "batch") {
 			break
+		}
+	}
+	// 判断是否插入2条数据
+	if strings.Contains(functionName, "batch") {
+		t.Log("------  functionName  ", functionName)
+		queries, _ := WebsiteOps.BatchQueryAll()
+		t.Log("------  queries  ", queries)
+		if len(queries) != 2 {
+			t.Errorf("批量操作失败, 期望返回2条数据, 实际返回%d条数据", len(queries))
 		}
 	}
 
@@ -529,26 +707,40 @@ func commonDbTest(t *testing.T, testDB *gorm.DB, tableNameSingular string, funct
 	}
 
 	// 检测。
-	t.Logf("------------ %s %s ... end ", functionName, functionName)
+	t.Logf("------------  %s ... end ", functionName)
 }
 
 // 测试通过方法
 func TestCommon(t *testing.T) {
-	// 测试用例
-	// case - normal - 增
-	objs := []*models.Website{
-		// {NameId: 1, Name: "1", Url: "1", NeedProxy: 1, IsHttps: 1},
-		websiteForAddHasIdHasZero,
-		websiteForAddHasIdNoZero,
-		websiteForAddNoIdHasZero,
-		websiteForAddNoIdNoZero,
+	initTestCasePoll() // 获取用例池
+	for i, v := range casePool {
+		objsStr := fmt.Sprintf("%v", v.objs[0])
+		if len(v.objs) > 1 {
+			objsStr += fmt.Sprintf(", %v", v.objs[1])
+		}
+		fmt.Printf("用例池 len(pool) = %v, i=%v, pool = %v, objs=%v \n", len(casePool), i+1, v, objsStr) // 老的写法: v.objs[0]
 	}
-	commonDbTest(t, testDB, "website", "add", objs[0:1], nil) // 增 - 有id - 有0值 (1个0/全0)
-	commonDbTest(t, testDB, "website", "add", objs[1:2], nil) // 增 - 有id - 无0值
-	commonDbTest(t, testDB, "website", "add", objs[2:2], nil) // 增 - 无id - 有0值
-	commonDbTest(t, testDB, "website", "add", objs[3:], nil)  // 增 - 无id - 无0值
-	// commonDbTest(t, testDB, "website", "delete")         // 删
-	// panic("---")
+
+	// 通用用例池，循环进行测试
+	// for len(casePool) > 0 {  // 另一种for写法
+	for i := range casePool {
+		if len(casePool) == 0 {
+			break
+		}
+		// 取出第一个用例
+		current := casePool[0]
+		fmt.Printf("------------------------- 当前用例=%v, funcName= [%s] case = [%s] [%s] [%s] [%s] [%s] ------------------------- \n",
+			i+1, current.funcName, current.caseTree1, current.caseTree2, current.caseTree3,
+			current.caseTree4, current.caseTree5)
+
+		// 执行用例
+		commonDbTest(t, current.db, current.tbNameSingular, current.funcName, current.objs, current.updates)
+
+		// 从用例池中移除已执行的用例
+		casePool = casePool[1:]
+		fmt.Println("") // case end
+	}
+
 }
 
 // ---------------------------- 阶段二：封装通用测试函数 end ----------------------------
