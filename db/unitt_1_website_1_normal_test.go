@@ -200,10 +200,10 @@ func initTestCasePoll() { // 不用返回了，已经修改了全局变量了
 		// 思路：
 		// 1. add
 		// 2. batch add
-		// 3. update
-		// 4. batch update
-		// 5. delete
-		// 6. batch delete
+		// 3. delete
+		// 4. batch delete
+		// 5. update
+		// 6. batch update
 		// 7. query
 		// 8. batch query
 		// 1) 生成用例: 有id用例, 参考xmind
@@ -211,171 +211,99 @@ func initTestCasePoll() { // 不用返回了，已经修改了全局变量了
 
 		// 生成用例
 		// 1. 生成用例: 有id用例, 参考xmind
-		// var casePool []CaseContent //  不用这个了，已经有全局变量了
 
 		// 1. add ------------- start --------------------
 		// 有id,无0值，
-		testCase := CaseContent{
-			caseTree1:      "有id",
-			caseTree2:      "无0值",
-			db:             testDB,    // db Pointer
-			tbNameSingular: "website", // tbName
-			funcName:       "add",
-			objs:           []*models.Website{&websiteForAddHasIdNoZero},
-			updates:        []map[string]interface{}{},
-		}
+		// 第一行= case标题str
+		// 第二行= 用例具体内容
+		// 第三行= byOhter操作
+		testCase := GenCaseContent("有id", "无0值", "", "", "",
+			testDB, "website", "add", []models.Website{websiteForAddHasIdNoZero}, nil,
+			false, "", nil, "", "", "")
 		casePool = append(casePool, testCase)
 
 		// 有id,有0值，1个0
 		for _, v := range websitesForAddHasIdHasZeroOne {
-			testCase := CaseContent{
-				caseTree1:      "有id",
-				caseTree2:      "有0值",
-				caseTree3:      "单个为0",
-				db:             testDB,    // db Pointer
-				tbNameSingular: "website", // tbName
-				funcName:       "add",
-				objs:           []*models.Website{&v},
-			}
+			testCase := GenCaseContent("有id", "有0值", "单个为0", "", "",
+				testDB, "website", "add", []models.Website{v}, nil,
+				false, "", nil, "", "", "")
 			casePool = append(casePool, testCase)
 		}
 
 		// 有id,有0值，全0
-		testCase = CaseContent{
-			caseTree1:      "有id",
-			caseTree2:      "无0值",
-			caseTree3:      "全为0",
-			db:             testDB,    // db Pointer
-			tbNameSingular: "website", // tbName
-			funcName:       "add",
-			objs:           []*models.Website{&websiteForAddHasIdHasZeroAll},
-			updates:        []map[string]interface{}{},
-		}
+		testCase = GenCaseContent("有id", "有0值", "全为0", "", "",
+			testDB, "website", "add", []models.Website{websiteForAddHasIdHasZeroAll}, nil,
+			false, "", nil, "", "", "")
 		casePool = append(casePool, testCase)
 
 		// 2. 生成用例: 无id用例, 参考xmind
-		// 无id,无0值，
-		testCase = CaseContent{
-			caseTree1:      "无id",
-			caseTree2:      "无0值",
-			db:             testDB,    // db Pointer
-			tbNameSingular: "website", // tbName
-			funcName:       "add",
-			objs:           []*models.Website{&websiteForAddNoIdNoZero},
-			updates:        []map[string]interface{}{},
-		}
+		// 无id,无0值
+		testCase = GenCaseContent("无id", "无0值", "", "", "",
+			testDB, "website", "add", []models.Website{websiteForAddNoIdNoZero}, nil,
+			false, "", nil, "", "", "")
 		casePool = append(casePool, testCase)
 
 		// 无id,有0值，1个0
 		for _, v := range websitesForAddNoIdHasZeroOne {
-			testCase := CaseContent{
-				caseTree1:      "无id",
-				caseTree2:      "有0值",
-				caseTree3:      "单个为0",
-				db:             testDB,    // db Pointer
-				tbNameSingular: "website", // tbName
-				funcName:       "add",
-				objs:           []*models.Website{&v},
-			}
+			testCase := GenCaseContent("无id", "有0值", "单个为0", "", "",
+				testDB, "website", "add", []models.Website{v}, nil,
+				false, "", nil, "", "", "")
 			casePool = append(casePool, testCase)
 		}
 
 		// 无id,有0值，全0
-		testCase = CaseContent{
-			caseTree1:      "无id",
-			caseTree2:      "无0值",
-			caseTree3:      "全为0",
-			db:             testDB,    // db Pointer
-			tbNameSingular: "website", // tbName
-			funcName:       "add",
-			objs:           []*models.Website{&websiteForAddNoIdHasZeroAll},
-			updates:        []map[string]interface{}{},
-		}
+		testCase = GenCaseContent("无id", "有0值", "全为0", "", "",
+			testDB, "website", "add", []models.Website{websiteForAddNoIdHasZeroAll}, nil,
+			false, "", nil, "", "", "")
 		casePool = append(casePool, testCase)
 		// 1. add ------------- end --------------------
 
 		// 2. batch add ------------- start --------------------
-		// 有id,无0值，
-		testCase = CaseContent{
-			caseTree1:      "有id",
-			caseTree2:      "无0值",
-			db:             testDB,    // db Pointer
-			tbNameSingular: "website", // tbName
-			funcName:       "batch add",
-			objs:           []*models.Website{&websiteForAddHasIdNoZero, &website2ForAddHasIdNoZero},
-			updates:        []map[string]interface{}{},
-		}
+		// 有id,无0值，1个
+		testCase = GenCaseContent("有id", "无0值", "", "", "",
+			testDB, "website", "batch add", []models.Website{websiteForAddHasIdNoZero, website2ForAddHasIdNoZero}, nil,
+			false, "", nil, "", "", "")
 		casePool = append(casePool, testCase)
 
 		// 有id,有0值，1个0
 		for i, v := range websitesForAddHasIdHasZeroOne {
-			testCase := CaseContent{
-				caseTree1:      "有id",
-				caseTree2:      "有0值",
-				caseTree3:      "单个为0",
-				db:             testDB,    // db Pointer
-				tbNameSingular: "website", // tbName
-				funcName:       "batch add",
-				objs:           []*models.Website{&v, &websites2ForAddHasIdHasZeroOne[i]},
-			}
+			testCase = GenCaseContent("有id", "有0值", "单个为0", "", "",
+				testDB, "website", "batch add", []models.Website{v, websites2ForAddHasIdHasZeroOne[i]}, nil,
+				false, "", nil, "", "", "")
 			casePool = append(casePool, testCase)
 		}
 
 		// 有id,有0值，全0
-		testCase = CaseContent{
-			caseTree1:      "有id",
-			caseTree2:      "无0值",
-			caseTree3:      "全为0",
-			db:             testDB,    // db Pointer
-			tbNameSingular: "website", // tbName
-			funcName:       "batch add",
-			objs:           []*models.Website{&websiteForAddHasIdHasZeroAll, &website2ForAddHasIdHasZeroAll},
-			updates:        []map[string]interface{}{},
-		}
+		testCase = GenCaseContent("有id", "有0值", "全为0", "", "",
+			testDB, "website", "batch add", []models.Website{websiteForAddHasIdHasZeroAll, website2ForAddHasIdHasZeroAll}, nil,
+			false, "", nil, "", "", "")
 		casePool = append(casePool, testCase)
 
 		// 2) 生成用例: 无id用例, 参考xmind
-		// 无id,无0值，
-		testCase = CaseContent{
-			caseTree1:      "无id",
-			caseTree2:      "无0值",
-			db:             testDB,    // db Pointer
-			tbNameSingular: "website", // tbName
-			funcName:       "batch add",
-			objs:           []*models.Website{&websiteForAddNoIdNoZero, &website2ForAddNoIdNoZero},
-			updates:        []map[string]interface{}{},
-		}
+		// 无id,无0值
+		testCase = GenCaseContent("无id", "无0值", "", "", "",
+			testDB, "website", "batch add", []models.Website{websiteForAddNoIdNoZero, website2ForAddNoIdNoZero}, nil,
+			false, "", nil, "", "", "")
 		casePool = append(casePool, testCase)
 
 		// 无id,有0值，1个0
 		for i, v := range websitesForAddNoIdHasZeroOne {
-			testCase := CaseContent{
-				caseTree1:      "无id",
-				caseTree2:      "有0值",
-				caseTree3:      "单个为0",
-				db:             testDB,    // db Pointer
-				tbNameSingular: "website", // tbName
-				funcName:       "batch add",
-				objs:           []*models.Website{&v, &websites2ForAddNoIdHasZeroOne[i]},
-			}
+			testCase = GenCaseContent("无id", "有0值", "单个为0", "", "",
+				testDB, "website", "batch add", []models.Website{v, websites2ForAddNoIdHasZeroOne[i]}, nil,
+				false, "", nil, "", "", "")
 			casePool = append(casePool, testCase)
 		}
 
 		// 无id,有0值，全0
-		testCase = CaseContent{
-			caseTree1:      "无id",
-			caseTree2:      "无0值",
-			caseTree3:      "全为0",
-			db:             testDB,    // db Pointer
-			tbNameSingular: "website", // tbName
-			funcName:       "batch add",
-			objs:           []*models.Website{&websiteForAddNoIdHasZeroAll, &website2ForAddNoIdHasZeroAll},
-			updates:        []map[string]interface{}{},
-		}
+		testCase = GenCaseContent("无id", "有0值", "全为0", "", "",
+			testDB, "website", "batch add", []models.Website{websiteForAddNoIdHasZeroAll, website2ForAddNoIdHasZeroAll}, nil,
+			false, "", nil, "", "", "")
 		casePool = append(casePool, testCase)
 		// 2. batch add ------------- end --------------------
+
+		// 3. delete ------------- start --------------------
+		// 3. delete ------------- end --------------------
 	})
-	// return casePool // 不用返回了，已经修改了全局变量了
 }
 
 // ---------------------------- init end ----------------------------
@@ -601,16 +529,19 @@ func WebsiteCheckUpdateNoId(query *models.Website, obj map[string]interface{}, t
 // 参数5：functionName string。功能名称。增删改查、批量增删改查标签 如：add delete update batchAdd batchDelete batchUpdate
 // 参数6：objs []*models.Website // 要添加 arr
 // 参数7：queries []*models.Website  // 这个不用加，得进入函数后查询
-// 参数8：updates []map[string]interface{} // 要更新为的 arr
-// 所有方法思路
-// 1. 清空表
-// 2. 添加数据
-// 3. 增删改查、批量增删改查操作
-// 4. 查询数据,赋值给query变量
-// 4. 检测对比
-func commonDbTest(t *testing.T, testDB *gorm.DB, tableNameSingular string, functionName string,
-	objs []*models.Website, updates []map[string]interface{}) {
+// 参数8：updates []map[string]interface{} // 单个/批量修改，传的参数，单个修改用updates[0]
+// 参数9：isByOther bool // 是否使用byOther，如：deleteByOther updateByOther
+// 参数10：others []any  // byOther where in 传的参数。如果是单个操作，用others[0]
+// 参数11：condition stirng // byOther条件，如 "NameId in (?)"中的NameId
+// 参数12：others []any] // 接condition  NameId IN (?) 就是?号里要传的数组
+// 参数13：queryType stirng // 查询方式， “byId” "byNameId" "byOther"
+// 参数14：orderby stirng // 排序参数， Order("nameId DESC")
+// 参数15：sort stirng // 排序参数， Order("nameId DESC")  这里是DESC
+func commonDbTest_Website(t *testing.T, testDB *gorm.DB, tableNameSingular string, functionName string,
+	objs []*models.Website, updates []map[string]interface{},
+	isByOther bool, condition string, others []any, queryType string, orderby string, sort string) {
 
+	// v2.0 写法。所有批量操作都用batchXX实现
 	t.Logf("------------  %s ... start ", functionName)
 	// 1. 清空表
 	tableName := inflection.Plural(tableNameSingular) // 单数英文，转复数 如 website -> websites
@@ -619,65 +550,97 @@ func commonDbTest(t *testing.T, testDB *gorm.DB, tableNameSingular string, funct
 
 	// 2. 添加数据
 	// 增删改查默认都会添加第一个数据，不用判断 方法名
-	for _, obj := range objs {
-		WebsiteOps.Add(obj)
-		// 判断functionName是否是批量操作，添加第二条数据
-		if !strings.Contains(functionName, "batch") {
-			break
-		}
-	}
-	// 判断是否插入2条数据
 	if strings.Contains(functionName, "batch") {
-		t.Log("------  functionName  ", functionName)
-		queries, _ := WebsiteOps.BatchQueryAll()
-		t.Log("------  queries  ", queries)
-		if len(queries) != 2 {
-			t.Errorf("批量操作失败, 期望返回2条数据, 实际返回%d条数据", len(queries))
+		WebsiteOps.BatchAdd(objs)
+
+	} else {
+		WebsiteOps.Add(objs[0])
+	}
+
+	// 判断是否插入2条数据
+	checkQueries, _ := WebsiteOps.BatchQueryAll()
+	if strings.Contains(functionName, "batch") {
+		if len(checkQueries) != 2 {
+			t.Errorf("批量操作失败, 期望返回2条数据, 实际返回%d条数据", len(checkQueries))
+		}
+	} else { // 判断是否插入1条数据
+		if len(checkQueries) != 1 {
+			t.Errorf("批量操作失败, 期望返回1条数据, 实际返回%d条数据", len(checkQueries))
 		}
 	}
 
 	// 3. 增删改查、批量增删改查操作
-	// 不带batch,只操作第一条数据。 带batch，操作第二条数据
+	// 不带batch,只操作第一条数据。 带batch，操作第二条数据。
+	// 所有批量操作，只判断数组中, 第一个数的Id,其它的不管
 	switch {
 	case strings.Contains(functionName, "delete"):
-		for _, obj := range objs {
-			if obj.Id == 0 { // Id字段是空的，用DeleteByNameId
-				WebsiteOps.DeleteByNameId(obj.NameId)
+		if strings.Contains(functionName, "batch") { // 批量操作
+			if isByOther { // 使用byOther删除
+				WebsiteOps.BatchDeleteByOther(condition, others)
+			} else if objs[0].Id == 0 { // Id字段是空的，用DeleteByNameId
+				var nameIds []int
+				for _, obj := range objs {
+					nameIds = append(nameIds, obj.NameId)
+				}
+				WebsiteOps.BatchDeleteByNameId(nameIds)
 			} else {
-				WebsiteOps.DeleteById(obj.Id) // 默认通过id删除
+				var ids []uint
+				for _, obj := range objs {
+					ids = append(ids, obj.Id)
+				}
+				WebsiteOps.BatchDeleteById(ids) // 默认通过id删除
 			}
-
-			// 判断是否操作 第二条数据
-			if !strings.Contains(functionName, "batch") {
-				break
+		} else { // 只操作第1条数据
+			if isByOther { // 使用byOther删除
+				WebsiteOps.DeleteByOther(condition, others[0])
+			} else if objs[0].Id == 0 { // Id字段是空的，用DeleteByNameId
+				WebsiteOps.DeleteByNameId(objs[0].NameId)
+			} else {
+				WebsiteOps.DeleteById(objs[0].Id) // 默认通过id删除
 			}
 		}
 	case strings.Contains(functionName, "update"):
-		for i, obj := range objs {
-			if obj.Id == 0 { // Id字段是空的，用DeleteByNameId
-				WebsiteOps.UpdateByNameId(obj.NameId, updates[i])
+		if strings.Contains(functionName, "batch") {
+			if isByOther {
+				WebsiteOps.BatchUpdateByOther(condition, others, updates)
+			} else if objs[0].Id == 0 { // Id字段是空的，用DeleteByNameId
+				WebsiteOps.BatchUpdateByNameId(updates)
 			} else {
-				WebsiteOps.UpdateById(obj.Id, updates[i]) // 默认通过id删除
+				WebsiteOps.BatchUpdateById(updates) // 默认通过id删除
 			}
-
-			// 判断是否操作 第二条数据
-			if !strings.Contains(functionName, "batch") { // 没有批量操作，就退出
-				break
+		} else { // 只操作第1条数据
+			if isByOther {
+				WebsiteOps.UpdateByOther(condition, others[0], updates[0])
+			} else if objs[0].Id == 0 { // Id字段是空的，用DeleteByNameId
+				WebsiteOps.UpdateByNameId(objs[0].NameId, updates[0])
+			} else {
+				WebsiteOps.UpdateById(objs[0].Id, updates[0]) // 默认通过id删除
 			}
 		}
 	default:
-		t.Log("functionName 未匹配到【 删改 】操作, functionName = ", functionName)
+		// t.Log("functionName 未匹配到【 删改 】操作, functionName = ", functionName)
 	}
 
-	// 4. 查询数据,赋值给query变量
-	var nameIds []int
-	for _, obj := range objs { // init nameids
-		nameIds = append(nameIds, obj.NameId)
-		if !strings.Contains(functionName, "batch") { // 没有批量操作，就退出
-			break
+	// 4. 查询数据,赋值给query变量,必须根据obsj的nameIds 按顺序获取，不能用 queryAll -> 顺序可能是乱的
+
+	var queries []*models.Website
+	// 不区分大小写
+	if strings.ToLower(queryType) == "byid" {
+		var ids []uint
+		for _, obj := range objs {
+			ids = append(ids, obj.Id)
 		}
+		queries, _ = WebsiteOps.BatchQueryById(ids)
+	} else if strings.ToLower(queryType) == "byother" {
+		queries, _ = WebsiteOps.BatchQueryByOther(condition, others, orderby, sort)
+	} else {
+		// byNameId - 默认方式
+		var nameIds []int
+		for _, obj := range objs {
+			nameIds = append(nameIds, obj.NameId)
+		}
+		queries, _ = WebsiteOps.BatchQueryByNameId(nameIds)
 	}
-	queries, _ := WebsiteOps.BatchQueryByNameId(nameIds)
 
 	// 5. 检测对比
 	switch functionName {
@@ -708,6 +671,110 @@ func commonDbTest(t *testing.T, testDB *gorm.DB, tableNameSingular string, funct
 
 	// 检测。
 	t.Logf("------------  %s ... end ", functionName)
+	// v1.0写法，所有批量操作，都用for 单个实现
+	/*
+		t.Logf("------------  %s ... start ", functionName)
+		// 1. 清空表
+		tableName := inflection.Plural(tableNameSingular) // 单数英文，转复数 如 website -> websites
+		t.Log("清空表, tableName = ", tableName)
+		TruncateTable(testDB.Table(tableName), nil) // 方式1： truncate table。 通过表名清空表
+
+		// 2. 添加数据
+		// 增删改查默认都会添加第一个数据，不用判断 方法名
+		for _, obj := range objs {
+			WebsiteOps.Add(obj)
+			// 判断functionName是否是批量操作，添加第二条数据
+			if !strings.Contains(functionName, "batch") {
+				break
+			}
+		}
+		// 判断是否插入2条数据
+		if strings.Contains(functionName, "batch") {
+			t.Log("------  functionName  ", functionName)
+			queries, _ := WebsiteOps.BatchQueryAll()
+			t.Log("------  queries  ", queries)
+			if len(queries) != 2 {
+				t.Errorf("批量操作失败, 期望返回2条数据, 实际返回%d条数据", len(queries))
+			}
+		}
+
+		// 3. 增删改查、批量增删改查操作
+		// 不带batch,只操作第一条数据。 带batch，操作第二条数据
+		switch {
+		case strings.Contains(functionName, "delete"):
+			for i, obj := range objs {
+				if isByOther { // 使用byOther删除
+					WebsiteOps.DeleteByOther(condition, others[i])
+				} else if obj.Id == 0 { // Id字段是空的，用DeleteByNameId
+					WebsiteOps.DeleteByNameId(obj.NameId)
+				} else {
+					WebsiteOps.DeleteById(obj.Id) // 默认通过id删除
+				}
+
+				// 判断是否操作 第二条数据
+				if !strings.Contains(functionName, "batch") {
+					break
+				}
+			}
+		case strings.Contains(functionName, "update"):
+			for i, obj := range objs {
+				if isByOther { // 使用byOther删除
+					WebsiteOps.UpdateByOther(condition, others[i])
+				} else if obj.Id == 0 { // Id字段是空的，用DeleteByNameId
+					WebsiteOps.UpdateByNameId(obj.NameId, updates[i])
+				} else {
+					WebsiteOps.UpdateById(obj.Id, updates[i]) // 默认通过id删除
+				}
+
+				// 判断是否操作 第二条数据
+				if !strings.Contains(functionName, "batch") { // 没有批量操作，就退出
+					break
+				}
+			}
+		default:
+			// t.Log("functionName 未匹配到【 删改 】操作, functionName = ", functionName)
+		}
+
+		// 4. 查询数据,赋值给query变量
+		var nameIds []int
+		for _, obj := range objs { // init nameids
+			nameIds = append(nameIds, obj.NameId)
+			if !strings.Contains(functionName, "batch") { // 没有批量操作，就退出
+				break
+			}
+		}
+		queries, _ := WebsiteOps.BatchQueryByNameId(nameIds)
+
+		// 5. 检测对比
+		switch functionName {
+		case "add":
+			for i, obj := range objs {
+				WebsiteCheck(queries[i], obj, t, functionName)
+				if !strings.Contains(functionName, "batch") { // 没有批量操作，就退出
+					break
+				}
+			}
+		case "delete":
+			WebsiteCheckDelete(queries, objs, t, functionName)
+		case "update":
+			for i, update := range updates {
+				WebsiteCheckUpdate(queries[i], update, t, functionName)
+				if !strings.Contains(functionName, "batch") { // 没有批量操作，就退出
+					break
+				}
+			}
+		case "query":
+			for i, obj := range objs {
+				WebsiteCheck(queries[i], obj, t, functionName)
+				if !strings.Contains(functionName, "batch") { // 没有批量操作，就退出
+					break
+				}
+			}
+		}
+
+		// 检测。
+		t.Logf("------------  %s ... end ", functionName)
+	*/
 }
 
 // 测试通过方法
@@ -718,7 +785,11 @@ func TestCommon(t *testing.T) {
 		if len(v.objs) > 1 {
 			objsStr += fmt.Sprintf(", %v", v.objs[1])
 		}
-		fmt.Printf("用例池 len(pool) = %v, i=%v, pool = %v, objs=%v \n", len(casePool), i+1, v, objsStr) // 老的写法: v.objs[0]
+		// fmt.Printf("用例池 len(pool) = %v, i=%v, pool = %v, objs=%v \n", len(casePool), i+1, v, objsStr) // 老的写法: v.objs[0]
+		// fmt.Printf("用例池 len(pool) = %v, i=%v, objs=%v \n", len(casePool), i+1, objsStr) // 老的写法: v.objs[0]
+		fmt.Printf("用例池 len(pool) = %v, i=%v, funcName=%s, objs=%v, case = [%s] - [%s] - [%s] - [%s] - [%s] \n",
+			len(casePool), i+1, v.funcName,
+			objsStr, v.caseTree1, v.caseTree2, v.caseTree3, v.caseTree4, v.caseTree5)
 	}
 
 	// 通用用例池，循环进行测试
@@ -734,7 +805,12 @@ func TestCommon(t *testing.T) {
 			current.caseTree4, current.caseTree5)
 
 		// 执行用例
-		commonDbTest(t, current.db, current.tbNameSingular, current.funcName, current.objs, current.updates)
+		var objsPointer []*models.Website // 把测试用例中变量 -> 指针
+		for _, obj := range current.objs {
+			objsPointer = append(objsPointer, &obj)
+		}
+		commonDbTest_Website(t, current.db, current.tbNameSingular, current.funcName, objsPointer, current.updates,
+			current.isByOther, current.condition, current.others, current.queryType, current.orderby, current.sort)
 
 		// 从用例池中移除已执行的用例
 		casePool = casePool[1:]

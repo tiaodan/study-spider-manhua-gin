@@ -200,14 +200,14 @@ func (w WebsiteOperations) BatchUpdateByNameId(updates []map[string]interface{})
 }
 
 // 改 - 批量 by other
-func (w WebsiteOperations) BatchUpdateByOther(updates []map[string]interface{}) {
+func (w WebsiteOperations) BatchUpdateByOther(condition string, others any, updates []map[string]interface{}) {
 	for _, update := range updates {
 		// 预处理：去除字符串字段的首尾空格
 		stringutil.TrimSpaceMap(update)
 
 		var website models.Website
 		// 解决0值不更新
-		result := DB.Model(&website).Where("name_id = ?", update["NameId"]).Select("name", "url", "need_proxy", "is_https").Updates(update)
+		result := DB.Model(&website).Where(condition+" IN ?", others).Select("name", "url", "need_proxy", "is_https").Updates(update)
 		if result.Error != nil {
 			log.Errorf("更新网站 %d 失败: %v", update["Id"], result.Error)
 		} else {

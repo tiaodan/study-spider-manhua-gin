@@ -19,10 +19,16 @@ var casePool []CaseContent // 测试用例池
 // 测试case 类型定义
 type CaseContent struct {
 	db             *gorm.DB
-	tbNameSingular string // 表名 tableNameSingular
-	funcName       string // 方法名
-	objs           []*models.Website
+	tbNameSingular string           // 表名 tableNameSingular
+	funcName       string           // 方法名
+	objs           []models.Website // 不能用指针，测试用例，变量容易被多次调用，用指针，很容易把最原始变量改了
 	updates        []map[string]interface{}
+	isByOther      bool   // 是否用byOther
+	condition      string // other 条件
+	others         []any  // other 条件 参数 nameId IN ? -》 ?中内容
+	queryType      string // 查询类型 "byId" "byNameId" "byOther"
+	orderby        string // 根据什么排序
+	sort           string // 排序方式 ASC DESC
 	caseTree1      string // 用例树顶层名字
 	caseTree2      string // 用例树2层名字
 	caseTree3      string // 用例树3层名字
@@ -65,4 +71,42 @@ func ProcessFailNoCheckErr(t *testing.T, err error, errTitleStr string) {
 	t.Error(errTitleStr, err)
 	// t.FailNow()  // 不用了, 好像不管用
 	// panic("-----------------") // 测试的时候用panic,实际使用时注释掉
+}
+
+// 生成测试用例
+/*
+testCase := CaseContent{
+	caseTree1:      "有id",
+	caseTree2:      "无0值",
+	db:             testDB,    // db Pointer
+	tbNameSingular: "website", // tbName
+	funcName:       "add",
+	objs:           []*models.Website{&websiteForAddHasIdNoZero},
+	updates:        []map[string]interface{}{},
+}
+*/
+func GenCaseContent(caseTree1, caseTree2, caseTree3, caseTree4, caseTree5 string,
+	db *gorm.DB, tbNameSingular, funcName string,
+	objs []models.Website, updates []map[string]interface{},
+	isByOther bool, condition string, others []any, queryType, orderby, sort string) CaseContent {
+
+	testCase := CaseContent{
+		caseTree1:      caseTree1,
+		caseTree2:      caseTree2,
+		caseTree3:      caseTree3,
+		caseTree4:      caseTree4,
+		caseTree5:      caseTree5,
+		db:             db,             // db Pointer
+		tbNameSingular: tbNameSingular, // tbName
+		funcName:       funcName,
+		objs:           objs,
+		updates:        updates,
+		isByOther:      isByOther,
+		condition:      condition,
+		others:         others,
+		queryType:      queryType,
+		orderby:        orderby,
+		sort:           sort,
+	}
+	return testCase
 }
