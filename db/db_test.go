@@ -25,15 +25,16 @@ type CaseContent struct {
 	updates        []map[string]interface{}
 	isByOther      bool   // 是否用byOther
 	condition      string // other 条件
-	others         []any  // other 条件 参数 nameId IN ? -》 ?中内容
-	queryType      string // 查询类型 "byId" "byNameId" "byOther"
-	orderby        string // 根据什么排序
-	sort           string // 排序方式 ASC DESC
-	caseTree1      string // 用例树顶层名字
-	caseTree2      string // 用例树2层名字
-	caseTree3      string // 用例树3层名字
-	caseTree4      string
-	caseTree5      string
+	// other          any    // other 条件 参数 nameId == ? -》 ?中内容,不用这个字段，用others[0]可以替代
+	others    []any  // other 条件 参数 nameId IN ? -》 ?中内容
+	queryType string // 查询类型 "byId" "byNameId" "byOther"
+	orderby   string // 根据什么排序
+	sort      string // 排序方式 ASC DESC
+	caseTree1 string // 用例树顶层名字
+	caseTree2 string // 用例树2层名字
+	caseTree3 string // 用例树3层名字
+	caseTree4 string
+	caseTree5 string
 }
 
 // 测试主函数

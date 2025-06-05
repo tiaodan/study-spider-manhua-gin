@@ -120,13 +120,13 @@ func (w WebsiteOperations) BatchDeleteByOther(condition string, others []any) {
 }
 
 // 改 - by Id
-func (w WebsiteOperations) UpdateById(id uint, updates map[string]interface{}) {
+func (w WebsiteOperations) UpdateById(id uint, update map[string]interface{}) {
 	// 预处理：去除字符串字段的首尾空格
-	stringutil.TrimSpaceMap(updates)
+	stringutil.TrimSpaceMap(update)
 
 	var website models.Website
 	// 解决0值不更新
-	result := DB.Model(&website).Where("id = ?", id).Select("name", "url", "need_proxy", "is_https").Updates(updates)
+	result := DB.Model(&website).Where("id = ?", id).Select("name", "url", "need_proxy", "is_https").Updates(update)
 	if result.Error != nil {
 		log.Error("修改失败:", result.Error)
 	} else {
@@ -135,13 +135,13 @@ func (w WebsiteOperations) UpdateById(id uint, updates map[string]interface{}) {
 }
 
 // 改 - by nameId
-func (w WebsiteOperations) UpdateByNameId(nameId int, updates map[string]interface{}) {
+func (w WebsiteOperations) UpdateByNameId(nameId int, update map[string]interface{}) {
 	// 预处理：去除字符串字段的首尾空格
-	stringutil.TrimSpaceMap(updates)
+	stringutil.TrimSpaceMap(update)
 
 	var website models.Website
 	// 解决0值不更新
-	result := DB.Model(&website).Where("name_id = ?", nameId).Select("name", "url", "need_proxy", "is_https").Updates(updates)
+	result := DB.Model(&website).Where("name_id = ?", nameId).Select("name", "url", "need_proxy", "is_https").Updates(update)
 	if result.Error != nil {
 		log.Error("修改失败:", result.Error)
 	} else {
@@ -150,14 +150,14 @@ func (w WebsiteOperations) UpdateByNameId(nameId int, updates map[string]interfa
 }
 
 // 改 - by other
-func (w WebsiteOperations) UpdateByOther(condition string, other any, updates map[string]interface{}) {
+func (w WebsiteOperations) UpdateByOther(condition string, other any, update map[string]interface{}) {
 	// 预处理：去除字符串字段的首尾空格
-	stringutil.TrimSpaceMap(updates)
+	stringutil.TrimSpaceMap(update)
 
 	var website models.Website
 	// 解决0值不更新
-	// result := DB.Model(&website).Where("name_id = ?", nameId).Select("name", "url", "need_proxy", "is_https").Updates(updates)  // 之前写法
-	result := DB.Model(&website).Where(condition+" = ?", other).Select("name", "url", "need_proxy", "is_https").Updates(updates) // 之前写法
+	// result := DB.Model(&website).Where("name_id = ?", nameId).Select("name", "url", "need_proxy", "is_https").Updates(update)  // 之前写法
+	result := DB.Model(&website).Where(condition+" = ?", other).Select("name", "url", "need_proxy", "is_https").Updates(update) // 之前写法
 	if result.Error != nil {
 		log.Error("修改失败:", result.Error)
 	} else {
@@ -366,6 +366,40 @@ func (w WebsiteOperations) returnObjZeroOne(obj models.Website) []models.Website
 	// 	}
 	// }
 	// v1 写法 -------------------- end
+}
+
+// ----------- 测试用例封装 start --------------
+// 根据给的对象， 给int类型对象，取反 (不判断Id + NameId) - 用于生成updates 相关的
+// 参数: 有id/无id 的 int值全是1的对象  map对象
+// 返回：有0值, 单个为0 的对象arr
+// 思路：1 有id一种思路 2 无id一种思路。不用区分id
+func (w WebsiteOperations) returnObjZeroOneNegate(obj map[string]any) []map[string]any {
+	var arr []map[string]any
+	// 复制一份
+	hasZeroOne := obj
+
+	for key, value := range obj {
+		if strings.ToLower(key) == "id" || strings.ToLower(key) == "nameid" {
+			continue
+		}
+		// 判断key是否为int类型
+		switch value.(type) { // 别的写法vType := value.(type)
+		case int:
+			if value == 0 {
+				hasZeroOne[key] = 1 // 将字段值设置为0
+			} else if value == 1 {
+				hasZeroOne[key] = 0
+			} else {
+				hasZeroOne[key] = 0 // 可能== 2 8 等数字
+			}
+			// 加入数组
+			arr = append(arr, hasZeroOne)
+
+			// 重置变量
+			hasZeroOne = obj
+		}
+	}
+	return arr
 }
 
 // 根据给的对象， 生成有0值, all为0 的对象 (不判断Id + NameId)

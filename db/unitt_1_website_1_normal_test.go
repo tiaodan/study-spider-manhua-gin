@@ -37,7 +37,8 @@ import (
 //
 
 // ---------------------------- 变量 start ----------------------------
-var onceTestCase sync.Once // 单例
+var onceTestCase_WebsiteNormal sync.Once     // 单例
+var casePool_Website_HasIdNoId []CaseContent // 测试用例池- 有id + 无id
 
 // 用于 add
 var websiteForAddHasIdNoZero models.Website        // 用于add, 有id, 无0值
@@ -196,7 +197,7 @@ func init() {
 // func initTestCasePoll() []CaseContent { // 不用返回了，已经修改了全局变量了
 func initTestCasePoll() { // 不用返回了，已经修改了全局变量了
 	// 单例
-	onceTestCase.Do(func() {
+	onceTestCase_WebsiteNormal.Do(func() {
 		// 思路：
 		// 1. add
 		// 2. batch add
@@ -217,92 +218,31 @@ func initTestCasePoll() { // 不用返回了，已经修改了全局变量了
 		// 第一行= case标题str
 		// 第二行= 用例具体内容
 		// 第三行= byOhter操作
-		testCase := GenCaseContent("有id", "无0值", "", "", "",
-			testDB, "website", "add", []models.Website{websiteForAddHasIdNoZero}, nil,
-			false, "", nil, "", "", "")
-		casePool = append(casePool, testCase)
-
-		// 有id,有0值，1个0
-		for _, v := range websitesForAddHasIdHasZeroOne {
-			testCase := GenCaseContent("有id", "有0值", "单个为0", "", "",
-				testDB, "website", "add", []models.Website{v}, nil,
-				false, "", nil, "", "", "")
-			casePool = append(casePool, testCase)
-		}
-
-		// 有id,有0值，全0
-		testCase = GenCaseContent("有id", "有0值", "全为0", "", "",
-			testDB, "website", "add", []models.Website{websiteForAddHasIdHasZeroAll}, nil,
-			false, "", nil, "", "", "")
-		casePool = append(casePool, testCase)
-
-		// 2. 生成用例: 无id用例, 参考xmind
-		// 无id,无0值
-		testCase = GenCaseContent("无id", "无0值", "", "", "",
-			testDB, "website", "add", []models.Website{websiteForAddNoIdNoZero}, nil,
-			false, "", nil, "", "", "")
-		casePool = append(casePool, testCase)
-
-		// 无id,有0值，1个0
-		for _, v := range websitesForAddNoIdHasZeroOne {
-			testCase := GenCaseContent("无id", "有0值", "单个为0", "", "",
-				testDB, "website", "add", []models.Website{v}, nil,
-				false, "", nil, "", "", "")
-			casePool = append(casePool, testCase)
-		}
-
-		// 无id,有0值，全0
-		testCase = GenCaseContent("无id", "有0值", "全为0", "", "",
-			testDB, "website", "add", []models.Website{websiteForAddNoIdHasZeroAll}, nil,
-			false, "", nil, "", "", "")
-		casePool = append(casePool, testCase)
-		// 1. add ------------- end --------------------
-
-		// 2. batch add ------------- start --------------------
-		// 有id,无0值，1个
-		testCase = GenCaseContent("有id", "无0值", "", "", "",
-			testDB, "website", "batch add", []models.Website{websiteForAddHasIdNoZero, website2ForAddHasIdNoZero}, nil,
-			false, "", nil, "", "", "")
-		casePool = append(casePool, testCase)
-
-		// 有id,有0值，1个0
-		for i, v := range websitesForAddHasIdHasZeroOne {
-			testCase = GenCaseContent("有id", "有0值", "单个为0", "", "",
-				testDB, "website", "batch add", []models.Website{v, websites2ForAddHasIdHasZeroOne[i]}, nil,
-				false, "", nil, "", "", "")
-			casePool = append(casePool, testCase)
-		}
-
-		// 有id,有0值，全0
-		testCase = GenCaseContent("有id", "有0值", "全为0", "", "",
-			testDB, "website", "batch add", []models.Website{websiteForAddHasIdHasZeroAll, website2ForAddHasIdHasZeroAll}, nil,
-			false, "", nil, "", "", "")
-		casePool = append(casePool, testCase)
-
-		// 2) 生成用例: 无id用例, 参考xmind
-		// 无id,无0值
-		testCase = GenCaseContent("无id", "无0值", "", "", "",
-			testDB, "website", "batch add", []models.Website{websiteForAddNoIdNoZero, website2ForAddNoIdNoZero}, nil,
-			false, "", nil, "", "", "")
-		casePool = append(casePool, testCase)
-
-		// 无id,有0值，1个0
-		for i, v := range websitesForAddNoIdHasZeroOne {
-			testCase = GenCaseContent("无id", "有0值", "单个为0", "", "",
-				testDB, "website", "batch add", []models.Website{v, websites2ForAddNoIdHasZeroOne[i]}, nil,
-				false, "", nil, "", "", "")
-			casePool = append(casePool, testCase)
-		}
-
-		// 无id,有0值，全0
-		testCase = GenCaseContent("无id", "有0值", "全为0", "", "",
-			testDB, "website", "batch add", []models.Website{websiteForAddNoIdHasZeroAll, website2ForAddNoIdHasZeroAll}, nil,
-			false, "", nil, "", "", "")
-		casePool = append(casePool, testCase)
+		casePool_Website_HasIdNoId = genCasePool_Website_HasIdNoid()
+		casePool = append(casePool, casePool_Website_HasIdNoId...) // append 扩展语法
 		// 2. batch add ------------- end --------------------
 
-		// 3. delete ------------- start --------------------
-		// 3. delete ------------- end --------------------
+		// 3. delete + batch ------------- start --------------------
+		casePool_delete := genCasePool_Website_forXXX(casePool_Website_HasIdNoId, "delete", "batch delete")
+		casePool = append(casePool, casePool_delete...)
+		casePool_delete_other := genCasePool_Website_forXXX_other(casePool_Website_HasIdNoId, "delete", "batch delete",
+			true, "name_id", []any{1, 2}, "", "", "")
+		casePool = append(casePool, casePool_delete_other...)
+		// 3. delete + batch------------- end --------------------
+
+		// 3. update + batch ------------- start --------------------
+		casePool_update := genCasePool_Website_forXXX(casePool_Website_HasIdNoId, "update", "batch update")
+		casePool = append(casePool, casePool_update...)
+		casePool_update_other := genCasePool_Website_forXXX_other(casePool_Website_HasIdNoId, "update", "batch update",
+			true, "name_id", []any{1, 2}, "", "", "")
+		casePool = append(casePool, casePool_update_other...)
+		// 3. update + batch ------------- end --------------------
+		// 4. query + batch ------------- start 只测queryByOther 就够了--------------------
+		casePool_query_byOther := genCasePool_Website_forXXX_other(casePool_Website_HasIdNoId, "query byOther", "batch query byOther",
+			false, "", nil, "byId", "", "")
+		casePool = append(casePool, casePool_query_byOther...)
+		// 4. query + batch ------------- end 只测queryByOther 就够了--------------------
+
 	})
 }
 
@@ -321,7 +261,7 @@ func WebsiteCheck(query *models.Website, obj *models.Website, t *testing.T, errT
 			// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
 			t.Errorf("[ %s ] 测试不通过, got= %v", errTitleStr, query)
 			t.Errorf("[ %s ] 测试不通过, obj= %v", errTitleStr, obj)
-			ProcessFail(t, nil, "测试不通过")
+			// ProcessFail(t, nil, "测试不通过") // 好像用不到
 		}
 		return // 退出
 	}
@@ -335,7 +275,7 @@ func WebsiteCheck(query *models.Website, obj *models.Website, t *testing.T, errT
 		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
 		t.Errorf("[ %s ] 测试不通过, got= %v", errTitleStr, query)
 		t.Errorf("[ %s ] 测试不通过, obj= %v", errTitleStr, obj)
-		ProcessFail(t, nil, "测试不通过")
+		// ProcessFail(t, nil, "测试不通过") // 好像用不到
 	}
 }
 
@@ -353,7 +293,7 @@ func WebsiteCheckHasId(query *models.Website, obj *models.Website, t *testing.T,
 		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
 		t.Errorf("[ %s ] 测试不通过, got= %v", errTitleStr, query)
 		t.Errorf("[ %s ] 测试不通过, obj= %v", errTitleStr, obj)
-		ProcessFail(t, nil, "测试不通过")
+		// ProcessFail(t, nil, "测试不通过") // 好像用不到
 	}
 }
 
@@ -370,7 +310,7 @@ func WebsiteCheckNoId(query *models.Website, obj *models.Website, t *testing.T, 
 		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
 		t.Errorf("[ %s ] 测试不通过, got= %v", errTitleStr, query)
 		t.Errorf("[ %s ] 测试不通过, obj= %v", errTitleStr, obj)
-		ProcessFail(t, nil, "测试不通过")
+		// ProcessFail(t, nil, "测试不通过") // 好像用不到
 	}
 }
 
@@ -388,7 +328,7 @@ func WebsiteCheckSpace(query *models.Website, obj *models.Website, t *testing.T,
 			// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
 			t.Errorf("[ %s ] 测试不通过, got= %v", errTitleStr, query)
 			t.Errorf("[ %s ] 测试不通过, obj= %v", errTitleStr, obj)
-			ProcessFail(t, nil, "测试不通过")
+			// ProcessFail(t, nil, "测试不通过") // 好像用不到
 		}
 		return
 	}
@@ -403,7 +343,7 @@ func WebsiteCheckSpace(query *models.Website, obj *models.Website, t *testing.T,
 		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
 		t.Errorf("[ %s ] 测试不通过, got= %v", errTitleStr, query)
 		t.Errorf("[ %s ] 测试不通过, obj= %v", errTitleStr, obj)
-		ProcessFail(t, nil, "测试不通过")
+		// ProcessFail(t, nil, "测试不通过") // 好像用不到
 	}
 }
 
@@ -421,7 +361,7 @@ func WebsiteCheckSpaceHasId(query *models.Website, obj *models.Website, t *testi
 		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
 		t.Errorf("[ %s ] 测试不通过, got= %v", errTitleStr, query)
 		t.Errorf("[ %s ] 测试不通过, obj= %v", errTitleStr, obj)
-		ProcessFail(t, nil, "测试不通过")
+		// ProcessFail(t, nil, "测试不通过")  // 好像用不到
 	}
 }
 
@@ -438,7 +378,7 @@ func WebsiteCheckSpaceNoId(query *models.Website, obj *models.Website, t *testin
 		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
 		t.Errorf("[ %s ] 测试不通过, got= %v", errTitleStr, query)
 		t.Errorf("[ %s ] 测试不通过, obj= %v", errTitleStr, obj)
-		ProcessFail(t, nil, "测试不通过")
+		// ProcessFail(t, nil, "测试不通过")  // 好像用不到
 	}
 }
 
@@ -446,11 +386,11 @@ func WebsiteCheckSpaceNoId(query *models.Website, obj *models.Website, t *testin
 // 参数1: 查到的指针arr 参数2: 要对比的对象指针arr
 // 参数3: 测试对象指针 t *testing.T  参数4:错误标题字符串，如: 【查 by nameId】中括号里内容
 func WebsiteCheckDelete(queries []*models.Website, objs []*models.Website, t *testing.T, errTitleStr string) {
-	if len(queries) == 0 {
+	if len(queries) > 0 {
 		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
 		t.Errorf("[ %s ] 测试不通过, got= %v", errTitleStr, queries)
 		t.Errorf("[ %s ] 测试不通过, obj= %v", errTitleStr, objs)
-		ProcessFail(t, nil, "测试不通过")
+		// ProcessFail(t, nil, "测试不通过") // 好像用不到
 	}
 }
 
@@ -458,7 +398,8 @@ func WebsiteCheckDelete(queries []*models.Website, objs []*models.Website, t *te
 // 参数1: 查到的指针 参数2: 更新参数 map[string]interface{}
 // 参数3: 测试对象指针 t *testing.T  参数4:错误标题字符串，如: 【查 by nameId】中括号里内容
 func WebsiteCheckUpdate(query *models.Website, obj map[string]interface{}, t *testing.T, errTitleStr string) {
-	if obj["Id"] == 0 { // 无id
+	idValue, hasId := obj["Id"]
+	if !hasId || idValue == nil || idValue == uint(0) { // 无id 或id为0
 		if query.NameId != obj["NameId"] ||
 			query.Name != obj["Name"] ||
 			query.Url != obj["Url"] ||
@@ -467,7 +408,7 @@ func WebsiteCheckUpdate(query *models.Website, obj map[string]interface{}, t *te
 			// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
 			t.Errorf("[ %s ] 测试不通过, got= %v", errTitleStr, query)
 			t.Errorf("[ %s ] 测试不通过, obj= %v", errTitleStr, obj)
-			ProcessFail(t, nil, "测试不通过")
+			// ProcessFail(t, nil, "测试不通过")  // 好像用不到
 		}
 		return
 	}
@@ -482,7 +423,7 @@ func WebsiteCheckUpdate(query *models.Website, obj map[string]interface{}, t *te
 		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
 		t.Errorf("[ %s ] 测试不通过, got= %v", errTitleStr, query)
 		t.Errorf("[ %s ] 测试不通过, obj= %v", errTitleStr, obj)
-		ProcessFail(t, nil, "测试不通过")
+		// ProcessFail(t, nil, "测试不通过")  // 好像用不到
 	}
 }
 
@@ -500,7 +441,7 @@ func WebsiteCheckUpdateHasId(query *models.Website, obj map[string]interface{}, 
 		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
 		t.Errorf("[ %s ] 测试不通过, got= %v", errTitleStr, query)
 		t.Errorf("[ %s ] 测试不通过, obj= %v", errTitleStr, obj)
-		ProcessFail(t, nil, "测试不通过")
+		// ProcessFail(t, nil, "测试不通过") // 好像用不到
 	}
 }
 
@@ -517,7 +458,7 @@ func WebsiteCheckUpdateNoId(query *models.Website, obj map[string]interface{}, t
 		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
 		t.Errorf("[ %s ] 测试不通过, got= %v", errTitleStr, query)
 		t.Errorf("[ %s ] 测试不通过, obj= %v", errTitleStr, obj)
-		ProcessFail(t, nil, "测试不通过")
+		// ProcessFail(t, nil, "测试不通过")
 	}
 }
 
@@ -603,7 +544,7 @@ func commonDbTest_Website(t *testing.T, testDB *gorm.DB, tableNameSingular strin
 		if strings.Contains(functionName, "batch") {
 			if isByOther {
 				WebsiteOps.BatchUpdateByOther(condition, others, updates)
-			} else if objs[0].Id == 0 { // Id字段是空的，用DeleteByNameId
+			} else if objs[0].Id == 0 { // Id字段是空的，用ByNameId
 				WebsiteOps.BatchUpdateByNameId(updates)
 			} else {
 				WebsiteOps.BatchUpdateById(updates) // 默认通过id删除
@@ -611,7 +552,7 @@ func commonDbTest_Website(t *testing.T, testDB *gorm.DB, tableNameSingular strin
 		} else { // 只操作第1条数据
 			if isByOther {
 				WebsiteOps.UpdateByOther(condition, others[0], updates[0])
-			} else if objs[0].Id == 0 { // Id字段是空的，用DeleteByNameId
+			} else if objs[0].Id == 0 { // Id字段是空的，用ByNameId
 				WebsiteOps.UpdateByNameId(objs[0].NameId, updates[0])
 			} else {
 				WebsiteOps.UpdateById(objs[0].Id, updates[0]) // 默认通过id删除
@@ -787,9 +728,9 @@ func TestCommon(t *testing.T) {
 		}
 		// fmt.Printf("用例池 len(pool) = %v, i=%v, pool = %v, objs=%v \n", len(casePool), i+1, v, objsStr) // 老的写法: v.objs[0]
 		// fmt.Printf("用例池 len(pool) = %v, i=%v, objs=%v \n", len(casePool), i+1, objsStr) // 老的写法: v.objs[0]
-		fmt.Printf("用例池 len(pool) = %v, i=%v, funcName=%s, objs=%v, case = [%s] - [%s] - [%s] - [%s] - [%s] \n",
+		fmt.Printf("用例池 len(pool) = %v, i=%v, funcName=%s, objs=%v, updates=%v, case = [%s] - [%s] - [%s] - [%s] - [%s] \n",
 			len(casePool), i+1, v.funcName,
-			objsStr, v.caseTree1, v.caseTree2, v.caseTree3, v.caseTree4, v.caseTree5)
+			objsStr, v.updates, v.caseTree1, v.caseTree2, v.caseTree3, v.caseTree4, v.caseTree5)
 	}
 
 	// 通用用例池，循环进行测试
@@ -817,6 +758,179 @@ func TestCommon(t *testing.T) {
 		fmt.Println("") // case end
 	}
 
+}
+
+// 生成forAdd 测试用例，有id / 无id场景。包含add + batch add
+// 同时生成对应update 用例
+func genCasePool_Website_HasIdNoid() []CaseContent {
+	var casePool []CaseContent
+	// 1. add ------------- start --------------------
+	// 有id,无0值，
+	// 第一行= case标题str
+	// 第二行= 用例具体内容
+	// 第三行= byOhter操作
+	testCase := GenCaseContent("有id", "无0值", "", "", "",
+		testDB, "website", "add", []models.Website{websiteForAddHasIdNoZero},
+		[]map[string]any{websiteForUpdateHasIdHasZero},
+		false, "", nil, "byId", "", "")
+	casePool = append(casePool, testCase)
+
+	// 有id,有0值，1个0
+	for _, v := range websitesForAddHasIdHasZeroOne {
+		updates := WebsiteOps.returnObjZeroOneNegate(websiteForUpdateHasIdNoZero)
+		testCase := GenCaseContent("有id", "有0值", "单个为0", "", "",
+			testDB, "website", "add", []models.Website{v},
+			updates,
+			false, "", nil, "byId", "", "")
+		casePool = append(casePool, testCase)
+	}
+
+	// 有id,有0值，全0
+	testCase = GenCaseContent("有id", "有0值", "全为0", "", "",
+		testDB, "website", "add", []models.Website{websiteForAddHasIdHasZeroAll},
+		[]map[string]any{websiteForUpdateHasIdNoZero},
+		false, "", nil, "byId", "", "")
+	casePool = append(casePool, testCase)
+
+	// 2. 生成用例: 无id用例, 参考xmind
+	// 无id,无0值
+	testCase = GenCaseContent("无id", "无0值", "", "", "",
+		testDB, "website", "add", []models.Website{websiteForAddNoIdNoZero},
+		[]map[string]any{websiteForUpdateNoIdHasZero},
+		false, "", nil, "byNameId", "", "")
+	casePool = append(casePool, testCase)
+
+	// 无id,有0值，1个0
+	for _, v := range websitesForAddNoIdHasZeroOne {
+		updates := WebsiteOps.returnObjZeroOneNegate(websiteForUpdateNoIdNoZero)
+		testCase := GenCaseContent("无id", "有0值", "单个为0", "", "",
+			testDB, "website", "add", []models.Website{v},
+			updates,
+			false, "", nil, "byNameId", "", "")
+		casePool = append(casePool, testCase)
+	}
+
+	// 无id,有0值，全0
+	testCase = GenCaseContent("无id", "有0值", "全为0", "", "",
+		testDB, "website", "add", []models.Website{websiteForAddNoIdHasZeroAll},
+		[]map[string]any{websiteForUpdateNoIdNoZero},
+		false, "", nil, "byNameId", "", "")
+	casePool = append(casePool, testCase)
+	// 1. add ------------- end --------------------
+
+	// 2. batch add ------------- start --------------------
+	// 有id,无0值，1个
+	testCase = GenCaseContent("有id", "无0值", "", "", "",
+		testDB, "website", "batch add", []models.Website{websiteForAddHasIdNoZero, website2ForAddHasIdNoZero},
+		[]map[string]any{websiteForUpdateHasIdHasZero, website2ForUpdateHasIdHasZero},
+		false, "", nil, "byId", "", "")
+	casePool = append(casePool, testCase)
+
+	// 有id,有0值，1个0
+	for i, v := range websitesForAddHasIdHasZeroOne {
+		updates := WebsiteOps.returnObjZeroOneNegate(websiteForUpdateHasIdNoZero) // updates1
+		updates2 := WebsiteOps.returnObjZeroOneNegate(website2ForUpdateHasIdNoZero)
+		updates = append(updates, updates2...)
+		testCase = GenCaseContent("有id", "有0值", "单个为0", "", "",
+			testDB, "website", "batch add", []models.Website{v, websites2ForAddHasIdHasZeroOne[i]},
+			updates,
+			false, "", nil, "byId", "", "")
+		casePool = append(casePool, testCase)
+	}
+
+	// 有id,有0值，全0
+	testCase = GenCaseContent("有id", "有0值", "全为0", "", "",
+		testDB, "website", "batch add", []models.Website{websiteForAddHasIdHasZeroAll, website2ForAddHasIdHasZeroAll},
+		[]map[string]any{websiteForUpdateHasIdNoZero, website2ForUpdateHasIdNoZero},
+		false, "", nil, "byId", "", "")
+	casePool = append(casePool, testCase)
+
+	// 2) 生成用例: 无id用例, 参考xmind
+	// 无id,无0值
+	testCase = GenCaseContent("无id", "无0值", "", "", "",
+		testDB, "website", "batch add", []models.Website{websiteForAddNoIdNoZero, website2ForAddNoIdNoZero},
+		[]map[string]any{websiteForUpdateNoIdHasZero, website2ForUpdateNoIdHasZero},
+		false, "", nil, "byNameId", "", "")
+	casePool = append(casePool, testCase)
+
+	// 无id,有0值，1个0
+	for i, v := range websitesForAddNoIdHasZeroOne {
+		updates := WebsiteOps.returnObjZeroOneNegate(websiteForUpdateNoIdNoZero) // updates1
+		updates2 := WebsiteOps.returnObjZeroOneNegate(website2ForUpdateNoIdNoZero)
+		updates = append(updates, updates2...)
+		testCase = GenCaseContent("无id", "有0值", "单个为0", "", "",
+			testDB, "website", "batch add", []models.Website{v, websites2ForAddNoIdHasZeroOne[i]},
+			updates,
+			false, "", nil, "byNameId", "", "")
+		casePool = append(casePool, testCase)
+	}
+
+	// 无id,有0值，全0
+	testCase = GenCaseContent("无id", "有0值", "全为0", "", "",
+		testDB, "website", "batch add", []models.Website{websiteForAddNoIdHasZeroAll, website2ForAddNoIdHasZeroAll},
+		[]map[string]any{websiteForUpdateNoIdNoZero, website2ForUpdateNoIdNoZero},
+		false, "", nil, "byNameId", "", "")
+	casePool = append(casePool, testCase)
+	// 2. batch add ------------- end --------------------
+
+	return casePool
+}
+
+// 生成forXXX 测试用例，如forDelete forUpdate forQuery 。通过genCasePool_Website_HasIdNoid()生成的用例，进一步修改
+// 参数1：objCasePool []CaseContent 目标线程池
+// 参数2：funcName string  单个操作方法名
+// 参数3：funcNameBatch string
+// 参数4：updatees []map[string]any  更新内容
+// 返回：新casePool
+func genCasePool_Website_forXXX(objCasePool []CaseContent, funcName string, funcNameBatch string) []CaseContent {
+	casePool := objCasePool
+	// 替换新 用例池
+	for i, objCase := range objCasePool {
+		if strings.Contains(objCase.funcName, "batch") {
+			casePool[i].funcName = funcNameBatch
+			continue
+		}
+		casePool[i].funcName = funcName
+	}
+	return casePool
+}
+
+// 生成forXXX 测试用例-other相关用力给，如forDeleteOther forUpdateOther forQueryOther 。通过genCasePool_Website_HasIdNoid()生成的用例，进一步修改
+// 参数1：objCasePool []CaseContent 目标线程池
+// 参数2：funcName string  单个操作方法名
+// 参数3：funcNameBatch string
+// 参数N: other 单个操作，byOther 用 others[0]
+// 参数N: others 批量操作，byOther 用，如nameId other = [1, 2]
+// 返回：新casePool
+func genCasePool_Website_forXXX_other(objCasePool []CaseContent, funcName string, funcNameBatch string,
+	isByOther bool, condition string, others []any, queryType string, orderby string, sort string) []CaseContent {
+	casePool := objCasePool
+	// for 替换部分内容
+	for i, objCase := range objCasePool {
+		if strings.Contains(objCase.funcName, "batch") {
+			casePool[i].funcName = funcNameBatch
+			continue
+		}
+		casePool[i].funcName = funcName
+		// delete casePool[i].updates = updates // 用自带的,要delete的
+
+		casePool[i].isByOther = isByOther
+		casePool[i].condition = condition
+		casePool[i].others = others
+		casePool[i].queryType = queryType
+		casePool[i].orderby = orderby
+		casePool[i].sort = sort
+		// 替换 caseTree 用例名称标签
+		if isByOther {
+			casePool[i].caseTree1 = "ByOther"
+			casePool[i].caseTree2 = objCase.caseTree1 // 往后挪一位
+			casePool[i].caseTree3 = objCase.caseTree2
+			casePool[i].caseTree4 = objCase.caseTree3
+			casePool[i].caseTree5 = objCase.caseTree4
+		}
+	}
+
+	return casePool
 }
 
 // ---------------------------- 阶段二：封装通用测试函数 end ----------------------------
