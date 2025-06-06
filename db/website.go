@@ -369,7 +369,7 @@ func (w WebsiteOperations) returnObjZeroOne(obj models.Website) []models.Website
 }
 
 // ----------- 测试用例封装 start --------------
-// 根据给的对象， 给int类型对象，取反 (不判断Id + NameId) - 用于生成updates 相关的
+// 根据给的对象， 给int类型对象，取反 (不判断Id + NameId) - 用于生成updates 相关的。生成一组测试用例
 // 参数: 有id/无id 的 int值全是1的对象  map对象
 // 返回：有0值, 单个为0 的对象arr
 // 思路：1 有id一种思路 2 无id一种思路。不用区分id
@@ -385,11 +385,12 @@ func (w WebsiteOperations) returnObjZeroOneNegate(obj map[string]any) []map[stri
 		// 判断key是否为int类型
 		switch value.(type) { // 别的写法vType := value.(type)
 		case int:
-			if value == 0 {
-				hasZeroOne[key] = 1 // 将字段值设置为0
-			} else if value == 1 {
+			switch value {
+			case 0:
+				hasZeroOne[key] = 1 // 将字段值设置为1
+			case 1:
 				hasZeroOne[key] = 0
-			} else {
+			default:
 				hasZeroOne[key] = 0 // 可能== 2 8 等数字
 			}
 			// 加入数组
@@ -400,6 +401,34 @@ func (w WebsiteOperations) returnObjZeroOneNegate(obj map[string]any) []map[stri
 		}
 	}
 	return arr
+}
+
+// 根据给的对象， 给int类型对象，取反 (不判断Id + NameId) - 用于生成updates 相关的.生成一个测试用例
+// 参数: 有id/无id 的 int值全是1的对象  map对象
+// 返回：有0值, 单个为0 的对象arr
+// 思路：1 有id一种思路 2 无id一种思路。不用区分id
+func (w WebsiteOperations) returnObjZeroAllNegate(obj map[string]any) map[string]any {
+	// 复制一份
+	hasZeroOne := obj
+
+	for key, value := range obj {
+		if strings.ToLower(key) == "id" || strings.ToLower(key) == "nameid" {
+			continue
+		}
+		// 判断key是否为int类型
+		switch value.(type) { // 别的写法vType := value.(type)
+		case int:
+			switch value {
+			case 0:
+				hasZeroOne[key] = 1 // 将字段值设置为1
+			case 1:
+				hasZeroOne[key] = 0
+			default:
+				hasZeroOne[key] = 0 // 可能== 2 8 等数字
+			}
+		}
+	}
+	return hasZeroOne
 }
 
 // 根据给的对象， 生成有0值, all为0 的对象 (不判断Id + NameId)

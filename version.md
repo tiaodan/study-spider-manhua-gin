@@ -126,6 +126,9 @@
 - website  normal 增删改查弄完了，测试通过
 - returnObjZeroOneNegate updates 多一个
 
+# v0.0.13 2025.6.6
+- 修复问题: returnObjZeroOneNegate updates 多一个(v0.0.13 2025.6.5)
+
 # 待办
 - comic表加上时间，创建时间，更新时间，是否删除标志 √ 没测
 - 更新至，内容包含 '最终话'、'完结' 认为是完结了 √ 没测

@@ -731,6 +731,13 @@ func TestCommon(t *testing.T) {
 		fmt.Printf("用例池 len(pool) = %v, i=%v, funcName=%s, objs=%v, updates=%v, case = [%s] - [%s] - [%s] - [%s] - [%s] \n",
 			len(casePool), i+1, v.funcName,
 			objsStr, v.updates, v.caseTree1, v.caseTree2, v.caseTree3, v.caseTree4, v.caseTree5)
+		// 打印空行,方便查看
+		if i == 0 {
+			continue
+		}
+		if v.funcName != casePool[i-1].funcName {
+			fmt.Println("")
+		}
 	}
 
 	// 通用用例池，循环进行测试
@@ -776,11 +783,11 @@ func genCasePool_Website_HasIdNoid() []CaseContent {
 	casePool = append(casePool, testCase)
 
 	// 有id,有0值，1个0
-	for _, v := range websitesForAddHasIdHasZeroOne {
+	for i, v := range websitesForAddHasIdHasZeroOne {
 		updates := WebsiteOps.returnObjZeroOneNegate(websiteForUpdateHasIdNoZero)
 		testCase := GenCaseContent("有id", "有0值", "单个为0", "", "",
 			testDB, "website", "add", []models.Website{v},
-			updates,
+			updates[i:i+1],
 			false, "", nil, "byId", "", "")
 		casePool = append(casePool, testCase)
 	}
@@ -801,11 +808,11 @@ func genCasePool_Website_HasIdNoid() []CaseContent {
 	casePool = append(casePool, testCase)
 
 	// 无id,有0值，1个0
-	for _, v := range websitesForAddNoIdHasZeroOne {
+	for i, v := range websitesForAddNoIdHasZeroOne {
 		updates := WebsiteOps.returnObjZeroOneNegate(websiteForUpdateNoIdNoZero)
 		testCase := GenCaseContent("无id", "有0值", "单个为0", "", "",
 			testDB, "website", "add", []models.Website{v},
-			updates,
+			updates[i:i+1],
 			false, "", nil, "byNameId", "", "")
 		casePool = append(casePool, testCase)
 	}
@@ -830,10 +837,10 @@ func genCasePool_Website_HasIdNoid() []CaseContent {
 	for i, v := range websitesForAddHasIdHasZeroOne {
 		updates := WebsiteOps.returnObjZeroOneNegate(websiteForUpdateHasIdNoZero) // updates1
 		updates2 := WebsiteOps.returnObjZeroOneNegate(website2ForUpdateHasIdNoZero)
-		updates = append(updates, updates2...)
+		updatesArr := append(updates[i:i+1], updates2[i:i+1]...)
 		testCase = GenCaseContent("有id", "有0值", "单个为0", "", "",
 			testDB, "website", "batch add", []models.Website{v, websites2ForAddHasIdHasZeroOne[i]},
-			updates,
+			updatesArr,
 			false, "", nil, "byId", "", "")
 		casePool = append(casePool, testCase)
 	}
