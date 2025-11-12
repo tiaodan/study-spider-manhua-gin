@@ -1,0 +1,4 @@
+[32m[INFO ] 2025-11-12 16:06:29 db.go:304 插入默认数据comic-website 成功个数: 2 [0m 
+[32m[INFO ] 2025-11-12 16:06:29 db.go:304 插入默认数据comic-sextype 成功个数: 3 [0m 
+[32m[INFO ] 2025-11-12 16:06:29 db.go:304 插入默认数据comic-country 成功个数: 5 [0m 
+[32m[INFO ] 2025-11-12 16:06:29 db.go:304 插入默认数据comic-type 成功个数: 7 [0m 

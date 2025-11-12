@@ -1,15 +1,20 @@
+/*
+*
+说明：
+  - main.go 是项目的入口文件。必须放在根目录，不能放在src目录下。
+  - 因为：mian.go读取配置，逻辑：读取 ../config.yaml。
+    如果在src打包成main.exe后，放到根目录，没有上级目录，会报错。因为打包成实际目录后，src源代码不会保留
+*/
 package main
 
 import (
-	"io"
-	"os"
-	"study-spider-manhua-gin/business/comic"
-	"study-spider-manhua-gin/business/order"
-	"study-spider-manhua-gin/business/spider"
-	"study-spider-manhua-gin/config"
-	"study-spider-manhua-gin/db"
-	"study-spider-manhua-gin/log"
-	"study-spider-manhua-gin/models"
+	"study-spider-manhua-gin/src/business/comic"
+	"study-spider-manhua-gin/src/business/order"
+	"study-spider-manhua-gin/src/business/spider"
+	"study-spider-manhua-gin/src/config"
+	"study-spider-manhua-gin/src/db"
+	"study-spider-manhua-gin/src/log"
+	"study-spider-manhua-gin/src/models"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -17,14 +22,39 @@ import (
 )
 
 // 初始化, 默认main会自动调用本方法
+/*
+作用简单说：
+	- 初始化项目
+
+作用:
+	- 初始化配置
+		- 读取配置
+		- 不重新生成配置文件
+	- 初始化日志
+		- 创建日志文件
+		- 根据配置，设置日志级别
+		- 让日志可同时写到终端和日志文件
+	- 初始化数据库
+		- 连接数据库
+		- 创建数据表结构
+		- 插入默认数据
+
+思路:
+	1. 初始化配置
+	2. 初始化日志
+	3. 初始化数据库
+*/
 func init() {
-	// 1. 读取配置文件， (如果配置文件不填, 自动会有默认值)
+	// 1. 初始化配置
+	// -- 读取配置文件， (如果配置文件不填, 自动会有默认值)
 	cfg := config.GetConfig(".", "config", "yaml")
 
-	// 2. 根据配置文件,设置日志相关,现在用logrus框架
-	log.InitLog()
+	// 2. 初始化日志 (现在用logrus框架)
+	// -- 创建日志文件
+	log.InitLog(cfg.Log.Path)
 
-	// 获取日志实例
+	// -- 根据配置，设置日志级别
+	// 获取日志对象
 	log := log.GetLogger()
 
 	// 设置日志级别
@@ -42,14 +72,15 @@ func init() {
 	}
 
 	// 创建一个文件用于写入日志
-	file, err := os.OpenFile(cfg.Log.Path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666) // os.OpenFile("app.log"
-	if err != nil {
-		log.Printf("Failed to open log file: %v", err)
-	}
+	// file, err := os.OpenFile(cfg.Log.Path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666) // os.OpenFile("app.log"
+	// if err != nil {
+	// 	log.Printf("Failed to open log file: %v", err)
+	// }
 
-	// 使用 io.MultiWriter 实现多写入器功能
-	multiWriter := io.MultiWriter(os.Stdout, file)
-	log.SetOutput(multiWriter)
+	// // -- 使用 io.MultiWriter 实现多写入器功能
+	// // 目的：让日志同时输出到控制台（终端）和文件中
+	// multiWriter := io.MultiWriter(os.Stdout, file)
+	// log.SetOutput(multiWriter)
 
 	// 打印配置
 	log.Debug("[log] 相关")
@@ -64,37 +95,57 @@ func init() {
 	log.Debug("[gin] 相关")
 	log.Debug("gin.mode: ", cfg.Gin.Mode)
 
-	// 初始化数据库连接
+	// 3. 初始化数据库
+	// -- 初始化数据库连接
 	db.InitDB("mysql", cfg.DB.Name, cfg.DB.User, cfg.DB.Password)
 
-	// 自动迁移表结构
-	db.DB.AutoMigrate(&models.Website{}, &models.Country{}, &models.Category{}, &models.Type{}, &models.Comic{}) // 有几个表, 写几个参数
+	// -- 自动迁移表结构
+	db.DB.AutoMigrate(&models.Website{}, &models.Country{}, &models.SexType{}, &models.Type{}, &models.Comic{}) // 有几个表, 写几个参数
 
-	// 插入默认数据
+	// -- 插入默认数据
 	db.InsertDefaultData()
 }
 
+// main 入口函数
 /*
+作用简单说：
+  - 初始化项目
+  - 提供API接口(增删改查相关),让前端调用
+  - 提供API接口(爬虫相关),让前端调用
+
+作用详细说:
+
+	通过调用init()函数实现
+	- 初始化配置
+		- 读取配置
+		- 不重新生成配置文件
+	- 初始化日志
+		- 根据配置，设置日志级别
+		- 创建日志文件
+		- 让日志可同时写到终端和日志文件
+	- 初始化数据库
+		- 连接数据库
+		- 创建数据表结构
+		- 插入默认数据
+
 思路:
- 1. 读取配置文件， (如果配置文件不填, 自动会有默认值)
- 2. 设置日志级别, 默认info
- 3. 统一调用错误打印, 封装函数
- 4. 封装restful api
+   1. 通过调用init()函数实现 -》 初始化项目
+   2. 提供API接口(增删改查相关)
+   3. 提供API接口(爬虫相关)
 */
 func main() {
 
-	// 1. 读取配置文件， (如果配置文件不填, 自动会有默认值)
-	// 2. 设置日志级别, 默认info
-	// 3. 统一调用错误打印, 封装函数
-	// 4. 封装restful api
+	// 1. 通过调用init()函数实现 -》 初始化项目
 
-	// 等会再用 ----------------------------- start
-	gin.SetMode(gin.ReleaseMode) // 关键代码：切换到 release 模式
+	// 2. 封装restful api
+	// 关键代码：切换到 release 模式，防止打过多日志 --
+	gin.SetMode(gin.ReleaseMode)
+
+	// 创建 gin 实例 --
 	r := gin.Default()
 	r.Use(cors.Default()) // 允许所有跨域
 
-	// 封装api
-	//---------------------------- 一会再弄这个
+	// 提供接口 --
 	r.POST("/orders", order.OrderAdd)
 	r.DELETE("/orders/:id", order.OrderDelete)
 	r.PUT("/orders", order.OrderUpdate)
@@ -103,8 +154,9 @@ func main() {
 	r.POST("/comics", comic.ComicAdd)
 	r.DELETE("/comics/:id", comic.ComicDelete)
 	r.PUT("/comics", comic.ComicUpdateByIdOmitIndex)
-	r.GET("/comics", comic.ComicsPageQuery) // 分页查询
+	r.GET("/comics", comic.ComicsQueryByPage) // 分页查询
 
+	// 3. 提供API接口(爬虫相关)
 	// 爬虫
 	// 爬虫思路：
 	// 1. 爬某一类漫画所有内容
@@ -114,5 +166,4 @@ func main() {
 	r.POST("/spider/oneCategory", spider.Spider)
 
 	r.Run(":8888") // 启动服务
-	// 等会再用 ----------------------------- end
 }

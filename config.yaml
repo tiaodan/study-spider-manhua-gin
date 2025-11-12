@@ -1,6 +1,6 @@
 log:
   level: info
-  path: app.log
+  path: log/app.log
 network:
   ximalaya_ip: www.ximalaya.com
 db:
