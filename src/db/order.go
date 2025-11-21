@@ -12,7 +12,7 @@ import (
 
 // 增
 func OrderAdd(order *models.Order) error {
-	result := DB.Clauses(clause.OnConflict{
+	result := DBComic.Clauses(clause.OnConflict{
 		Columns: []clause.Column{{Name: "OrderId"}, {Name: "DropShippingOrderId"}}, // 判断唯一索引: pddId + 代发id
 		DoUpdates: clause.Assignments(map[string]interface{}{
 			"pdd_order_time":               order.PddOrderTime,
@@ -59,7 +59,7 @@ func OrderBatchAdd(orders []*models.Order) {
 func OrderDelete(id uint) error {
 	log.Debug("删除订单, 参数id= ", id)
 	var order models.Order
-	result := DB.Delete(&order, id)
+	result := DBComic.Delete(&order, id)
 	if result.Error != nil {
 		log.Error("删除失败: ", result.Error)
 		return result.Error
@@ -72,7 +72,7 @@ func OrderDelete(id uint) error {
 // 批量删
 func OrdersBatchDelete(ids []uint) {
 	var orders []models.Order
-	result := DB.Delete(&orders, ids)
+	result := DBComic.Delete(&orders, ids)
 	if result.Error != nil {
 		log.Error("批量删除失败: ", result.Error)
 	} else {
@@ -83,7 +83,7 @@ func OrdersBatchDelete(ids []uint) {
 // 改 - 参数用map
 // func UpdateOrder(orderId uint, updates map[string]interface{}) {
 // 	var order models.Order
-// 	result := DB.Model(&order).Where("pdd_order_id = ?", orderId).Updates(updates)
+// 	result := DBComic.Model(&order).Where("pdd_order_id = ?", orderId).Updates(updates)
 // 	if result.Error != nil {
 // 		log.Error("修改失败:", result.Error)
 // 	} else {
@@ -93,7 +93,7 @@ func OrdersBatchDelete(ids []uint) {
 
 // 改 - 参数用结构体
 func OrderUpdate(orderId string, order *models.Order) error {
-	result := DB.Model(&order).Where("pdd_order_id = ?", orderId).Updates(order)
+	result := DBComic.Model(&order).Where("pdd_order_id = ?", orderId).Updates(order)
 	if result.Error != nil {
 		log.Error("修改失败: ", result.Error)
 		return result.Error
@@ -108,7 +108,7 @@ func OrderUpdate(orderId string, order *models.Order) error {
 func OrdersBatchUpdate(updates map[uint]map[string]interface{}) {
 	for orderId, update := range updates {
 		var order models.Order
-		result := DB.Model(&order).Where("order_id = ?", orderId).Updates(update)
+		result := DBComic.Model(&order).Where("order_id = ?", orderId).Updates(update)
 		if result.Error != nil {
 			log.Errorf("更新订单 %d 失败: %v", orderId, result.Error)
 		} else {
@@ -120,7 +120,7 @@ func OrdersBatchUpdate(updates map[uint]map[string]interface{}) {
 // 查
 func OrderQueryById(id uint) *models.Order {
 	var order models.Order
-	result := DB.First(&order, id)
+	result := DBComic.First(&order, id)
 	if result.Error != nil {
 		log.Error("查询失败: ", result.Error)
 		return nil
@@ -132,7 +132,7 @@ func OrderQueryById(id uint) *models.Order {
 // 批量查
 func OrdersBatchQuery(ids []uint) ([]*models.Order, error) {
 	var orders []*models.Order
-	result := DB.Find(&orders, ids)
+	result := DBComic.Find(&orders, ids)
 	if result.Error != nil {
 		log.Error("批量查询失败: ", result.Error)
 		return orders, result.Error
@@ -144,7 +144,7 @@ func OrdersBatchQuery(ids []uint) ([]*models.Order, error) {
 // 查所有
 func OrdersQueryAll() ([]*models.Order, error) {
 	var orders []*models.Order
-	result := DB.Find(&orders)
+	result := DBComic.Find(&orders)
 	if result.Error != nil {
 		log.Error("批量查询失败: ", result.Error)
 		return orders, result.Error
@@ -156,7 +156,7 @@ func OrdersQueryAll() ([]*models.Order, error) {
 // 查数据总数
 func OrdersTotal() (int64, error) {
 	var count int64
-	result := DB.Model(&models.Order{}).Count(&count)
+	result := DBComic.Model(&models.Order{}).Count(&count)
 	if result.Error != nil {
 		log.Error("查询数据总数失败: ", result.Error)
 		return 0, result.Error
@@ -168,7 +168,7 @@ func OrdersTotal() (int64, error) {
 // 分页查询
 func OrdersPageQuery(pageNum, pageSize int) ([]*models.Order, error) {
 	var orders []*models.Order
-	result := DB.Limit(pageSize).Offset((pageNum - 1) * pageSize).Find(&orders)
+	result := DBComic.Limit(pageSize).Offset((pageNum - 1) * pageSize).Find(&orders)
 	if result.Error != nil {
 		log.Error("分页查询失败: ", result.Error)
 		return orders, result.Error

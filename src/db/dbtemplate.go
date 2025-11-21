@@ -64,8 +64,8 @@ func DBUpsert(modelObj any, uniqueIndexArr []string, updateDBColumnRealNameArr [
 	// 	"type_id":          comic.TypeId,
 	// 	"update":           comic.Update,
 	// 	"hits":             comic.Hits,
-	// 	"comic_url":        comic.ComicUrl,
-	// 	"cover_url":        comic.CoverUrl,
+	// 	"comic_url_api_path":        comic.ComicUrlApiPath,
+	// 	"cover_url_api_path":        comic.CoverUrlApiPath,
 	// 	"brief_short":      comic.BriefShort,
 	// 	"brief_long":       comic.BriefLong,
 	// 	"end":              comic.End,
@@ -86,7 +86,7 @@ func DBUpsert(modelObj any, uniqueIndexArr []string, updateDBColumnRealNameArr [
 	// }).Create(model)
 
 	// 准备唯一索引数据，写法2-推荐: 传参[]string{"Name", "Id"}, 然后调用方法toGormColumns() 转成gorm写法。
-	result := DB.Clauses(clause.OnConflict{
+	result := DBComic.Clauses(clause.OnConflict{
 		Columns: toGormColumns(uniqueIndexArr), // 判断唯一索引: 如：Name + Id。 解释：如果唯一索引冲突
 		// DoUpdates: clause.Assignments(updateColumnsMap),  // 写法1 弃用
 		DoUpdates: clause.AssignmentColumns(updateDBColumnRealNameArr), // 写法2 推荐，只传数据库 真实列名。解释：就更新这些列。AssignmentColumns 直接从对象里取数据
@@ -102,6 +102,8 @@ func DBUpsert(modelObj any, uniqueIndexArr []string, updateDBColumnRealNameArr [
 
 // 增-批量 upsertBatch : 批量插入或更新。批量操作，涉及到数据回滚问题
 /*
+updateDBColumnRealNameArr 必须传数据库真实字段，全小写带_ 的那种
+
 作用简单说：
   - 批量插入或更新 N条数据
 
@@ -171,7 +173,7 @@ func DBUpsertBatch(DBConnObj *gorm.DB, modelObjs any, uniqueIndexArr []string, u
 	err := DBConnObj.Transaction(func(tx *gorm.DB) error { // 原本写法应该是这样，但是DB用的全局参数，所以tx那里就不用传参了. tx是事务对象
 		// 批量插入 + 冲突更新
 		result := tx.Clauses(clause.OnConflict{
-			Columns:   toGormColumns(uniqueIndexArr), // 判断唯一索引: 如：Name + Id
+			Columns:   toGormColumns(uniqueIndexArr), // 判断唯一索引: 如：Name + Id。多个条件是 并且的关系
 			DoUpdates: clause.AssignmentColumns(updateDBColumnRealNameArr),
 		}).Create(modelObjs) // 等价于 CreateInBatches(users, 1000)
 
@@ -293,7 +295,7 @@ func DBDeleteById(model any, id int) error {
 	// result := DB.Delete(&comic, id)
 
 	// -- 写法1: 直接传表对象的指针，这样写的代码更少，更简洁。推荐！！
-	result := DB.Delete(&models.Comic{}, id)
+	result := DBComic.Delete(&models.Comic{}, id)
 	if result.Error != nil {
 		// log.Error("删除失败: ", result.Error)  // 此文件不打日志，错误已经返回给上级
 		return result.Error
@@ -373,8 +375,8 @@ func DBUpdateByIdOmitIndex(model any, id int, updateDataMap map[string]any) erro
 			"type_id":          comic.TypeId,
 			"update":           comic.Update,
 			"hits":             comic.Hits,
-			"comic_url":        comic.ComicUrl,
-			"cover_url":        comic.CoverUrl,
+			"comic_url_api_path":        comic.ComicUrlApiPath,
+			"cover_url_api_path":        comic.CoverUrlApiPath,
 			"brief_short":      comic.BriefShort,
 			"brief_long":       comic.BriefLong,
 			"end":              comic.End,
@@ -393,12 +395,12 @@ func DBUpdateByIdOmitIndex(model any, id int, updateDataMap map[string]any) erro
 	// result := DB.Model(&comic).Where("id = ?", comicId).Omit("name").Updates(comic)
 	// 方式2，也不推荐。安全，写法没问题，就是乱
 	// result := DB.Model(&comic).Where("id = ?", comicId).Select("country_id", "website_id",
-	// 	"category_id", "type_id", "update", "hits", "comic_url",
-	// 	"cover_url", "brief_short", "brief_long", "end", "need_tcp", "cover_need_tcp",
+	// 	"category_id", "type_id", "update", "hits", "comic_url_api_path",
+	// 	"cover_url_api_path", "brief_short", "brief_long", "end", "need_tcp", "cover_need_tcp",
 	// 	"spider_end", "download_end", "upload_aws_end", "upload_baidu_end").Updates(comic)
 
 	// 方式3：只调Updates()方法，传入 map[string]interface{} -》 推荐！！
-	result := DB.Model(model).Where("id = ?", id).Updates(updateDataMap)
+	result := DBComic.Model(model).Where("id = ?", id).Updates(updateDataMap)
 	if result.Error != nil {
 		// log.Error("修改失败: ", result.Error)  // 此文件不打日志，错误已经返回给上级
 		return result.Error
@@ -470,7 +472,7 @@ func DBPageQueryReturnTypeAny(model any, pageNum, pageSize int) ([]any, error) {
 	sliceValue := reflect.New(sliceType)
 
 	// -- 执行db操作
-	result := DB.Limit(pageSize).Offset((pageNum - 1) * pageSize).Find(sliceValue.Interface())
+	result := DBComic.Limit(pageSize).Offset((pageNum - 1) * pageSize).Find(sliceValue.Interface())
 
 	// v0.1 写法，会报错，弃用
 	/*
@@ -559,7 +561,7 @@ func DBPageQueryReturnTypeT[T any](pageNum, pageSize int) ([]T, error) {
 	// 4. 数据库执行
 
 	var modelObjs []T
-	result := DB.Limit(pageSize).Offset((pageNum - 1) * pageSize).Find(&modelObjs)
+	result := DBComic.Limit(pageSize).Offset((pageNum - 1) * pageSize).Find(&modelObjs)
 	if result.Error != nil {
 		// log.Error("分页查询失败: ", result.Error)  // 此文件不打日志，错误已经返回给上级
 		return modelObjs, result.Error

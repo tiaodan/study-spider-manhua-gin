@@ -71,36 +71,34 @@ func init() {
 		log.SetLevel(logrus.InfoLevel)
 	}
 
-	// 创建一个文件用于写入日志
-	// file, err := os.OpenFile(cfg.Log.Path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666) // os.OpenFile("app.log"
-	// if err != nil {
-	// 	log.Printf("Failed to open log file: %v", err)
-	// }
-
-	// // -- 使用 io.MultiWriter 实现多写入器功能
-	// // 目的：让日志同时输出到控制台（终端）和文件中
-	// multiWriter := io.MultiWriter(os.Stdout, file)
-	// log.SetOutput(multiWriter)
-
-	// 打印配置
+	// 打印配置。用debug打日志是为了安全
+	log.Debug("打印配置: --------------------------------- ")
 	log.Debug("[log] 相关")
-	log.Debug("log.level: ", cfg.Log.Level)
-	log.Debug("log.path: ", cfg.Log.Path)
+	log.Debug("log.level = ", cfg.Log.Level)
+	log.Debug("log.path = ", cfg.Log.Path)
 	log.Debug("[network] 相关---")
-	log.Debug("network.ximalayaIIp_ip: ", cfg.Network.XimalayaIIp)
-	log.Debug("[db] 相关")
-	log.Debug("db.name: ", cfg.DB.Name)
-	log.Debug("db.user: ", cfg.DB.User)
-	log.Debug("db.password: ", cfg.DB.Password)
+	log.Debug("network.ximalayaIIp_ip = ", cfg.Network.XimalayaIIp)
+	log.Debug("[db] 相关 ")
+	log.Debug("db.name = ", cfg.DB.Name)
+	log.Debug("db.user = ", cfg.DB.User)
+	log.Debug("db.password = ", cfg.DB.Password)
 	log.Debug("[gin] 相关")
-	log.Debug("gin.mode: ", cfg.Gin.Mode)
+	log.Debug("gin.mode = ", cfg.Gin.Mode)
+	log.Debug("[spider] 相关")
+	log.Debug("[spider] 相关 - 公用配置: ")
+	log.Debug("[spider] 相关 - 公用配置 - 爬取某一类 配置: ")
+	log.Debug("每次请求前随机延迟 (秒) random_delay_time = ", cfg.Spider.Public.SpiderType.RandomDelayTime)
+	log.Debug("爬虫队列, 最大并发数 queue_limit_conc_maxnum = ", cfg.Spider.Public.SpiderType.QueueLimitConcMaxnum)
+	log.Debug("爬虫队列, 池最大数 queue_pool_maxnum = ", cfg.Spider.Public.SpiderType.QueuePoolMaxnum)
+
+	log.Debug("打印配置: --------------------------------- end  ")
 
 	// 3. 初始化数据库
 	// -- 初始化数据库连接
 	db.InitDB("mysql", cfg.DB.Name, cfg.DB.User, cfg.DB.Password)
 
 	// -- 自动迁移表结构
-	db.DB.AutoMigrate(&models.Website{}, &models.Country{}, &models.SexType{}, &models.Type{}, &models.Comic{}) // 有几个表, 写几个参数
+	db.DBComic.AutoMigrate(&models.Website{}, &models.Country{}, &models.PornType{}, &models.Type{}, &models.Comic{}) // 有几个表, 写几个参数
 
 	// -- 插入默认数据
 	db.InsertDefaultData()
@@ -163,7 +161,9 @@ func main() {
 	// 2. 爬某个漫画的所有章节，更新该漫画具体内容
 
 	// 流程：爬完漫画（spider_end）-》爬章节-》修改漫画-》 存章节-》下载漫画(download_end)-》下载章节-》下载完，上传aws章节(upload_aws_end)-》传完，更新漫画标志位
-	r.POST("/spider/oneCategory", spider.Spider)
+	// r.POST("/spider/oneCategory", spider.Spider) // v0.1 写法，没用通用爬虫模板，弃用
+	r.POST("/spider/oneTypeByHtml", spider.BookTemSpiderTypeByHtml)       // v0.2 写法，用通用爬虫模板,推荐。爬html页面
+	r.POST("/spider/oneTypeByJson", spider.DispatchApi_OneCategoryByJSON) // v0.2 写法，用通用爬虫模板,推荐。爬F12 目标网站返回的json数据
 
 	r.Run(":8888") // 启动服务
 }

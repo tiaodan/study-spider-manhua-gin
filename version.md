@@ -143,10 +143,46 @@
     - 实现：dbtempalte.go 里批量upsert方法里，加了 数据库链接对象
 非核心改动：
 - 学会:用Swark VSCode插件一键生成项目流程图，它可以读取项目。 Ctrl+Shift+R 快捷键选中项目后，会在选中目录生成md文件，点击Mermaid Live Editor: View。但是swark只能显示目录结构，函数调用关系，无法看到
-- 把 model/category.go 模型改为 -》SexType
+- 把 model/category.go 模型改为 -》PornType
+
+# v0.0.0.15
+版本总结：
+    - 封装 通用的爬取漫画 方法 (爬JSON方式)
+核心改动：
+    - 封装 通用的爬取漫画 方法
+    - sex_types表改为 porn_types表,表示是否是色情内容
+    - 封装 处理对象 string字段，前后空格的 工具方法
+        一般有2种实现方式：
+        1. 用反射实现，缺点：反射比较耗时，写起来麻烦，不容易理解 -- 弃用
+        2. 用接口实现，util里 定义一个结果，所有models里的 struct 都实现这个接口 -- 推荐，现在用的这种方法，参考stringutils.go
+    - comic 表 download_end / upload_end / upload_baidu_end 最好改为 download_end—_status 因为可能有好几个数，比如0 1 2 3 各戴白不同状态，如果叫end，好像是只能true/false了
+	- 更新comic表结构，把needTcp/coverNeedTcp 改成bool，不用bigint
+    - 修改db.DB -> 改为 db.DBComic。表示comic数据库 的对象 -> 为了以后能适配各种数据库，适配一个数据库，加一个对象
+    - 实现，tooptoon.net-台湾的网站,能根据JSON爬取某一类的所有book。JSON数据 --> https://tooptoon.net/api/v1/comics?category=1&limit=10&page=1 -> F12 -> Fetcg.XHR -> 找第一个json。比如：https://d1dkh1tjti8mih.cloudfront.net/www_v1/jsonComic/tw/complete/54bc1d768276cf834a8276670d457013ce2ec7d078b4fbef707b16fa30508a9d.json
+    - comic表，need_tcp用不到，删除， coverNeedTcp 删除。链接是否用到https，放到website表里
+
+非核心改动:
+    - 把website model 的 url字段改成domain，表示域名，url容易误解
+    - 把website model 的 needProxy isHttps 都改为bool类型
+    - 用接口，实现model，只要是string，都转成简体中文 !!!!
+    - 把comics 表改成 comcic_url -> comic_url_api_path, comic_url 容易误解  
+    - 把comics 表改成 cover_url -> cover_url_api_path, comic_url 容易误解
+    - 把请求的json，放到1个文件保存起来 -》 放到doc/F12找到的json里了
 
 
-------------------- ！！！！！！！解决完上面问题，再传github，之后删除这一行
+------------------------------------------ 未解决问题如下：
+要解决：
+    - website表，加1个coverNeedHttps 列，表示 cover 是否需要https ，因为默认一定是要http请求头的。 ，// 需要这个，因为图片有的开
+    - 插入前数据校验，你如star，最高10.0，如果超出，就按0算
+    - 数据清洗的时候，如果有https或者http头，自动删除。comic 实现一个数据清洗接口，（数据清洗自动实现，去除空格、繁体转简体，自动去除协议头：http/https，超出范围，自动置为某个值）
+    - 数据清洗分2个方面：1. 前端传参、方法间传参，数据清洗-属于前端编程人员操作 2. 插入db前数据清洗 -》 属于后端编程人员操作
+    - website还要加个前缀，img_prefix 图片前缀，比如cover前缀，可能不是域名，比如：https://cdn.mangakakalot.tv/mangakakalot/covers/xxx.jpg
+    - website表加2列，章节url拼接规则，举例。图片拼接规则，举例
+    - 拆分comic表，把打分、点击率单独拿出来，因为可能经常更新。这样需要联表查询，这块代码需要改下
+    - 给所有报错，给出推断原因，让用户自己去简单排查。缩短排查时间
+    - 把mapping映射关系，写出json文件，类似配置文件的方式，通用，以后不用改代码，直接改json文件即可 -》 参考 spider.go -> ComicMappingForSpiderToptoonByJSON 这个变量
+
+------------------------- 解决完再上传
 
 # 待办
 - comic表加上时间，创建时间，更新时间，是否删除标志 √ 没测

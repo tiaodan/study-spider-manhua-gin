@@ -74,25 +74,27 @@ var website2ForUpdateNoIdHasZero map[string]interface{} // 用于update, 无id, 
 
 // ---------------------------- init start ----------------------------
 func init() {
+
 	//---------- 用于add
 	// // // 有id
 	websiteForAddHasIdNoZero = models.Website{
 		Id:        1, // 新增时,可以指定id,gorm会插入指定id,而不是自增
 		NameId:    1,
 		Name:      "Test Website Add",
-		Url:       "http://add.com",
-		NeedProxy: 1,
-		IsHttps:   1,
+		Domain:    "http://add.com",
+		NeedProxy: true,
+		IsHttps:   true,
 	}
+
 	websitesForAddHasIdHasZeroOne = WebsiteOps.returnObjZeroOne(websiteForAddHasIdNoZero) // 用于add, 有id, 无0值-单个为0 数组
 	websiteForAddHasIdHasZeroAll = WebsiteOps.returnObjZeroAll(websiteForAddHasIdNoZero)  // 用于add, 有id, 无0值-全为0
 	// // // 无id
 	websiteForAddNoIdNoZero = models.Website{
 		NameId:    1,
 		Name:      "Test Website Add",
-		Url:       "http://add.com",
-		NeedProxy: 1,
-		IsHttps:   1,
+		Domain:    "http://add.com",
+		NeedProxy: true,
+		IsHttps:   true,
 	}
 	websitesForAddNoIdHasZeroOne = WebsiteOps.returnObjZeroOne(websiteForAddNoIdNoZero) // 用于add, 无id, 无0值-单个为0 数组
 	websiteForAddNoIdHasZeroAll = WebsiteOps.returnObjZeroAll(websiteForAddNoIdNoZero)  // 用于add, 无id, 无0值-全为0
@@ -103,9 +105,9 @@ func init() {
 		Id:        2, // 新增时,可以指定id,gorm会插入指定id,而不是自增
 		NameId:    2,
 		Name:      "Test Website Add2",
-		Url:       "http://add.com2",
-		NeedProxy: 1,
-		IsHttps:   1,
+		Domain:    "http://add.com2",
+		NeedProxy: true,
+		IsHttps:   true,
 	}
 	websites2ForAddHasIdHasZeroOne = WebsiteOps.returnObjZeroOne(website2ForAddHasIdNoZero) // 用于add, 有id, 无0值-单个为0 数组
 	website2ForAddHasIdHasZeroAll = WebsiteOps.returnObjZeroAll(website2ForAddHasIdNoZero)  // 用于add, 有id, 无0值-全为0
@@ -114,9 +116,9 @@ func init() {
 	website2ForAddNoIdNoZero = models.Website{
 		NameId:    2,
 		Name:      "Test Website Add2",
-		Url:       "http://add.com2",
-		NeedProxy: 1,
-		IsHttps:   1,
+		Domain:    "http://add.com2",
+		NeedProxy: true,
+		IsHttps:   true,
 	}
 	websites2ForAddNoIdHasZeroOne = WebsiteOps.returnObjZeroOne(website2ForAddNoIdNoZero) // 用于add, 无id, 无0值-单个为0 数组
 	website2ForAddNoIdHasZeroAll = WebsiteOps.returnObjZeroAll(website2ForAddNoIdNoZero)  // 用于add, 无id, 无0值-全为0
@@ -126,16 +128,16 @@ func init() {
 		"Id":        uint(1),
 		"NameId":    1,
 		"Name":      "Updated Website",
-		"Url":       "http://updated.com",
-		"NeedProxy": 1,
-		"IsHttps":   1,
+		"Domain":    "http://updated.com",
+		"NeedProxy": true,
+		"IsHttps":   true,
 	}
 
 	websiteForUpdateHasIdHasZero = map[string]interface{}{
 		"Id":        uint(1),
 		"NameId":    1,
 		"Name":      "Updated Website",
-		"Url":       "http://updated.com",
+		"Domain":    "http://updated.com",
 		"NeedProxy": 0,
 		"IsHttps":   0,
 	}
@@ -143,7 +145,7 @@ func init() {
 	websiteForUpdateNoIdNoZero = map[string]interface{}{
 		"NameId":    1,
 		"Name":      "Updated Website",
-		"Url":       "http://updated.com",
+		"Domain":    "http://updated.com",
 		"NeedProxy": 1,
 		"IsHttps":   1,
 	}
@@ -151,7 +153,7 @@ func init() {
 	websiteForUpdateNoIdHasZero = map[string]interface{}{
 		"NameId":    1,
 		"Name":      "Updated Website",
-		"Url":       "http://updated.com",
+		"Domain":    "http://updated.com",
 		"NeedProxy": 0,
 		"IsHttps":   0,
 	}
@@ -161,7 +163,7 @@ func init() {
 		"Id":        uint(2),
 		"NameId":    2,
 		"Name":      "Updated Website2",
-		"Url":       "http://updated.com2",
+		"Domain":    "http://updated.com2",
 		"NeedProxy": 1,
 		"IsHttps":   1,
 	}
@@ -170,7 +172,7 @@ func init() {
 		"Id":        uint(2),
 		"NameId":    2,
 		"Name":      "Updated Website2",
-		"Url":       "http://updated.com2",
+		"Domain":    "http://updated.com2",
 		"NeedProxy": 0,
 		"IsHttps":   0,
 	}
@@ -178,7 +180,7 @@ func init() {
 	website2ForUpdateNoIdNoZero = map[string]interface{}{
 		"NameId":    2,
 		"Name":      "Updated Website2",
-		"Url":       "http://updated.com2",
+		"Domain":    "http://updated.com2",
 		"NeedProxy": 1,
 		"IsHttps":   1,
 	}
@@ -186,7 +188,7 @@ func init() {
 	website2ForUpdateNoIdHasZero = map[string]interface{}{
 		"NameId":    2,
 		"Name":      "Updated Website2",
-		"Url":       "http://updated.com2",
+		"Domain":    "http://updated.com2",
 		"NeedProxy": 0,
 		"IsHttps":   0,
 	}
@@ -255,7 +257,7 @@ func WebsiteCheck(query *models.Website, obj *models.Website, t *testing.T, errT
 	if obj.Id == 0 { // 无id
 		if query.NameId != obj.NameId ||
 			query.Name != obj.Name ||
-			query.Url != obj.Url ||
+			query.Domain != obj.Domain ||
 			query.NeedProxy != obj.NeedProxy ||
 			query.IsHttps != obj.IsHttps {
 			// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
@@ -269,7 +271,7 @@ func WebsiteCheck(query *models.Website, obj *models.Website, t *testing.T, errT
 	if query.Id != obj.Id ||
 		query.NameId != obj.NameId ||
 		query.Name != obj.Name ||
-		query.Url != obj.Url ||
+		query.Domain != obj.Domain ||
 		query.NeedProxy != obj.NeedProxy ||
 		query.IsHttps != obj.IsHttps {
 		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
@@ -287,7 +289,7 @@ func WebsiteCheckHasId(query *models.Website, obj *models.Website, t *testing.T,
 	if query.Id != obj.Id ||
 		query.NameId != obj.NameId ||
 		query.Name != obj.Name ||
-		query.Url != obj.Url ||
+		query.Domain != obj.Domain ||
 		query.NeedProxy != obj.NeedProxy ||
 		query.IsHttps != obj.IsHttps {
 		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
@@ -304,7 +306,7 @@ func WebsiteCheckNoId(query *models.Website, obj *models.Website, t *testing.T, 
 	// 判断第1个
 	if query.NameId != obj.NameId ||
 		query.Name != obj.Name ||
-		query.Url != obj.Url ||
+		query.Domain != obj.Domain ||
 		query.NeedProxy != obj.NeedProxy ||
 		query.IsHttps != obj.IsHttps {
 		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
@@ -322,7 +324,7 @@ func WebsiteCheckSpace(query *models.Website, obj *models.Website, t *testing.T,
 	if obj.Id == 0 { // 无id
 		if query.NameId != obj.NameId ||
 			query.Name != strings.TrimSpace(obj.Name) ||
-			query.Url != strings.TrimSpace(obj.Url) ||
+			query.Domain != strings.TrimSpace(obj.Domain) ||
 			query.NeedProxy != obj.NeedProxy ||
 			query.IsHttps != obj.IsHttps {
 			// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
@@ -337,7 +339,7 @@ func WebsiteCheckSpace(query *models.Website, obj *models.Website, t *testing.T,
 	if query.Id != obj.Id ||
 		query.NameId != obj.NameId ||
 		query.Name != strings.TrimSpace(obj.Name) ||
-		query.Url != strings.TrimSpace(obj.Url) ||
+		query.Domain != strings.TrimSpace(obj.Domain) ||
 		query.NeedProxy != obj.NeedProxy ||
 		query.IsHttps != obj.IsHttps {
 		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
@@ -355,7 +357,7 @@ func WebsiteCheckSpaceHasId(query *models.Website, obj *models.Website, t *testi
 	if query.Id != obj.Id ||
 		query.NameId != obj.NameId ||
 		query.Name != strings.TrimSpace(obj.Name) ||
-		query.Url != strings.TrimSpace(obj.Url) ||
+		query.Domain != strings.TrimSpace(obj.Domain) ||
 		query.NeedProxy != obj.NeedProxy ||
 		query.IsHttps != obj.IsHttps {
 		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
@@ -372,7 +374,7 @@ func WebsiteCheckSpaceNoId(query *models.Website, obj *models.Website, t *testin
 	// 判断第1个
 	if query.NameId != obj.NameId ||
 		query.Name != strings.TrimSpace(obj.Name) ||
-		query.Url != strings.TrimSpace(obj.Url) ||
+		query.Domain != strings.TrimSpace(obj.Domain) ||
 		query.NeedProxy != obj.NeedProxy ||
 		query.IsHttps != obj.IsHttps {
 		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
@@ -402,7 +404,7 @@ func WebsiteCheckUpdate(query *models.Website, obj map[string]interface{}, t *te
 	if !hasId || idValue == nil || idValue == uint(0) { // 无id 或id为0
 		if query.NameId != obj["NameId"] ||
 			query.Name != obj["Name"] ||
-			query.Url != obj["Url"] ||
+			query.Domain != obj["Domain"] ||
 			query.NeedProxy != obj["NeedProxy"] ||
 			query.IsHttps != obj["IsHttps"] {
 			// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
@@ -417,7 +419,7 @@ func WebsiteCheckUpdate(query *models.Website, obj map[string]interface{}, t *te
 	if query.Id != obj["Id"] ||
 		query.NameId != obj["NameId"] ||
 		query.Name != obj["Name"] ||
-		query.Url != obj["Url"] ||
+		query.Domain != obj["Domain"] ||
 		query.NeedProxy != obj["NeedProxy"] ||
 		query.IsHttps != obj["IsHttps"] {
 		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
@@ -435,7 +437,7 @@ func WebsiteCheckUpdateHasId(query *models.Website, obj map[string]interface{}, 
 	if query.Id != obj["Id"] ||
 		query.NameId != obj["NameId"] ||
 		query.Name != obj["Name"] ||
-		query.Url != obj["Url"] ||
+		query.Domain != obj["Domain"] ||
 		query.NeedProxy != obj["NeedProxy"] ||
 		query.IsHttps != obj["IsHttps"] {
 		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
@@ -452,7 +454,7 @@ func WebsiteCheckUpdateNoId(query *models.Website, obj map[string]interface{}, t
 	// 判断第1个
 	if query.NameId != obj["NameId"] ||
 		query.Name != obj["Name"] ||
-		query.Url != obj["Url"] ||
+		query.Domain != obj["Domain"] ||
 		query.NeedProxy != obj["NeedProxy"] ||
 		query.IsHttps != obj["IsHttps"] {
 		// t.Errorf("【查 by nameId 】测试不通过, got= %v", query)
@@ -1065,7 +1067,7 @@ func TestWebsitesBatchDeleteById(t *testing.T) {
 		Id:        2,
 		NameId:    2,
 		Name:      "Test Website for Delete By Id 2",
-		Url:       "http://delete.com id 2",
+		Domain:       "http://delete.com id 2",
 		NeedProxy: 0,
 		IsHttps:   0,
 	}

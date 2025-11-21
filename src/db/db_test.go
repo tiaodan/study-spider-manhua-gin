@@ -43,7 +43,7 @@ func TestMain(m *testing.M) {
 
 	// 设置全局 db 变量，防止调用方法DB.xx报错
 	InitDB("mysql", "comic_test", "root", "password")
-	testDB = DB
+	testDB = DBComic
 
 	// 自动迁移表结构
 	// testDB.AutoMigrate(&models.Website{}, &models.Country{}, &models.Category{}, &models.Type{}, &models.Comic{})

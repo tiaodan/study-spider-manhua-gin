@@ -13,20 +13,40 @@ import (
 
 // 配置文件 结构体
 type Config struct {
-	Network struct {
-		XimalayaIIp string `mapstructure:"ximalaya_ip"`
-	}
+	// 日志相关
 	Log struct {
 		Level string `mapstructure:"level"`
 		Path  string `mapstructure:"path"`
 	}
+
+	// 网络相关
+	Network struct {
+		XimalayaIIp string `mapstructure:"ximalaya_ip"`
+	}
+
+	// 数据库相关
 	DB struct {
 		Name     string `mapstructure:"name"`
 		User     string `mapstructure:"user"`
 		Password string `mapstructure:"password"`
 	}
+
+	// gin api接口框架相关
 	Gin struct {
 		Mode string `mapstructure:"mode"`
+	}
+
+	// 爬虫相关
+	Spider struct {
+		// -- 公用配置
+		Public struct {
+			// 爬取某一类相关 --
+			SpiderType struct {
+				RandomDelayTime      int `mapstructure:"random_delay_time"`       // 爬虫对象 colly, 每次请求前，随机延迟时间。单位 = 秒
+				QueueLimitConcMaxnum int `mapstructure:"queue_limit_conc_maxnum"` // 爬虫队列, 爬虫限制最大并发数
+				QueuePoolMaxnum      int `mapstructure:"queue_pool_maxnum"`       // 爬虫队列, 队列池最大数
+			}
+		}
 	}
 }
 
@@ -73,32 +93,46 @@ var (
 */
 func GetConfig(path, name, ext string) *Config {
 	once.Do(func() {
-		// 初始化Viper
+		// 1. 初始化Viper
 		viper.AddConfigPath(path) // 配置文件搜索路径（当前目录），如 “.”
 		viper.SetConfigName(name) // 配置文件名（不含扩展名）, 如 "config"
 		viper.SetConfigType(ext)  // 文件类型（yaml、json 等）, 如 “ini”
 
-		// 设置默认值, 防止用户没配置, 读取到空值
-		viper.SetDefault("network.ximalaya_ip", "www.ximalaya.com")
-
+		// 2. 设置默认值, 防止用户没配置, 读取到空值
 		// 设置默认值 [log] 相关
 		viper.SetDefault("log.level", "info")       // 设置默认info级别
 		viper.SetDefault("log.path", "log/app.log") // 默认日志文件名
 
+		// 设置默认值 [network] 相关
+		viper.SetDefault("network.ximalaya_ip", "www.ximalaya.com")
+
+		// 设置默认值 [db] 相关
+		viper.SetDefault("db.name", "comic")
+		viper.SetDefault("db.user", "root")
+		viper.SetDefault("db.password", "123456")
+
 		// 设置默认值 [gin] 相关
 		viper.SetDefault("gin.mode", "release") // 设置默认release模式
 
-		// 读取配置文件
+		// 设置默认值 [spider] 相关
+		// 公共配置,只要涉及到爬虫的 --
+		viper.SetDefault("spider.public.spider_type.random_delay_time", 5)       // 爬虫对象 colly, 每次请求前，随机延迟时间。单位 = 秒
+		viper.SetDefault("spider.public.spider_type.queue_limit_conc_maxnum", 5) // 爬虫队列, 爬虫限制最大并发数
+		viper.SetDefault("spider.public.spider_type.queue_pool_maxnum", 100)     // 爬虫队列, 队列池最大数
+
+		// 3. 读取配置文件
 		if err := viper.ReadInConfig(); err != nil {
 			log.Fatalln("读取配置文件失败,err: ", err)
 		}
 
-		// 将配置文件解析到结构体
+		// 4. 将配置文件解析到结构体
 		Cfg = &Config{}
 		if err := viper.Unmarshal(Cfg); err != nil {
 			log.Fatalln("解析配置文件失败,err: ", err)
 		}
 	})
+
+	// 5. 返回配置指针
 	return Cfg
 }
 

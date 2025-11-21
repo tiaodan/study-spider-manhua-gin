@@ -15,7 +15,7 @@ type CountryOperations struct{}
 
 // 增
 func (c CountryOperations) Add(country *models.Country) error {
-	result := DB.Clauses(clause.OnConflict{
+	result := DBComic.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "NameId"}},
 		DoUpdates: clause.Assignments(map[string]interface{}{"name": country.Name}),
 	}).Create(country)
@@ -43,7 +43,7 @@ func (c CountryOperations) BatchAdd(countries []*models.Country) {
 // 删
 func (c CountryOperations) Delete(id uint) {
 	var country models.Country
-	result := DB.Delete(&country, id)
+	result := DBComic.Delete(&country, id)
 	if result.Error != nil {
 		log.Error("删除失败: ", result.Error)
 	} else {
@@ -54,7 +54,7 @@ func (c CountryOperations) Delete(id uint) {
 // 批量删
 func (c CountryOperations) BatchDelete(ids []uint) {
 	var countries []models.Country
-	result := DB.Delete(&countries, ids)
+	result := DBComic.Delete(&countries, ids)
 	if result.Error != nil {
 		log.Error("批量删除失败: ", result.Error)
 	} else {
@@ -66,7 +66,7 @@ func (c CountryOperations) BatchDelete(ids []uint) {
 func (c CountryOperations) Update(nameId uint, updates map[string]interface{}) {
 	var country models.Country
 	// 解决0值不更新
-	result := DB.Model(&country).Where("name_id = ?", nameId).Select("name").Updates(updates)
+	result := DBComic.Model(&country).Where("name_id = ?", nameId).Select("name").Updates(updates)
 	if result.Error != nil {
 		log.Error("修改失败: ", result.Error)
 	} else {
@@ -79,7 +79,7 @@ func (c CountryOperations) BatchUpdate(updates map[uint]map[string]interface{}) 
 	for nameId, update := range updates {
 		var country models.Country
 		// 解决0值不更新
-		result := DB.Model(&country).Where("name_id = ?", nameId).Select("name").Updates(update)
+		result := DBComic.Model(&country).Where("name_id = ?", nameId).Select("name").Updates(update)
 		if result.Error != nil {
 			log.Errorf("更新国家 %d 失败: %v", nameId, result.Error)
 		} else {
@@ -91,7 +91,7 @@ func (c CountryOperations) BatchUpdate(updates map[uint]map[string]interface{}) 
 // 查
 func (c CountryOperations) QueryById(id uint) *models.Country {
 	var country models.Country
-	result := DB.First(&country, id)
+	result := DBComic.First(&country, id)
 	if result.Error != nil {
 		log.Error("查询失败: ", result.Error)
 		return nil
@@ -103,7 +103,7 @@ func (c CountryOperations) QueryById(id uint) *models.Country {
 // 批量查
 func (c CountryOperations) BatchQuery(ids []uint) ([]*models.Country, error) {
 	var countries []*models.Country
-	result := DB.Find(&countries, ids)
+	result := DBComic.Find(&countries, ids)
 	if result.Error != nil {
 		log.Error("批量查询失败: ", result.Error)
 		return countries, result.Error
@@ -115,7 +115,7 @@ func (c CountryOperations) BatchQuery(ids []uint) ([]*models.Country, error) {
 // 批量查 - by NameIds
 func (c CountryOperations) BatchQueryByNameId(nameIds []int) ([]*models.Country, error) {
 	var countries []*models.Country
-	result := DB.Where("name_id IN ?", nameIds).Find(&countries)
+	result := DBComic.Where("name_id IN ?", nameIds).Find(&countries)
 	if result.Error != nil {
 		log.Error("批量查询失败: ", result.Error)
 		return countries, result.Error

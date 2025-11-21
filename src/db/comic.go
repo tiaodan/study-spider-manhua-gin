@@ -24,27 +24,25 @@ import (
 	- 存在 唯一索引，更新数据
 */
 func ComicUpsert(comic *models.Comic) error {
-	result := DB.Clauses(clause.OnConflict{
+	result := DBComic.Clauses(clause.OnConflict{
 		Columns: []clause.Column{{Name: "Name"}}, // 判断唯一索引: Name
 		DoUpdates: clause.Assignments(map[string]interface{}{
-			"country_id":       comic.CountryId,
-			"website_id":       comic.WebsiteId,
-			"sex_type_id":      comic.SexTypeId,
-			"type_id":          comic.TypeId,
-			"update":           comic.Update,
-			"hits":             comic.Hits,
-			"comic_url":        comic.ComicUrl,
-			"cover_url":        comic.CoverUrl,
-			"brief_short":      comic.BriefShort,
-			"brief_long":       comic.BriefLong,
-			"end":              comic.End,
-			"star":             comic.Star,
-			"need_tcp":         comic.NeedTcp,
-			"cover_need_tcp":   comic.CoverNeedTcp,
-			"spider_end":       comic.SpiderEnd,
-			"download_end":     comic.DownloadEnd,
-			"upload_aws_end":   comic.UploadAwsEnd,
-			"upload_baidu_end": comic.UploadBaiduEnd,
+			"country_id":              comic.CountryId,
+			"website_id":              comic.WebsiteId,
+			"porn_type_id":            comic.PornTypeId,
+			"type_id":                 comic.TypeId,
+			"update":                  comic.Update,
+			"hits":                    comic.Hits,
+			"comic_url_api_path":      comic.ComicUrlApiPath,
+			"cover_url_api_path":      comic.CoverUrlApiPath,
+			"brief_short":             comic.BriefShort,
+			"brief_long":              comic.BriefLong,
+			"end":                     comic.End,
+			"star":                    comic.Star,
+			"spider_end_status":       comic.SpiderEndStatus,
+			"download_end_status":     comic.DownloadEndStatus,
+			"upload_aws_end_status":   comic.UploadAwsEndStatus,
+			"upload_baidu_end_status": comic.UploadBaiduEndStatus,
 		}),
 	}).Create(comic)
 	if result.Error != nil {
@@ -94,7 +92,7 @@ func ComicDelete(id uint) error {
 	// result := DB.Delete(&comic, id)
 
 	// -- 写法1: 直接传表对象的指针，这样写的代码更少，更简洁。推荐！！
-	result := DB.Delete(&models.Comic{}, id)
+	result := DBComic.Delete(&models.Comic{}, id)
 	if result.Error != nil {
 		log.Error("删除失败: ", result.Error)
 		return result.Error
@@ -121,7 +119,7 @@ func ComicDelete(id uint) error {
 */
 func ComicsBatchDelete(ids []uint) {
 	var comics []models.Comic
-	result := DB.Delete(&comics, ids)
+	result := DBComic.Delete(&comics, ids)
 	if result.Error != nil {
 		log.Error("批量删除失败: ", result.Error)
 	} else {
@@ -165,32 +163,30 @@ func ComicUpdateByIdOmitIndex(comicId any, comic *models.Comic) error {
 	// result := DB.Model(&comic).Where("id = ?", comicId).Omit("name").Updates(comic)
 	// 方式2，也不推荐。安全，写法没问题，就是乱
 	// result := DB.Model(&comic).Where("id = ?", comicId).Select("country_id", "website_id",
-	// 	"category_id", "type_id", "update", "hits", "comic_url",
-	// 	"cover_url", "brief_short", "brief_long", "end", "need_tcp", "cover_need_tcp",
+	// 	"category_id", "type_id", "update", "hits", "comic_url_api_path",
+	// 	"cover_url_api_path", "brief_short", "brief_long", "end", "need_tcp", "cover_need_tcp",
 	// 	"spider_end", "download_end", "upload_aws_end", "upload_baidu_end").Updates(comic)
 
 	// 方式3：只调Updates()方法，传入 map[string]interface{} -》 推荐！！
 	// 更新参数
 	updateDataMap := map[string]any{
-		"country_id":       comic.CountryId,
-		"website_id":       comic.WebsiteId,
-		"sex_type_id":      comic.SexTypeId,
-		"type_id":          comic.TypeId,
-		"update":           comic.Update,
-		"hits":             comic.Hits,
-		"comic_url":        comic.ComicUrl,
-		"cover_url":        comic.CoverUrl,
-		"brief_short":      comic.BriefShort,
-		"brief_long":       comic.BriefLong,
-		"end":              comic.End,
-		"need_tcp":         comic.NeedTcp,
-		"cover_need_tcp":   comic.CoverNeedTcp,
-		"spider_end":       comic.SpiderEnd,
-		"download_end":     comic.DownloadEnd,
-		"upload_aws_end":   comic.UploadAwsEnd,
-		"upload_baidu_end": comic.UploadBaiduEnd,
+		"country_id":              comic.CountryId,
+		"website_id":              comic.WebsiteId,
+		"porn_type_id":            comic.PornTypeId,
+		"type_id":                 comic.TypeId,
+		"update":                  comic.Update,
+		"hits":                    comic.Hits,
+		"comic_url_api_path":      comic.ComicUrlApiPath,
+		"cover_url_api_path":      comic.CoverUrlApiPath,
+		"brief_short":             comic.BriefShort,
+		"brief_long":              comic.BriefLong,
+		"end":                     comic.End,
+		"spider_end_status":       comic.SpiderEndStatus,
+		"download_end_status":     comic.DownloadEndStatus,
+		"upload_aws_end_status":   comic.UploadAwsEndStatus,
+		"upload_baidu_end_status": comic.UploadBaiduEndStatus,
 	}
-	result := DB.Model(&comic).Where("id = ?", comicId).Updates(updateDataMap)
+	result := DBComic.Model(&comic).Where("id = ?", comicId).Updates(updateDataMap)
 	if result.Error != nil {
 		log.Error("修改失败: ", result.Error)
 		return result.Error
@@ -206,7 +202,7 @@ func ComicUpdateByIdOmitIndex(comicId any, comic *models.Comic) error {
 func ComicsBatchUpdate(updates map[uint]map[string]interface{}) {
 	for comicId, update := range updates {
 		var comic models.Comic
-		result := DB.Model(&comic).Where("id = ?", comicId).Updates(update)
+		result := DBComic.Model(&comic).Where("id = ?", comicId).Updates(update)
 		if result.Error != nil {
 			log.Errorf("更新漫画 %d 失败: %v", comicId, result.Error)
 		} else {
@@ -218,7 +214,7 @@ func ComicsBatchUpdate(updates map[uint]map[string]interface{}) {
 // 查
 func ComicQueryById(id uint) *models.Comic {
 	var comic models.Comic
-	result := DB.First(&comic, id)
+	result := DBComic.First(&comic, id)
 	if result.Error != nil {
 		log.Error("查询失败: ", result.Error)
 		return nil
@@ -230,7 +226,7 @@ func ComicQueryById(id uint) *models.Comic {
 // 批量查
 func ComicsBatchQuery(ids []uint) ([]*models.Comic, error) {
 	var comics []*models.Comic
-	result := DB.Find(&comics, ids)
+	result := DBComic.Find(&comics, ids)
 	if result.Error != nil {
 		log.Error("批量查询失败: ", result.Error)
 		return comics, result.Error
@@ -242,7 +238,7 @@ func ComicsBatchQuery(ids []uint) ([]*models.Comic, error) {
 // 查所有
 func ComicsQueryAll() ([]*models.Comic, error) {
 	var comics []*models.Comic
-	result := DB.Find(&comics)
+	result := DBComic.Find(&comics)
 	if result.Error != nil {
 		log.Error("批量查询失败: ", result.Error)
 		return comics, result.Error
@@ -254,7 +250,7 @@ func ComicsQueryAll() ([]*models.Comic, error) {
 // 查数据总数
 func ComicsTotal() (int64, error) {
 	var count int64
-	result := DB.Model(&models.Comic{}).Count(&count)
+	result := DBComic.Model(&models.Comic{}).Count(&count)
 	if result.Error != nil {
 		log.Error("查询数据总数失败: ", result.Error)
 		return 0, result.Error
@@ -266,7 +262,7 @@ func ComicsTotal() (int64, error) {
 // 分页查询
 func ComicsPageQuery(pageNum, pageSize int) ([]*models.Comic, error) {
 	var comics []*models.Comic
-	result := DB.Limit(pageSize).Offset((pageNum - 1) * pageSize).Find(&comics)
+	result := DBComic.Limit(pageSize).Offset((pageNum - 1) * pageSize).Find(&comics)
 	if result.Error != nil {
 		log.Error("分页查询失败: ", result.Error)
 		return comics, result.Error

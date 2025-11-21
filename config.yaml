@@ -1,11 +1,17 @@
-log:
-  level: info
-  path: log/app.log
-network:
-  ximalaya_ip: www.ximalaya.com
-db:
-  name: comic
-  user: root
-  password: password
-gin:
-  mode: release
+log:                           # 日志相关配置
+  level: info                   # 日志等级。分 debug info warn error 4种，默认是info。程序写了默认值：info
+  path: log/app.log              # 日志文件路径, 基于main.go文件所在目录 程序写了默认值：log/app.log
+network:                       # 网络相关配置
+  ximalaya_ip: www.ximalaya.com  # 喜马拉雅的ip。程序写了默认值：www.ximalaya.com
+db:                            # 数据库相关配置
+  name: comic                    # 数据库名。程序写了默认值：comic            
+  user: root                     # 数据库用户名。程序写了默认值：root
+  password: password             # 数据库密码。程序写了默认值：123456
+gin:                           # gin: 提供api服务 框架相关配置
+  mode: release                  # gin: 运行模式 ，debug: 日志多; release: 生产模式，日志少; test: 单元测试模式,我没用过; 程序写了默认值：release
+spider:                        # 爬虫相关配置
+  public:                         # 公共配置,只要涉及到爬虫的
+    spiderType:                    # 爬取某一类时，相关配置
+      random_delay_time: 5            # 爬虫对象 colly, 每次请求前，随机延迟时间。单位 = 秒。程序写了默认值：5
+      queue_limit_conc_maxnum: 3      # 爬虫队列, 爬虫限制最大并发数。程序写了默认值：5
+      queue_pool_maxnum: 100          # 爬虫队列, 队列池最大数。程序写了默认值：100

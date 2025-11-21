@@ -20,13 +20,13 @@ type WebsiteOperations struct{}
 func (w WebsiteOperations) Add(website *models.Website) error {
 	// 预处理空格
 	website.Name = strings.TrimSpace(website.Name)
-	website.Url = strings.TrimSpace(website.Url)
+	website.Domain = strings.TrimSpace(website.Domain)
 
-	result := DB.Clauses(clause.OnConflict{
+	result := DBComic.Clauses(clause.OnConflict{
 		Columns: []clause.Column{{Name: "NameId"}},
 		DoUpdates: clause.Assignments(map[string]interface{}{
 			"name":       website.Name,
-			"url":        website.Url,
+			"url":        website.Domain,
 			"need_proxy": website.NeedProxy,
 			"is_https":   website.IsHttps,
 		}),
@@ -55,7 +55,7 @@ func (w WebsiteOperations) BatchAdd(websites []*models.Website) {
 // 删-通过id
 func (w WebsiteOperations) DeleteById(id uint) {
 	var website models.Website
-	result := DB.Delete(&website, id)
+	result := DBComic.Delete(&website, id)
 	if result.Error != nil {
 		log.Error("删除失败:", result.Error)
 	} else {
@@ -66,7 +66,7 @@ func (w WebsiteOperations) DeleteById(id uint) {
 // 删-通过 nameId
 func (W WebsiteOperations) DeleteByNameId(nameId any) {
 	var website models.Website
-	result := DB.Where("name_id = ?", nameId).Delete(&website)
+	result := DBComic.Where("name_id = ?", nameId).Delete(&website)
 	if result.Error != nil {
 		log.Error("删除失败:", result.Error)
 	} else {
@@ -77,7 +77,7 @@ func (W WebsiteOperations) DeleteByNameId(nameId any) {
 // 删-通过其它
 func (w WebsiteOperations) DeleteByOther(condition string, other any) {
 	var website models.Website
-	result := DB.Where(condition+" = ?", other).Delete(&website)
+	result := DBComic.Where(condition+" = ?", other).Delete(&website)
 	if result.Error != nil {
 		log.Error("删除失败:", result.Error)
 	} else {
@@ -88,7 +88,7 @@ func (w WebsiteOperations) DeleteByOther(condition string, other any) {
 // 批量删-通过id
 func (w WebsiteOperations) BatchDeleteById(ids []uint) {
 	var websites []models.Website
-	result := DB.Delete(&websites, ids)
+	result := DBComic.Delete(&websites, ids)
 	if result.Error != nil {
 		log.Error("批量删除失败:", result.Error)
 	} else {
@@ -99,7 +99,7 @@ func (w WebsiteOperations) BatchDeleteById(ids []uint) {
 // 批量删-通过nameIds
 func (w WebsiteOperations) BatchDeleteByNameId(nameIds []int) {
 	var websites []models.Website
-	result := DB.Where("name_id IN ?", nameIds).Delete(&websites)
+	result := DBComic.Where("name_id IN ?", nameIds).Delete(&websites)
 	if result.Error != nil {
 		log.Error("批量删除失败:", result.Error)
 	} else {
@@ -110,8 +110,8 @@ func (w WebsiteOperations) BatchDeleteByNameId(nameIds []int) {
 // 批量删-通过other
 func (w WebsiteOperations) BatchDeleteByOther(condition string, others []any) {
 	var websites []models.Website
-	// result := DB.Where(condition+" IN ?", others).Delete(&websites) // other这样写错？
-	result := DB.Where(condition+" IN ?", others).Delete(&websites)
+	// result := DBComic.Where(condition+" IN ?", others).Delete(&websites) // other这样写错？
+	result := DBComic.Where(condition+" IN ?", others).Delete(&websites)
 	if result.Error != nil {
 		log.Error("批量删除失败:", result.Error)
 	} else {
@@ -126,7 +126,7 @@ func (w WebsiteOperations) UpdateById(id uint, update map[string]interface{}) {
 
 	var website models.Website
 	// 解决0值不更新
-	result := DB.Model(&website).Where("id = ?", id).Select("name", "url", "need_proxy", "is_https").Updates(update)
+	result := DBComic.Model(&website).Where("id = ?", id).Select("name", "url", "need_proxy", "is_https").Updates(update)
 	if result.Error != nil {
 		log.Error("修改失败:", result.Error)
 	} else {
@@ -141,7 +141,7 @@ func (w WebsiteOperations) UpdateByNameId(nameId int, update map[string]interfac
 
 	var website models.Website
 	// 解决0值不更新
-	result := DB.Model(&website).Where("name_id = ?", nameId).Select("name", "url", "need_proxy", "is_https").Updates(update)
+	result := DBComic.Model(&website).Where("name_id = ?", nameId).Select("name", "url", "need_proxy", "is_https").Updates(update)
 	if result.Error != nil {
 		log.Error("修改失败:", result.Error)
 	} else {
@@ -156,8 +156,8 @@ func (w WebsiteOperations) UpdateByOther(condition string, other any, update map
 
 	var website models.Website
 	// 解决0值不更新
-	// result := DB.Model(&website).Where("name_id = ?", nameId).Select("name", "url", "need_proxy", "is_https").Updates(update)  // 之前写法
-	result := DB.Model(&website).Where(condition+" = ?", other).Select("name", "url", "need_proxy", "is_https").Updates(update) // 之前写法
+	// result := DBComic.Model(&website).Where("name_id = ?", nameId).Select("name", "url", "need_proxy", "is_https").Updates(update)  // 之前写法
+	result := DBComic.Model(&website).Where(condition+" = ?", other).Select("name", "url", "need_proxy", "is_https").Updates(update) // 之前写法
 	if result.Error != nil {
 		log.Error("修改失败:", result.Error)
 	} else {
@@ -173,7 +173,7 @@ func (w WebsiteOperations) BatchUpdateById(updates []map[string]interface{}) {
 
 		var website models.Website
 		// 解决0值不更新
-		result := DB.Model(&website).Where("id = ?", update["Id"]).Select("name", "url", "need_proxy", "is_https").Updates(update)
+		result := DBComic.Model(&website).Where("id = ?", update["Id"]).Select("name", "url", "need_proxy", "is_https").Updates(update)
 		if result.Error != nil {
 			log.Errorf("更新网站 %d 失败: %v", update["Id"], result.Error)
 		} else {
@@ -190,7 +190,7 @@ func (w WebsiteOperations) BatchUpdateByNameId(updates []map[string]interface{})
 
 		var website models.Website
 		// 解决0值不更新
-		result := DB.Model(&website).Where("name_id = ?", update["NameId"]).Select("name", "url", "need_proxy", "is_https").Updates(update)
+		result := DBComic.Model(&website).Where("name_id = ?", update["NameId"]).Select("name", "url", "need_proxy", "is_https").Updates(update)
 		if result.Error != nil {
 			log.Errorf("更新网站 %d 失败: %v", update["Id"], result.Error)
 		} else {
@@ -207,7 +207,7 @@ func (w WebsiteOperations) BatchUpdateByOther(condition string, others any, upda
 
 		var website models.Website
 		// 解决0值不更新
-		result := DB.Model(&website).Where(condition+" IN ?", others).Select("name", "url", "need_proxy", "is_https").Updates(update)
+		result := DBComic.Model(&website).Where(condition+" IN ?", others).Select("name", "url", "need_proxy", "is_https").Updates(update)
 		if result.Error != nil {
 			log.Errorf("更新网站 %d 失败: %v", update["Id"], result.Error)
 		} else {
@@ -219,7 +219,7 @@ func (w WebsiteOperations) BatchUpdateByOther(condition string, others any, upda
 // 查 - by id
 func (w WebsiteOperations) QueryById(id uint) *models.Website {
 	var website models.Website
-	result := DB.First(&website, id)
+	result := DBComic.First(&website, id)
 	if result.Error != nil {
 		log.Error("查询失败:", result.Error)
 		return nil
@@ -231,7 +231,7 @@ func (w WebsiteOperations) QueryById(id uint) *models.Website {
 // 查 - by nameId
 func (w WebsiteOperations) QueryByNameId(nameId int) *models.Website {
 	var website models.Website
-	result := DB.Where("name_id = ?", nameId).First(&website)
+	result := DBComic.Where("name_id = ?", nameId).First(&website)
 	if result.Error != nil {
 		log.Error("查询失败:", result.Error)
 		return nil
@@ -243,7 +243,7 @@ func (w WebsiteOperations) QueryByNameId(nameId int) *models.Website {
 // 查 - by other
 func (w WebsiteOperations) QueryByOther(condition string, other any) *models.Website {
 	var website models.Website
-	result := DB.Where(condition+" = ?", other).First(&website)
+	result := DBComic.Where(condition+" = ?", other).First(&website)
 	if result.Error != nil {
 		log.Error("查询失败:", result.Error)
 		return nil
@@ -255,7 +255,7 @@ func (w WebsiteOperations) QueryByOther(condition string, other any) *models.Web
 // 批量查 - by ids
 func (w WebsiteOperations) BatchQueryById(ids []uint) ([]*models.Website, error) {
 	var websites []*models.Website
-	result := DB.Find(&websites, ids)
+	result := DBComic.Find(&websites, ids)
 	if result.Error != nil {
 		log.Error("批量查询失败: ", result.Error)
 		return websites, result.Error
@@ -267,8 +267,8 @@ func (w WebsiteOperations) BatchQueryById(ids []uint) ([]*models.Website, error)
 // 批量查 - by nameIds
 func (w WebsiteOperations) BatchQueryByNameId(nameIds []int) ([]*models.Website, error) {
 	var websites []*models.Website
-	result := DB.Where("name_id IN ?", nameIds).Order("name_id").Find(&websites) // 默认升序
-	// result := DB.Where("name_id IN ?", nameIds).Order("name_id DESC")Find(&websites) // 倒序排列
+	result := DBComic.Where("name_id IN ?", nameIds).Order("name_id").Find(&websites) // 默认升序
+	// result := DBComic.Where("name_id IN ?", nameIds).Order("name_id DESC")Find(&websites) // 倒序排列
 	if result.Error != nil {
 		log.Error("批量查询失败: ", result.Error)
 		return websites, result.Error
@@ -281,9 +281,9 @@ func (w WebsiteOperations) BatchQueryByNameId(nameIds []int) ([]*models.Website,
 // 参数：orderby 排序字符串 如: name_id   sort 排序方式，ASC 为正序，DESC 为倒序
 func (w WebsiteOperations) BatchQueryByOther(condition string, others []any, orderby string, sort string) ([]*models.Website, error) {
 	var websites []*models.Website
-	// result := DB.Where(condition+" IN ?", others).Find(&websites)  // other这样写错？
-	// result := DB.Where(condition+" IN ?", others).Order("name_id DESC").Find(&websites)
-	result := DB.Where(condition+" IN ?", others).Order(orderby + " " + sort).Find(&websites)
+	// result := DBComic.Where(condition+" IN ?", others).Find(&websites)  // other这样写错？
+	// result := DBComic.Where(condition+" IN ?", others).Order("name_id DESC").Find(&websites)
+	result := DBComic.Where(condition+" IN ?", others).Order(orderby + " " + sort).Find(&websites)
 	if result.Error != nil {
 		log.Error("批量查询失败: ", result.Error)
 		return websites, result.Error
@@ -296,7 +296,7 @@ func (w WebsiteOperations) BatchQueryByOther(condition string, others []any, ord
 // 参数：orderby 排序字符串 如: name_id   sort 排序方式，ASC 为正序，DESC 为倒序
 func (w WebsiteOperations) BatchQueryAll() ([]*models.Website, error) {
 	var websites []*models.Website
-	result := DB.Find(&websites)
+	result := DBComic.Find(&websites)
 	if result.Error != nil {
 		log.Error("批量查询失败: ", result.Error)
 		return websites, result.Error

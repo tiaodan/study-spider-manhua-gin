@@ -15,9 +15,14 @@ require (
 	gorm.io/gorm v1.26.0
 )
 
+require github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // direct
+
 require (
 	github.com/liuzl/cedar-go v0.0.0-20170805034717-80a9c64b256d // indirect
 	github.com/liuzl/da v0.0.0-20180704015230-14771aad5b1d // indirect
+	github.com/tidwall/gjson v1.18.0 // direct
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.0 // indirect
 )
 
 require (

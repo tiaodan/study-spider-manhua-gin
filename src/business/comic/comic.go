@@ -65,14 +65,12 @@ func ComicAdd(c *gin.Context) {
 			"type_id":          comic.TypeId,
 			"update":           comic.Update,
 			"hits":             comic.Hits,
-			"comic_url":        comic.ComicUrl,
-			"cover_url":        comic.CoverUrl,
+			"comic_url_api_path":        comic.ComicUrlApiPath,
+			"cover_url_api_path":        comic.CoverUrlApiPath,
 			"brief_short":      comic.BriefShort,
 			"brief_long":       comic.BriefLong,
 			"end":              comic.End,
 			"star":             comic.Star,
-			"need_tcp":         comic.NeedTcp,
-			"cover_need_tcp":   comic.CoverNeedTcp,
 			"spider_end":       comic.SpiderEnd,
 			"download_end":     comic.DownloadEnd,
 			"upload_aws_end":   comic.UploadAwsEnd,
@@ -89,8 +87,8 @@ func ComicAdd(c *gin.Context) {
 		"type_id",
 		"update",
 		"hits",
-		"comic_url",
-		"cover_url",
+		"comic_url_api_path",
+		"cover_url_api_path",
 		"brief_short",
 		"brief_long",
 		"end",
@@ -241,7 +239,6 @@ func ComicUpdateByIdOmitIndex(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return // 必须保留 return，确保绑定失败时提前退出
 	}
-	log.Debug("修改漫画, 参数.needTcp= ", comic.NeedTcp)
 
 	// 校验参数
 	if comic.Id <= 0 {
@@ -256,23 +253,21 @@ func ComicUpdateByIdOmitIndex(c *gin.Context) {
 	// 准备数据库执行，需要的参数 --
 	// 要更新的列
 	updateDataMap := map[string]any{
-		"country_id":       comic.CountryId,
-		"website_id":       comic.WebsiteId,
-		"sex_type_id":      comic.SexTypeId,
-		"type_id":          comic.TypeId,
-		"update":           comic.Update,
-		"hits":             comic.Hits,
-		"comic_url":        comic.ComicUrl,
-		"cover_url":        comic.CoverUrl,
-		"brief_short":      comic.BriefShort,
-		"brief_long":       comic.BriefLong,
-		"end":              comic.End,
-		"need_tcp":         comic.NeedTcp,
-		"cover_need_tcp":   comic.CoverNeedTcp,
-		"spider_end":       comic.SpiderEnd,
-		"download_end":     comic.DownloadEnd,
-		"upload_aws_end":   comic.UploadAwsEnd,
-		"upload_baidu_end": comic.UploadBaiduEnd,
+		"country_id":              comic.CountryId,
+		"website_id":              comic.WebsiteId,
+		"porn_type_id":            comic.PornTypeId,
+		"type_id":                 comic.TypeId,
+		"update":                  comic.Update,
+		"hits":                    comic.Hits,
+		"comic_url_api_path":      comic.ComicUrlApiPath,
+		"cover_url_api_path":      comic.CoverUrlApiPath,
+		"brief_short":             comic.BriefShort,
+		"brief_long":              comic.BriefLong,
+		"end":                     comic.End,
+		"spider_end_status":       comic.SpiderEndStatus,
+		"download_end_status":     comic.DownloadEndStatus,
+		"upload_aws_end_status":   comic.UploadAwsEndStatus,
+		"upload_baidu_end_status": comic.UploadBaiduEndStatus,
 	}
 
 	// err := db.ComicUpdateByIdOmitIndex(comic.Id, &comic) // 弃用. v0.1 没用 DB通用方法之前，设置 id类型是 unit，所以要进行转换处理
