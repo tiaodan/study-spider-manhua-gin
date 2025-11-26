@@ -13,6 +13,7 @@ import (
 	"study-spider-manhua-gin/src/business/spider"
 	"study-spider-manhua-gin/src/config"
 	"study-spider-manhua-gin/src/db"
+	"study-spider-manhua-gin/src/errorutil"
 	"study-spider-manhua-gin/src/log"
 	"study-spider-manhua-gin/src/models"
 
@@ -98,7 +99,10 @@ func init() {
 	db.InitDB("mysql", cfg.DB.Name, cfg.DB.User, cfg.DB.Password)
 
 	// -- 自动迁移表结构
-	db.DBComic.AutoMigrate(&models.Website{}, &models.Country{}, &models.PornType{}, &models.Type{}, &models.Comic{}) // 有几个表, 写几个参数
+	err := db.DBComic.AutoMigrate(&models.Website{}, &models.Country{}, &models.PornType{}, &models.Type{},
+		&models.ComicSpider{}, &models.ComicMy{}, &models.WebsiteType{}, &models.Process{},
+		&models.Author{}, models.ComicAuthorRelation{}) // 有几个表, 写几个参数
+	errorutil.ErrorPanic(err, "自动迁移表结构报错, err = ")
 
 	// -- 插入默认数据
 	db.InsertDefaultData()

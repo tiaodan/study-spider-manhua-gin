@@ -9,34 +9,41 @@ import (
 	"gorm.io/gorm"
 )
 
-// 漫画数据
+// 漫画数据 - 我用的,就是业务真实 用的表
 // 分类顺序 国家-> 网站 -> 总分类 -> 类型
 // 不用写column,因为系统会自动关联
-type Comic struct {
+/*
+和 ComicSpider 的区别是：
+	1. 多 cover_save_path_api_path 字段 // 封面图片, 保存路径的api
+*/
+type ComicMy struct {
 	// 不写column写法
 
 	// 本来用的uint，改成int了。因为1) uint有风险，传负数-》变成很大的正数。 2) 默认建数据库表也不用uint，用的int
-	Id   int    `json:"id" gorm:"primaryKey;autoIncrement"`                                         // 数据库id,主键、自增.
-	Name string `json:"name" gorm:"not null; uniqueIndex:idx_comic_unique;size:150" spider:"name" ` // 漫画名 组合索引字段
+	Id   int    `json:"id" gorm:"primaryKey;autoIncrement"`                                                          // 数据库id,主键、自增.
+	Name string `json:"name" gorm:"not null; uniqueIndex:idx_comic_unique;size:150;check:name <> ''" spider:"name" ` // 漫画名 组合索引字段
 	// 外键
 	WebsiteId  int `json:"websiteId" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"websiteId" `   // 网站id-外键 组合索引字段
 	PornTypeId int `json:"pornTypeId" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"pornTypeId" ` // 总分类id-最高级-外键 组合索引字段
 	CountryId  int `json:"countryId" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"countryId" `   // 国家id-外键 组合索引字段
 	TypeId     int `json:"typeId" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"typeId" `         // 类型id-外键 组合索引字段
+	ProcessId  int `json:"process" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"ProcessId" `     // 进度id-外键 组合索引字段
 
 	// 其它
-	Update               string  `json:"update" gorm:"not null" spider:"update" `                             // 更新到多少集, 字符串
-	Hits                 int     `json:"hits" gorm:"not null" spider:"hits" `                                 // 人气
-	ComicUrlApiPath      string  `json:"comicUrlApiPath" gorm:"not null" spider:"comicUrlApiPath" `           // 漫画链接
-	CoverUrlApiPath      string  `json:"coverUrlApiPath" gorm:"not null" spider:"coverUrlApiPath" `           // 封面链接
-	BriefShort           string  `json:"briefShort" gorm:"not null" spider:"briefShort" `                     // 简介-短
-	BriefLong            string  `json:"briefLong" gorm:"not null" spider:"briefLong" `                       // 简介-长
-	End                  bool    `json:"end" gorm:"not null" spider:"end" `                                   // 漫画是否完结,如果完结是1
-	Star                 float64 `json:"star" gorm:"not null" spider:"star" `                                 // 评分
-	SpiderEndStatus      int     `json:"spiderEndStatus" gorm:"not null" spider:"spiderEndStatus" `           // 爬取结束
-	DownloadEndStatus    int     `json:"downloadEndStatus" gorm:"not null" spider:"downloadEndStatus" `       // 下载结束
-	UploadAwsEndStatus   int     `json:"uploadAwsEndStatus" gorm:"not null" spider:"uploadAwsEndStatus" `     // 是否上传到aws
-	UploadBaiduEndStatus int     `json:"uploadBaiduEndStatus" gorm:"not null" spider:"uploadBaiduEndStatus" ` // 是否上传到baidu网盘
+	LatestChapter        string    `json:"latestChapter" gorm:"not null" spider:"latestChapter" `                                                    // 更新到多少集, 字符串,最新章节.可以是空字符串
+	Hits                 int       `json:"hits" gorm:"not null" spider:"hits" `                                                                      // 人气
+	ComicUrlApiPath      string    `json:"comicUrlApiPath" gorm:"not null;check:comic_url_api_path <> ''" spider:"comicUrlApiPath" `                 // 漫画链接.不能是空字符串
+	CoverUrlApiPath      string    `json:"coverUrlApiPath" gorm:"not null;check:cover_url_api_path <> ''" spider:"coverUrlApiPath" `                 // 封面链接.不能是空字符串
+	CoverSavePathApiPath string    `json:"coverSavePathApiPath" gorm:"not null;check:cover_save_path_api_path <> ''" spider:"coverSavePathApiPath" ` // 封面图片, 保存路径的api. .可以是空字符串,因为没上传时，是空的
+	BriefShort           string    `json:"briefShort" gorm:"not null" spider:"briefShort" `                                                          // 简介-短.可以是空字符串
+	BriefLong            string    `json:"briefLong" gorm:"not null" spider:"briefLong" `                                                            // 简介-长.可以是空字符串
+	End                  bool      `json:"end" gorm:"not null" spider:"end" `                                                                        // 漫画是否完结,如果完结是1
+	Star                 float64   `json:"star" gorm:"not null" spider:"star" `                                                                      // 评分
+	SpiderEndStatus      int       `json:"spiderEndStatus" gorm:"not null" spider:"spiderEndStatus" `                                                // 爬取结束
+	DownloadEndStatus    int       `json:"downloadEndStatus" gorm:"not null" spider:"downloadEndStatus" `                                            // 下载结束
+	UploadAwsEndStatus   int       `json:"uploadAwsEndStatus" gorm:"not null" spider:"uploadAwsEndStatus" `                                          // 是否上传到aws
+	UploadBaiduEndStatus int       `json:"uploadBaiduEndStatus" gorm:"not null" spider:"uploadBaiduEndStatus" `                                      // 是否上传到baidu网盘
+	ReleaseDate          time.Time `json:"releaseDate" gorm:"not null" spider:"releaseDate" `                                                        // 发布日期.可以是空字符串
 
 	// gorm自带时间更新，软删除
 	CreatedAt time.Time
@@ -48,6 +55,7 @@ type Comic struct {
 	Website  Website  `gorm:"foreignKey:WebsiteId;references:NameId; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 	PornType PornType `gorm:"foreignKey:PornTypeId;references:NameId; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 	Type     Type     `gorm:"foreignKey:TypeId;references:NameId; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	Process  Process  `gorm:"foreignKey:TypeId;references:NameId; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 
 	// 写column写法
 	/*
@@ -84,10 +92,10 @@ type Comic struct {
 }
 
 // 实现stringutils 里 处理空格接口
-func (c *Comic) TrimSpaces() {
+func (c *ComicMy) TrimSpaces() {
 	// 只要是stirng类型，就去掉前后空格
 	c.Name = strings.TrimSpace(c.Name)
-	c.Update = strings.TrimSpace(c.Update)
+	c.LatestChapter = strings.TrimSpace(c.LatestChapter)
 	c.ComicUrlApiPath = strings.TrimSpace(c.ComicUrlApiPath)
 	c.CoverUrlApiPath = strings.TrimSpace(c.CoverUrlApiPath)
 	c.BriefShort = strings.TrimSpace(c.BriefShort)
@@ -95,67 +103,12 @@ func (c *Comic) TrimSpaces() {
 }
 
 // 实现stringutils 里 繁体转简体 接口
-func (c *Comic) Trad2Simple() {
+func (c *ComicMy) Trad2Simple() {
 	// 只要是string类型，都处理
 	c.Name, _ = langutil.TraditionalToSimplified(c.Name)
-	c.Update, _ = langutil.TraditionalToSimplified(c.Update)
+	c.LatestChapter, _ = langutil.TraditionalToSimplified(c.LatestChapter)
 	c.ComicUrlApiPath, _ = langutil.TraditionalToSimplified(c.ComicUrlApiPath)
 	c.CoverUrlApiPath, _ = langutil.TraditionalToSimplified(c.CoverUrlApiPath)
 	c.BriefShort, _ = langutil.TraditionalToSimplified(c.BriefShort)
 	c.BriefLong, _ = langutil.TraditionalToSimplified(c.BriefLong)
-}
-
-// 表字段的 ”爬取“映射关系 结构，写通用爬虫方法时，只要实现这个结构，就能用通用爬虫方法爬取数据
-type ComicSpiderFieldMapping struct {
-	// 下面2个 是相互对应关系。比如： JsonFieldName = name, ModelFiledType="string"
-	GetFieldPath string              // gjson 提取字段路径。获取这个字段, gjson path。提取的是json数据里的字段
-	FiledType    string              // 字段类型。如 "string","int“,”float“,”array“ ..
-	Transform    func(value any) any // 转换函数。提取到字段后，转换成数据库字段类型
-
-	// 使用方式：举例
-	/*
-		type FieldDef struct {
-		    Path string // gjson path
-		    Type string // string,int,float,array...
-		}
-
-		var BookFieldMap = map[string]FieldDef{
-			"websiteId":   {Path: "websiteId", Type: "int"},
-			"pornTypeId":  {Path: "pornTypeId", Type: "int"},
-			"countryId":   {Path: "countryId", Type: "int"},
-			"typeId":      {Path: "typeId", Type: "int"},
-			"bookName":    {Path: "adult.100.meta.title", Type: "string"},
-			"update":      {Path: "adult.100.lastUpdated.episodeTitle", Type: "string"},
-			"hits":        {Path: "adult.100.meta.viewCount", Type: "int"},
-			"comicUrlApiPath":    {Path: "adult.100.id", Type: "string"},
-			"coverUrlApiPath":    {Path: "adult.100.thumbnail.standard", Type: "string"},
-			"briefLong":   {Path: "adult.100.meta.description", Type: "string"},
-			"star":        {Path: "adult.100.meta.rating", Type: "float"},
-		}
-
-		// 用的时候，写一个通用 字段提取方法
-		func ExtractFields(data []byte, fieldMap map[string]FieldDef) map[string]interface{} {
-			result := make(map[string]interface{})
-
-			for key, def := range fieldMap {
-				v := gjson.GetBytes(data, def.Path)
-
-				switch def.Type {
-				case "string":
-					result[key] = v.String()
-				case "int":
-					result[key] = v.Int()
-				case "float":
-					result[key] = v.Float()
-				case "bool":
-					result[key] = v.Bool()
-				case "array":
-					result[key] = v.Array()
-				default:
-					result[key] = v.Value() // fallback
-				}
-			}
-			return result
-		}
-	*/
 }

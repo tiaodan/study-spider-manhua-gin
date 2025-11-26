@@ -3,10 +3,11 @@
         "website": "toptoon-tw",
         "table": "comic"
      },
-    "websiteId": 2,  
+    "websiteId": 10,  
     "pornTypeId": 2, 
     "countryId": 2,  
     "typeId": 1,     
+    "processId": 0,
     "needTcp": true,
     "coverNeedTcp": true,
     "adult": [

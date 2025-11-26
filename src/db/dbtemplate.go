@@ -295,7 +295,7 @@ func DBDeleteById(model any, id int) error {
 	// result := DB.Delete(&comic, id)
 
 	// -- 写法1: 直接传表对象的指针，这样写的代码更少，更简洁。推荐！！
-	result := DBComic.Delete(&models.Comic{}, id)
+	result := DBComic.Delete(&models.ComicSpider{}, id)
 	if result.Error != nil {
 		// log.Error("删除失败: ", result.Error)  // 此文件不打日志，错误已经返回给上级
 		return result.Error

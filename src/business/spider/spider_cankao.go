@@ -110,11 +110,11 @@ func Spider(context *gin.Context) {
 		// 6. 插入数据库
 		// 7. 重置变量
 
-		comicArr := []*models.Comic{}
+		comicArr := []*models.ComicSpider{}
 		moveRepeatComics := make(map[string]string) // 用map做去重,保存漫画名称
 		e.ForEach(".common-comic-item", func(i int, element *colly.HTMLElement) {
 			// 创建对象comic
-			comic := &models.Comic{}
+			comic := &models.ComicSpider{}
 
 			// 1. 爬数据, 自动去重前后空格
 			// 1.1 爬名字,唯一索引,如果为空, return
@@ -229,7 +229,7 @@ func Spider(context *gin.Context) {
 
 			// 4. 把参数赋值给 comic对象
 			comic.Name = comicName
-			comic.Update = updateStr
+			comic.LatestChapter = updateStr
 			comic.ComicUrlApiPath = comicUrlApiPath
 			comic.CoverUrlApiPath = coverUrlApiPath
 			comic.BriefShort = comicBriefShort

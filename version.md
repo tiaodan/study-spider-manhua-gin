@@ -170,17 +170,115 @@
     - 把请求的json，放到1个文件保存起来 -》 放到doc/F12找到的json里了
 
 
+# v0.0.0.16
+版本总结:
+    - 修改数据库基础框架，增加字段
+
+核心改动:
+    1. 搭框架相关：
+    - doc/json文件，wbsiteId还得改，aws的id=2了，postman保存的数据也要改，先用10吧
+    - website还要加几个默认值：aws网站、预留了一个网站 -》 namedId =3
+    - website表，
+        - 加1个 cover_url_is_need_https 列，表示 cover 是否需要https，因为默认一定是要http请求头的。 // 需要这个，因为图片有的开. 只要是是否的字段，命名时都加个is
+        - 加1个 chapter_content_url_is_need_https 列 表示 章节内容url(图片/视频等) 是否需要https
+        - 如果加了上述内容，插入默认数据func,修改
+    - website表加2列
+        - cover_url_concat_rule // 封面ULR拼接规则 string
+        - chapter_content_url_concat_rule 章节内容URL拼接规则 string  // concatenate 拼接英文，缩写 concat
+        - 如果加了上述内容，插入默认数据func,修改
+    - website表还要2加个前缀，
+        - cover_domain 封面图片用的域名，也可以用ip比如cover前缀，可能不是域名，比如：https://cdn.mangakakalot.tv/mangakakalot/covers/xxx.jpg
+        - chapter_content_domain 章节内容域名，也可以用ip
+        - 如果加了上述内容，插入默认数据func,修改
+    - 所有的表model，加上check，确保不能输入空字符串
+    - comic update字段，改成别的，不能用update关键字，改成 latest_chater。因为用upate报错，占用系统关键字  // 最新章节
+    - comic表，需要更新名字：爬取存数据用的，叫comic_spider, comic_my -》我的数据库，业务真实用的comic
+    - comic 少字段 cover_save_path_api_path  // 保存路径的api，这个字段需要只在我的数据有吗？ -> 是的
+    - comic 少字段 release_date // 发布时间. 时间+日期，如果没有具体日期，按 00:00:00 时间来
+        - 增删改查、方法需要同步改
+        - mapping是否要改？ 需要，因为toppoon的爬取 By JSON，有这个字段。测试下能否爬到
+        - comci_spider, comci_my 都要改
+    - website 需要一个字段(isRefer)，是否是参考/参照/refer网站，比如：tooptoon，参考网站，爬取的漫画，需要去tooptoon网站爬取。
+        - 插入默认数据，插入默认数据-要更新的列，同步改
+    - 加一个网站 娱乐类型分类 website_type表，比如漫画、小说、视频、关联到website表，
+        - 插入默认数据，插入默认数据-更新的列, website更新的列, 数据迁移,需要同步修改 
+    - 少一个进度表 id process 完结/连载
+        - 插入默认数据，插入默认数据-更新的，数据迁移，需要同步修改
+        - comic_my + comic_spider 是否得加上 processId外键
+        - comic_spider表, 爬取，需要更新字段吗？- 要
+            - 那前端传的json也要同步更新，加上 processId字段 -- >doc/json
+
+非核心改动:
+    1. 搭框架相关
+        - 插入默认数据失败，就panic. 因为默认数据，必须插入成功
+        - !!!!!!!! 为什么多了一个字段后，run main.go 不会自动更新列？？？ 因为看错表了，看的是comic,不是comic_spider表!
+
 ------------------------------------------ 未解决问题如下：
 要解决：
-    - website表，加1个coverNeedHttps 列，表示 cover 是否需要https ，因为默认一定是要http请求头的。 ，// 需要这个，因为图片有的开
+    - 应该先去爬网站？还是整理基础结构？还是校验数据，确保安全完整不污染
+    建议：① 搭框架 → ② 建校验 → ③ 小规模爬取测试 → ④ 扩展到完整爬虫
+
+
+    1. 搭框架相关：
+    先弄简单的：
+    - comic数据库要有个author表，因为一个漫画/有声书/影视，可能有多个作者，所以得有个作者表
+        - 有 author 表 √
+        - 有 comic_author_realation 表，表示 comic 和 author 的关系。多对多
+            - 外键要关联上comic_nameid,author_nameid
+        - 数据迁移, 需要同步修改
+    - comci表，唯一索引，加上author_concat 字段，叫作者拼接字符串
+        - comic 表，唯一索引加上 author_concat
+        - comic 表，update列，加上 author_concat
+        - mapping 表，加上 author_concat
+
+    - 加了某些东西之后，插入默认数据，插入默认数据-更新的类，爬取映射mapping, 更新的列，/ 数据迁移。这几个参考点，需要同步修改
+
+    再弄复杂的：
+
+    - comic 少author字段
+        - 添加 author_concat ,作者拼接字段
+        - 添加 author_concat_type, 作者拼接方式。比如：0 默认，按爬取顺序拼接，1: 按字母升序拼接 2:按我的意愿拼接 3: 参考最权威的网站拼接(b比如有声书，参考喜马拉雅，韩漫参考toptoon，小说参考 起点-建议0 /4)
+        - 唯一索引要加上author_concat
+        - comic表和author表是多对多关系，还需要有一个关系表吗？
+        - 修改上述字段后，func=插入默认数据，需要同步改
+    - 还要爬取作者，有的是2个作者，还得想好怎么存。
+    - comcic还少个作者字段 author,有多个作者怎么办？ 需要加一个作者数据库？多个作者用 作者1&作者2&作者3，拼接成author字段
+
+    
+    - comic 少total_chapter字段，不考虑这个字段，最后一章的name_id就是总数，放到 频繁更新的表里, 经常用often 英文 . 考虑做成外键 -》关联chapter_name_id,
+    - chapter 少字段 release_date // 发布时间,每一章也要有发布时间
+
+    - chapter 少字段 最后更新时间 last_update_date ,可以同步最新章节的-发布时间，用于查询：本周有哪些更新
+        有2种方式：
+        - = 最新章节的发布时间，用于查询：对于这本书，官方本周有哪些更新
+        - = 表 update_at 字段，表示，我这周更新了哪些章节。用于查询，对于这本书，我 主动 本周有哪些更新
+    - comic有2个字段，考虑要不要有，要不要放 经常更新的表里  --> 不考虑了，做成外键，chapterLastestId 就能实现
+        - total_chapter // 总章节数量
+        - update_to chapter // 更新到哪一章，那一章叫什么
+
+    - 拆分comic表，把打分、点击率单独拿出来，因为可能经常更新。这样需要联表查询，这块代码需要改下
+    - 拆分comic表，就需要考虑 联表操作(增删改查)
+
+    - comic_spider -> 能转成 comic_my,不更新 cover_save_path_api_path 字段
+        - 考虑cover_save_path_api_path字段,如果已经有了，要是不小心，传空咋办，就会替换成空了.已解决，comic_spider表，不带该字段
+        - cover_save_path)api 是最关键的字段，没有它，所有业务都不行
+        - !!!重要：comic_spider不带 cover_save_path 字段，comic_my带 cover_save_path 字段，这样comic_spider不管传啥，都不会影响该字段。并且测试，comic_my的 upsert方法，cover_save_path有值，如果传参不带 cover_save_path字段，且update 需要更新此字段，会发生什么琴科给
+    2. 校验相关:
     - 插入前数据校验，你如star，最高10.0，如果超出，就按0算
     - 数据清洗的时候，如果有https或者http头，自动删除。comic 实现一个数据清洗接口，（数据清洗自动实现，去除空格、繁体转简体，自动去除协议头：http/https，超出范围，自动置为某个值）
     - 数据清洗分2个方面：1. 前端传参、方法间传参，数据清洗-属于前端编程人员操作 2. 插入db前数据清洗 -》 属于后端编程人员操作
-    - website还要加个前缀，img_prefix 图片前缀，比如cover前缀，可能不是域名，比如：https://cdn.mangakakalot.tv/mangakakalot/covers/xxx.jpg
-    - website表加2列，章节url拼接规则，举例。图片拼接规则，举例
-    - 拆分comic表，把打分、点击率单独拿出来，因为可能经常更新。这样需要联表查询，这块代码需要改下
     - 给所有报错，给出推断原因，让用户自己去简单排查。缩短排查时间
+
+    3. 爬取相关:
+
+    通用性相关:
     - 把mapping映射关系，写出json文件，类似配置文件的方式，通用，以后不用改代码，直接改json文件即可 -》 参考 spider.go -> ComicMappingForSpiderToptoonByJSON 这个变量
+    - 实现：通过配置文件，或者键值对变量，控制：爬书的时候处理哪些字段，爬章节的时候，更新哪些父表-book表哪些字段。做成通用的框架
+
+    4. 其他相关
+    - 单元测试用例
+
+
 
 ------------------------- 解决完再上传
 

@@ -39,7 +39,7 @@ func ComicAdd(c *gin.Context) {
 
 	// 2. 解析前端传参。 参数 -》 转成 对象
 	// 参数 -》 转成 对象
-	var comic models.Comic
+	var comic models.ComicSpider
 	if err := c.ShouldBindJSON(&comic); err != nil {
 		log.Error("解析请求体失败, err: ", err)
 		c.JSON(400, gin.H{"error": err.Error()})
@@ -166,7 +166,7 @@ func ComicDelete(c *gin.Context) {
 	// 4. 调用数据库操作
 
 	// err = db.ComicDelete(uint(id)) // 弃用. v0.1 没用 DB通用方法之前，设置 id类型是 unit，所以要进行转换处理
-	err = db.DBDeleteById(&models.Comic{}, id) // v0.2 用DB通用方法写法。不用转成Uint了
+	err = db.DBDeleteById(&models.ComicSpider{}, id) // v0.2 用DB通用方法写法。不用转成Uint了
 	if err != nil {
 		log.Error("删除漫画失败, err: ", err)
 		c.JSON(500, gin.H{"error": err.Error()})
@@ -184,7 +184,7 @@ func ComicUpdate(c *gin.Context) {
 	// log.Debug("请求内容c.request.body= ", string(bodyBytes))  // 测试用-可以删，这段代码影响c.ShouldBindJson
 
 	// 绑定前端数据
-	var comic models.Comic
+	var comic models.ComicSpider
 	if err := c.ShouldBindJSON(&comic); err != nil {
 		log.Error("解析请求体失败, err: ", err)
 		c.JSON(400, gin.H{"error": err.Error()})
@@ -233,7 +233,7 @@ func ComicUpdateByIdOmitIndex(c *gin.Context) {
 
 	// 2. 解析前端传参
 	// 前端数据 -》 转成对象
-	var comic models.Comic
+	var comic models.ComicSpider
 	if err := c.ShouldBindJSON(&comic); err != nil {
 		log.Error("解析请求体失败, err: ", err)
 		c.JSON(400, gin.H{"error": err.Error()})
@@ -257,7 +257,7 @@ func ComicUpdateByIdOmitIndex(c *gin.Context) {
 		"website_id":              comic.WebsiteId,
 		"porn_type_id":            comic.PornTypeId,
 		"type_id":                 comic.TypeId,
-		"update":                  comic.Update,
+		"latest_chapter":          comic.LatestChapter,
 		"hits":                    comic.Hits,
 		"comic_url_api_path":      comic.ComicUrlApiPath,
 		"cover_url_api_path":      comic.CoverUrlApiPath,
@@ -308,7 +308,7 @@ func ComicsQuery(c *gin.Context) {
 
 作用简单说：
   - 接口: 更新
-  	- 只更新 指定字段，如DB.Model().Select(指定字段).Update()，中Select()中的字段
+  	- 只更新 指定字段，如DB.Model().Select(指定字段).latestChapter()，中Select()中的字段
 	- 不更新 唯一索引字段。如唯一索引叫 name, 写代码的时候要排除它
 
 作用详细说:
@@ -377,7 +377,7 @@ func ComicsQueryByPage(c *gin.Context) {
 
 	// -- 数据库执行
 	// comics, _ := db.ComicsPageQuery(page, size)  // v1.0 方式，弃用。因为有了通用方法模板
-	comics, err := db.DBPageQueryReturnTypeT[*models.Comic](page, size) // v2.0 方式，调用通用的增删改查方法模板。 推荐!!!
+	comics, err := db.DBPageQueryReturnTypeT[*models.ComicSpider](page, size) // v2.0 方式，调用通用的增删改查方法模板。 推荐!!!
 	if err != nil {
 		log.Error("分页查询漫画失败, 执行sql失败, err: ", err)
 		c.JSON(500, gin.H{"error": err.Error()})

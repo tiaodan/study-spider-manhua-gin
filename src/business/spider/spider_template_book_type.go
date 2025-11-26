@@ -180,11 +180,11 @@ func BookTemSpiderTypeByHtml(context *gin.Context) {
 		// 6. 插入数据库
 		// 7. 重置变量
 
-		comicArr := []*models.Comic{}
+		comicArr := []*models.ComicSpider{}
 		moveRepeatComics := make(map[string]string) // 用map做去重,保存漫画名称
 		e.ForEach(".common-comic-item", func(i int, element *colly.HTMLElement) {
 			// 创建对象comic
-			comic := &models.Comic{}
+			comic := &models.ComicSpider{}
 
 			// 1. 爬数据, 自动去重前后空格
 			// 1.1 爬名字,唯一索引,如果为空, return
@@ -299,7 +299,7 @@ func BookTemSpiderTypeByHtml(context *gin.Context) {
 
 			// 4. 把参数赋值给 comic对象
 			comic.Name = comicName
-			comic.Update = updateStr
+			comic.LatestChapter = updateStr
 			comic.ComicUrlApiPath = comicUrlApiPath
 			comic.CoverUrlApiPath = coverUrlApiPath
 			comic.BriefShort = comicBriefShort
@@ -401,7 +401,7 @@ var comcicFieldMapping = map[string]models.ComicSpiderFieldMapping{
 	"pornTypeId": {GetFieldPath: "pornTypeId", FiledType: "int"},
 	"countryId":  {GetFieldPath: "countryId", FiledType: "int"},
 	"typeId":     {GetFieldPath: "typeId", FiledType: "int"},
-	"update":     {GetFieldPath: "adult.100.lastUpdated.episodeTitle", FiledType: "string"},
+	"latestChapter":     {GetFieldPath: "adult.100.lastUpdated.episodeTitle", FiledType: "string"},
 	"hits":       {GetFieldPath: "adult.100.meta.viewCount", FiledType: "int"},
 	"comicUrlApiPath": {GetFieldPath: "adult.100.id", FiledType: "string",
 		Transform: func(v any) any {
@@ -537,6 +537,11 @@ func GetTableFieldValueBySpiderMapping(jsonByteData []byte, spiderMapping map[st
 				value = v.Bool()
 			case "array":
 				value = v.Array()
+			case "time":
+				// value = v.Time() // 转成日期+时间 time.Time 格式 YYYY-MM-DD HH:MM:SS， 不好用，弃用
+				// 使用time.Parse替代v.Time()，因为v.Time()无法解析"2025-11-18 22:00:00"这种格式
+				value, _ = time.Parse("2006-01-02 15:04:05", v.String())
+
 			default:
 				value = v.Value() // fallback ?啥意思
 			}
@@ -678,12 +683,12 @@ func upsertSpiderTableData(tableName string, gjsonResultArr []map[string]any) er
 	switch tableName {
 	case "comic":
 		// -- 准备初始化
-		var comicArr []*models.Comic
+		var comicArr []*models.ComicSpider
 
 		// -- 把爬到的 gjsonResultArr 转成 表对象 数组
 		for _, gjsonResult := range gjsonResultArr {
 			// 准备插入参数, 循环清洗，空格+繁体 --
-			comic := &models.Comic{}
+			comic := &models.ComicSpider{}
 			MapByTag(gjsonResult, comic) // 爬取json内容，赋值给 comic对象
 
 			// 数据清洗 (空格，转简体) --

@@ -23,7 +23,7 @@ import (
 	- 不存在 唯一索引，插入新数据
 	- 存在 唯一索引，更新数据
 */
-func ComicUpsert(comic *models.Comic) error {
+func ComicUpsert(comic *models.ComicSpider) error {
 	result := DBComic.Clauses(clause.OnConflict{
 		Columns: []clause.Column{{Name: "Name"}}, // 判断唯一索引: Name
 		DoUpdates: clause.Assignments(map[string]interface{}{
@@ -31,7 +31,7 @@ func ComicUpsert(comic *models.Comic) error {
 			"website_id":              comic.WebsiteId,
 			"porn_type_id":            comic.PornTypeId,
 			"type_id":                 comic.TypeId,
-			"update":                  comic.Update,
+			"latest_chapter":          comic.LatestChapter,
 			"hits":                    comic.Hits,
 			"comic_url_api_path":      comic.ComicUrlApiPath,
 			"cover_url_api_path":      comic.CoverUrlApiPath,
@@ -55,7 +55,7 @@ func ComicUpsert(comic *models.Comic) error {
 }
 
 // 批量增
-func ComicBatchAdd(comics []*models.Comic) {
+func ComicBatchAdd(comics []*models.ComicSpider) {
 	for i, comic := range comics {
 		err := ComicUpsert(comic)
 		if err == nil {
@@ -92,7 +92,7 @@ func ComicDelete(id uint) error {
 	// result := DB.Delete(&comic, id)
 
 	// -- 写法1: 直接传表对象的指针，这样写的代码更少，更简洁。推荐！！
-	result := DBComic.Delete(&models.Comic{}, id)
+	result := DBComic.Delete(&models.ComicSpider{}, id)
 	if result.Error != nil {
 		log.Error("删除失败: ", result.Error)
 		return result.Error
@@ -118,7 +118,7 @@ func ComicDelete(id uint) error {
 
 */
 func ComicsBatchDelete(ids []uint) {
-	var comics []models.Comic
+	var comics []models.ComicSpider
 	result := DBComic.Delete(&comics, ids)
 	if result.Error != nil {
 		log.Error("批量删除失败: ", result.Error)
@@ -134,7 +134,7 @@ func ComicsBatchDelete(ids []uint) {
 
 作用简单说：
   - 更新
-  	- 只更新 指定字段，如DB.Model().Select(指定字段).Update()，中Select()中的字段
+  	- 只更新 指定字段，如DB.Model().Select(指定字段).latestChapter()，中Select()中的字段
 	- 不更新 唯一索引字段。如唯一索引叫 name, 写代码的时候要排除它
 	- 参数中，有0值，也会更新
 
@@ -155,7 +155,7 @@ func ComicsBatchDelete(ids []uint) {
 
 // id 可以int,可以string。go默认定义的 any = interface{},忘了写这个注释啥意思
 */
-func ComicUpdateByIdOmitIndex(comicId any, comic *models.Comic) error {
+func ComicUpdateByIdOmitIndex(comicId any, comic *models.ComicSpider) error {
 	// 1. 准备要用的参数
 
 	// 2. 调用DB方法
@@ -174,7 +174,7 @@ func ComicUpdateByIdOmitIndex(comicId any, comic *models.Comic) error {
 		"website_id":              comic.WebsiteId,
 		"porn_type_id":            comic.PornTypeId,
 		"type_id":                 comic.TypeId,
-		"update":                  comic.Update,
+		"latest_chapter":          comic.LatestChapter,
 		"hits":                    comic.Hits,
 		"comic_url_api_path":      comic.ComicUrlApiPath,
 		"cover_url_api_path":      comic.CoverUrlApiPath,
@@ -201,7 +201,7 @@ func ComicUpdateByIdOmitIndex(comicId any, comic *models.Comic) error {
 // 批量改
 func ComicsBatchUpdate(updates map[uint]map[string]interface{}) {
 	for comicId, update := range updates {
-		var comic models.Comic
+		var comic models.ComicSpider
 		result := DBComic.Model(&comic).Where("id = ?", comicId).Updates(update)
 		if result.Error != nil {
 			log.Errorf("更新漫画 %d 失败: %v", comicId, result.Error)
@@ -212,8 +212,8 @@ func ComicsBatchUpdate(updates map[uint]map[string]interface{}) {
 }
 
 // 查
-func ComicQueryById(id uint) *models.Comic {
-	var comic models.Comic
+func ComicQueryById(id uint) *models.ComicSpider {
+	var comic models.ComicSpider
 	result := DBComic.First(&comic, id)
 	if result.Error != nil {
 		log.Error("查询失败: ", result.Error)
@@ -224,8 +224,8 @@ func ComicQueryById(id uint) *models.Comic {
 }
 
 // 批量查
-func ComicsBatchQuery(ids []uint) ([]*models.Comic, error) {
-	var comics []*models.Comic
+func ComicsBatchQuery(ids []uint) ([]*models.ComicSpider, error) {
+	var comics []*models.ComicSpider
 	result := DBComic.Find(&comics, ids)
 	if result.Error != nil {
 		log.Error("批量查询失败: ", result.Error)
@@ -236,8 +236,8 @@ func ComicsBatchQuery(ids []uint) ([]*models.Comic, error) {
 }
 
 // 查所有
-func ComicsQueryAll() ([]*models.Comic, error) {
-	var comics []*models.Comic
+func ComicsQueryAll() ([]*models.ComicSpider, error) {
+	var comics []*models.ComicSpider
 	result := DBComic.Find(&comics)
 	if result.Error != nil {
 		log.Error("批量查询失败: ", result.Error)
@@ -250,7 +250,7 @@ func ComicsQueryAll() ([]*models.Comic, error) {
 // 查数据总数
 func ComicsTotal() (int64, error) {
 	var count int64
-	result := DBComic.Model(&models.Comic{}).Count(&count)
+	result := DBComic.Model(&models.ComicSpider{}).Count(&count)
 	if result.Error != nil {
 		log.Error("查询数据总数失败: ", result.Error)
 		return 0, result.Error
@@ -260,8 +260,8 @@ func ComicsTotal() (int64, error) {
 }
 
 // 分页查询
-func ComicsPageQuery(pageNum, pageSize int) ([]*models.Comic, error) {
-	var comics []*models.Comic
+func ComicsPageQuery(pageNum, pageSize int) ([]*models.ComicSpider, error) {
+	var comics []*models.ComicSpider
 	result := DBComic.Limit(pageSize).Offset((pageNum - 1) * pageSize).Find(&comics)
 	if result.Error != nil {
 		log.Error("分页查询失败: ", result.Error)

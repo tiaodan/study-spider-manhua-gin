@@ -3,6 +3,7 @@ package db
 import (
 	"fmt"
 	"reflect"
+	"study-spider-manhua-gin/src/errorutil"
 	"study-spider-manhua-gin/src/log"
 	"study-spider-manhua-gin/src/models"
 	"sync"
@@ -15,16 +16,18 @@ import (
 var DBComic *gorm.DB // comic 数据库对象
 var once sync.Once   // 使用 sync.Once 确保单例
 
-var dbNameComic = "comic"          // 数据库名-漫画，用于日志打印
-var tableNameWebsite = "website"   // 数据库表名-网站，用于日志打印
-var tableNamePornType = "porntype" // 数据库表名-色情类型，用于日志打印
-var tableNameCountry = "country"   // 数据库表名-国家，用于日志打印
-var tableNameType = "type"         // 数据库表名-类型，用于日志打印
+var dbNameComic = "comic"                 // 数据库名-漫画，用于日志打印
+var tableNameWebsiteType = "website_type" // 数据库表名-网站类型，用于日志打印
+var tableNameWebsite = "website"          // 数据库表名-网站，用于日志打印
+var tableNamePornType = "porntype"        // 数据库表名-色情类型，用于日志打印
+var tableNameCountry = "country"          // 数据库表名-国家，用于日志打印
+var tableNameType = "type"                // 数据库表名-类型，用于日志打印
+var tableNameProcess = "process"          // 数据库表名-进度，用于日志打印
 
 // 定义统一的操作接口,方便单元测试的时候调用. 为了把所有表的增删改查都叫Add
 // 定义 model 约束
 type Model interface {
-	*models.Website | *models.Country | *models.PornType | *models.Type | *models.Comic
+	*models.Website | *models.Country | *models.PornType | *models.Type | *models.ComicSpider
 	// 或者定义通用方法
 	// GetID() uint
 	// GetNameID() int
@@ -106,14 +109,53 @@ func InsertDefaultData() {
 
 	// v0.3 方式：使用通用 增删改查方法。但是实现方式：用循环实现
 	// 1. 准备插入数据
-	// 准备默认数据-website
-	websiteDefaultNoClass := &models.Website{Name: "待分类", NameId: 0, Domain: "未知", NeedProxy: false, IsHttps: false}
-	websiteDefaultJ88d := &models.Website{Name: "j88d", NameId: 1, Domain: "http://www.j88d.com", NeedProxy: false, IsHttps: false} // 请求domain 时带上http://
-	defaultDataWebsiteArr := []*models.Website{websiteDefaultNoClass, websiteDefaultJ88d}                                           // 要插入数据
-	websiteUniqueIndexArr := []string{"NameId"}                                                                                     // 唯一索引
-	websiteUpdateDBColumnRealNameArr := []string{"name", "domain", "need_proxy", "Is_https"}                                        // 要更新的字段
+	// 准备默认数据 - website_type ,必须在website 之前插入，否则报错 --
+	websiteTypeDefaultNoClass := &models.WebsiteType{Name: "待分类", NameId: 0}
+	websiteTypeDefaultComic := &models.WebsiteType{Name: "漫画", NameId: 1}
+	websiteTypeDefaultNovel := &models.WebsiteType{Name: "小说", NameId: 2}
+	websiteTypeDefaultAudiobook := &models.WebsiteType{Name: "有声书", NameId: 3}
+	websiteTypeDefaultVideo := &models.WebsiteType{Name: "视频", NameId: 4}
+	websiteTypeDefaultMusic := &models.WebsiteType{Name: "音乐", NameId: 5}
+	websiteTypeDefaultCloudDisk := &models.WebsiteType{Name: "网盘", NameId: 6}
+	defaultDataWebsiteTypeArr := []*models.WebsiteType{websiteTypeDefaultNoClass, websiteTypeDefaultComic,
+		websiteTypeDefaultNovel, websiteTypeDefaultAudiobook,
+		websiteTypeDefaultVideo, websiteTypeDefaultMusic, websiteTypeDefaultCloudDisk}
+	websiteTypeUniqueIndexArr := []string{"NameId"}
+	WebsiteTypeUpdateDBColumnRealNameArr := []string{"name"}
 
-	// 准备默认数据-category 类别
+	// 准备默认数据- website --
+	websiteDefaultNoClass := &models.Website{Name: "待分类", NameId: 0, Domain: "未知", NeedProxy: false, IsHttps: false,
+		CoverURLIsNeedHttps: true, ChapterContentURLIsNeedHttps: true,
+		CoverURLConcatRule:          "{website表-protocol}://{website表-domain}/{book表-cover_url_api_path}",
+		ChapterContentURLConcatRule: "{website表-protocol}://{website表-domain}/{book表-chapter_content_url_api_path}",
+		CoverDomain:                 "www.未知.com", ChapterContentDomain: "www.未知.com",
+		IsRefer: false, WebsiteTypeId: 0}
+	websiteDefaultJ88d := &models.Website{Name: "j88d", NameId: 1, Domain: "www.j88d.com", NeedProxy: false, IsHttps: false,
+		CoverURLIsNeedHttps: false, ChapterContentURLIsNeedHttps: false,
+		CoverURLConcatRule:          "{website表-protocol}://{website表-domain}/{book表-cover_url_api_path}",
+		ChapterContentURLConcatRule: "{website表-protocol}://{website表-domain}/{book表-chapter_content_url_api_path}",
+		CoverDomain:                 "www.j88d.com", ChapterContentDomain: "www.j88d.com",
+		IsRefer: true, WebsiteTypeId: 0}
+	websiteDefaultAwsS3 := &models.Website{Name: "aws-s3", NameId: 2, Domain: "ap-northeast-2.console.aws.amazon.com/s3/home?region=ap-northeast-2", NeedProxy: false,
+		IsHttps: true, CoverURLIsNeedHttps: false, ChapterContentURLIsNeedHttps: false,
+		CoverURLConcatRule:          "{website表-protocol}://{website表-domain}/{book表-cover_url_api_path}",
+		ChapterContentURLConcatRule: "{website表-protocol}://{website表-domain}/{book表-chapter_content_url_api_path}",
+		CoverDomain:                 "www.awsS3.com", ChapterContentDomain: "www.awsS3.com",
+		IsRefer: true, WebsiteTypeId: 6}
+	websiteDefaultYuliu := &models.Website{Name: "预留", NameId: 3, Domain: "www.yuliu.com", NeedProxy: false, IsHttps: false,
+		CoverURLIsNeedHttps: false, ChapterContentURLIsNeedHttps: false,
+		CoverURLConcatRule:          "{website表-protocol}://{website表-domain}/{book表-cover_url_api_path}",
+		ChapterContentURLConcatRule: "{website表-protocol}://{website表-domain}/{book表-chapter_content_url_api_path}",
+		CoverDomain:                 "www.预留.com", ChapterContentDomain: "www.预留.com",
+		IsRefer: false, WebsiteTypeId: 6} // 预留
+	defaultDataWebsiteArr := []*models.Website{websiteDefaultNoClass, websiteDefaultJ88d, websiteDefaultAwsS3, websiteDefaultYuliu} // 要插入数据
+	websiteUniqueIndexArr := []string{"NameId"}                                                                                     // 唯一索引
+	websiteUpdateDBColumnRealNameArr := []string{"name", "domain", "need_proxy", "Is_https", "is_refer",
+		"cover_url_is_need_https", "chapter_content_url_is_need_https",
+		"cover_url_concat_rule", "chapter_content_url_concat_rule",
+		"cover_domain", "chapter_content_domain"} // 要更新的字段
+
+	// 准备默认数据- pornType 色情类型 --
 	pornTypeDefaultNoCategory := &models.PornType{Name: "待分类", NameId: 0}
 	pornTypeDefaultCartoonNormal := &models.PornType{Name: "普通漫画", NameId: 1}
 	pornTypeDefaultCartoonSex := &models.PornType{Name: "色漫", NameId: 2}
@@ -121,7 +163,7 @@ func InsertDefaultData() {
 	pornTypeUniqueIndexArr := []string{"NameId"}          // 唯一索引
 	pornTypeUpdateDBColumnRealNameArr := []string{"name"} // 要更新的字段
 
-	// 准备默认数据-country
+	// 准备默认数据- country --
 	countryDefaultNoType := &models.Country{Name: "待分类", NameId: 0}
 	countryDefaultChina := &models.Country{Name: "中国", NameId: 1}
 	countryDefaultKoren := &models.Country{Name: "韩国", NameId: 2}
@@ -131,7 +173,7 @@ func InsertDefaultData() {
 	countryUniqueIndexArr := []string{"NameId"}          // 唯一索引
 	countryUpdateDBColumnRealNameArr := []string{"name"} // 要更新的字段
 
-	// 准备默认数据-type
+	// 准备默认数据-type --
 	// 一级分类
 	typeDefaultNoTypeLevel1 := &models.Type{NameId: 0, Name: "待分类", Level: 1}
 	typeDefaultKoren := &models.Type{NameId: 1, Name: "韩漫", Level: 1}
@@ -149,11 +191,23 @@ func InsertDefaultData() {
 	typeUniqueIndexArr := []string{"NameId"}                             // 唯一索引
 	typeUpdateDBColumnRealNameArr := []string{"name", "level", "parent"} // 要更新的字段
 
-	dataObjArr := []any{defaultDataWebsiteArr, defaultDataPornTypeArr, defaultDataCountryArr, defaultDataTypeArr}                                                // 插入对象 数组
-	indexArr := [][]string{websiteUniqueIndexArr, pornTypeUniqueIndexArr, countryUniqueIndexArr, typeUniqueIndexArr}                                             // 唯一索引 数组
-	dbColArr := [][]string{websiteUpdateDBColumnRealNameArr, pornTypeUpdateDBColumnRealNameArr, countryUpdateDBColumnRealNameArr, typeUpdateDBColumnRealNameArr} // 要更新的字段 数组
-	dbNameArr := []string{dbNameComic, dbNameComic, dbNameComic, dbNameComic}                                                                                    // 数据库名称 数组，仅用于日志打印
-	tableNameArr := []string{tableNameWebsite, tableNamePornType, tableNameCountry, tableNameType}                                                               // 表名称 数组，仅用于日志打印
+	// 准备默认数据- process --
+	processDefaultNoType := &models.Process{NameId: 0, Name: "待分类"}
+	processDefaultOngoing := &models.Process{NameId: 1, Name: "连载"}
+	processDefaultCompleted := &models.Process{NameId: 2, Name: "完结"}
+	defaultDataProcessArr := []*models.Process{processDefaultNoType, processDefaultOngoing, processDefaultCompleted}
+	processUniqueIndexArr := []string{"NameId"}          // 唯一索引
+	processUpdateDBColumnRealNameArr := []string{"name"} // 要更新的字段
+
+	dataObjArr := []any{defaultDataWebsiteTypeArr, defaultDataWebsiteArr, defaultDataPornTypeArr, defaultDataCountryArr,
+		defaultDataTypeArr, defaultDataProcessArr} // 插入对象 数组 . 必须website_type 在最前面，否则报错
+	indexArr := [][]string{websiteTypeUniqueIndexArr, websiteUniqueIndexArr, pornTypeUniqueIndexArr, countryUniqueIndexArr,
+		typeUniqueIndexArr, processUniqueIndexArr} // 唯一索引 数组
+	dbColArr := [][]string{WebsiteTypeUpdateDBColumnRealNameArr, websiteUpdateDBColumnRealNameArr, pornTypeUpdateDBColumnRealNameArr,
+		countryUpdateDBColumnRealNameArr, typeUpdateDBColumnRealNameArr, processUpdateDBColumnRealNameArr} // 要更新的字段 数组
+	dbNameArr := []string{dbNameComic, dbNameComic, dbNameComic, dbNameComic, dbNameComic, dbNameComic} // 数据库名称 数组，仅用于日志打印
+	tableNameArr := []string{tableNameWebsiteType, tableNameWebsite, tableNamePornType, tableNameCountry,
+		tableNameType, tableNameProcess} // 表名称 数组，仅用于日志打印
 	// 2. 插入数据
 	// -- 校验参数个数是否一致
 
@@ -177,6 +231,7 @@ func InsertDefaultData() {
 
 	if err != nil {
 		log.Error("插入默认数据失败, 全部回滚, err= ", err)
+		errorutil.ErrorPanic(err, "插入默认数据失败, 全部回滚, err=")
 	}
 
 	// v0.2 方式：使用通用 增删改查方法。但是实现方式：每个表都要写一遍，重复代码多。下一步考虑用循环实现

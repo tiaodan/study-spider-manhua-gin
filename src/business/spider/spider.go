@@ -15,20 +15,22 @@ import (
 // -- 批量更新用到
 // comic 表
 var tableComicUniqueIndexArr = []string{"Name", "CountryId", "WebsiteId", "pornTypeId", "TypeId"} // 唯一索引字段
-var tableComicUpdateColArr = []string{"update", "hits", "comic_url_api_path", "cover_url_api_path", "brief_short", "brief_long", "end",
-	"star", "need_tcp", "cover_need_tcp", "spider_end_status", "download_end_status", "upload_aws_end_status", "upload_baidu_end_status",
-	"updated_at"} // 要更新的字段。要传updated_at ，upsert必须传, UPDATE()方法不用传，会自动改
+var tableComicUpdateColArr = []string{"latest_chapter", "hits", "comic_url_api_path", "cover_url_api_path", "brief_short", "brief_long", "end",
+	"star", "spider_end_status", "download_end_status", "upload_aws_end_status", "upload_baidu_end_status", "release_date",
+	"updated_at",
+	"website_id", "porn_type_id", "country_id", "type_id", "process_id"} // 要更新的字段。要传updated_at ，upsert必须传, UPDATE()方法不用传，会自动改
 
 // -- 爬漫画用 mapping
 // 表映射，爬 https:/www.toptoon.net (台湾服务器) 用，爬的JSON数据
 var ComicMappingForSpiderToptoonByJSON = map[string]models.ModelMapping{
-	"name":       {GetFieldPath: "adult.%d.meta.title", FiledType: "string"}, // adult.100.meta.title 这样能获取第100个 的内容
-	"websiteId":  {GetFieldPath: "websiteId", FiledType: "int"},
-	"pornTypeId": {GetFieldPath: "pornTypeId", FiledType: "int"},
-	"countryId":  {GetFieldPath: "countryId", FiledType: "int"},
-	"typeId":     {GetFieldPath: "typeId", FiledType: "int"},
-	"update":     {GetFieldPath: "adult.%d.lastUpdated.episodeTitle", FiledType: "string"},
-	"hits":       {GetFieldPath: "adult.%d.meta.viewCount", FiledType: "int"},
+	"name":          {GetFieldPath: "adult.%d.meta.title", FiledType: "string"}, // adult.100.meta.title 这样能获取第100个 的内容
+	"websiteId":     {GetFieldPath: "websiteId", FiledType: "int"},
+	"pornTypeId":    {GetFieldPath: "pornTypeId", FiledType: "int"},
+	"countryId":     {GetFieldPath: "countryId", FiledType: "int"},
+	"typeId":        {GetFieldPath: "typeId", FiledType: "int"},
+	"processId":     {GetFieldPath: "processId", FiledType: "int"},
+	"latestChapter": {GetFieldPath: "adult.%d.lastUpdated.episodeTitle", FiledType: "string"},
+	"hits":          {GetFieldPath: "adult.%d.meta.viewCount", FiledType: "int"},
 	"comicUrlApiPath": {GetFieldPath: "adult.%d.id", FiledType: "string",
 		Transform: func(v any) any {
 			id := v.(string)
@@ -37,8 +39,7 @@ var ComicMappingForSpiderToptoonByJSON = map[string]models.ModelMapping{
 	"coverUrlApiPath": {GetFieldPath: "adult.%d.thumbnail.standard", FiledType: "string"},
 	"briefLong":       {GetFieldPath: "adult.%d.meta.description", FiledType: "string"},
 	"star":            {GetFieldPath: "adult.%d.meta.rating", FiledType: "float"},
-	"needTcp":         {GetFieldPath: "needTcp", FiledType: "bool"},
-	"coverNeedTcp":    {GetFieldPath: "coverNeedTcp", FiledType: "bool"},
+	"releaseDate":     {GetFieldPath: "adult.%d.lastUpdated.pubDate", FiledType: "time"},
 }
 
 // -- 初始化 ------------------------------------------- end -----------------------------------

@@ -4,7 +4,7 @@ package models
 type Type struct {
 	Id     uint   `gorm:"primaryKey;autoIncrement"`
 	NameId int    `gorm:"not null;unique"`
-	Name   string `gorm:"not null"`
+	Name   string `gorm:"not null;check:name <> ''" `
 	Level  int    `gorm:"not null"` // 1:一级分类，2:二级分类，3:三级分类
 	Parent int    `gorm:"not null"` // 父级分类id
 }
