@@ -13,6 +13,7 @@ package spider
 
 import (
 	"errors"
+	"fmt"
 	"net/url"
 	"reflect"
 	"regexp"
@@ -645,6 +646,8 @@ func GetOneTypeFirstPageFullURL(needTcp, needHttps bool, websitePrefix, apiPath 
 
 // 通用函数 根据 model 模型里的tag, 爬取到的json结果 result -> 转成成 模型对象. AI给的真的好用，仔细了解下这个方法！！
 func MapByTag(result map[string]any, out any) {
+	// v0.1 的写法。能适配大部分场景，comic里加了AuthorArr之后就不能用了
+	// /*
 	t := reflect.TypeOf(out).Elem()
 	v := reflect.ValueOf(out).Elem()
 
@@ -663,6 +666,173 @@ func MapByTag(result map[string]any, out any) {
 			}
 		}
 	}
+	// */
+
+	// v0.2 的写法。支持切片类型和结构体类型的转换
+	/*
+		t := reflect.TypeOf(out).Elem()
+		v := reflect.ValueOf(out).Elem()
+
+		for i := 0; i < t.NumField(); i++ {
+			f := t.Field(i)
+			spiderKey := f.Tag.Get("spider") // 获取 tag
+
+			if spiderKey == "" {
+				continue
+			}
+
+			if val, ok := result[spiderKey]; ok {
+				field := v.Field(i)
+				if field.CanSet() {
+					// 处理不同类型的转换
+					err := convertAndSet(val, field)
+					if err != nil {
+						// 如果转换失败，尝试使用原来的方法
+						if reflect.ValueOf(val).Type().ConvertibleTo(field.Type()) {
+							field.Set(reflect.ValueOf(val).Convert(field.Type()))
+						} else {
+							// 记录错误但继续处理其他字段
+							fmt.Printf("字段转换失败: %v\n", err)
+						}
+					}
+				}
+			}
+		}
+	*/
+}
+
+// 通用转换函数，处理各种类型转换
+func convertAndSet(source any, targetField reflect.Value) error {
+	sourceValue := reflect.ValueOf(source)
+	targetType := targetField.Type()
+
+	// 处理指针类型
+	if targetType.Kind() == reflect.Ptr {
+		// 创建新对象
+		newValue := reflect.New(targetType.Elem())
+		// 递归处理
+		err := convertAndSet(source, newValue.Elem())
+		if err != nil {
+			return err
+		}
+		targetField.Set(newValue)
+		return nil
+	}
+
+	// 处理切片类型
+	if targetType.Kind() == reflect.Slice {
+		return handleSliceConversion(sourceValue, targetField)
+	}
+
+	// 处理结构体类型
+	if targetType.Kind() == reflect.Struct {
+		return handleStructConversion(sourceValue, targetField)
+	}
+
+	// 处理基本类型
+	return handleBasicTypeConversion(sourceValue, targetField)
+}
+
+// 处理切片转换
+func handleSliceConversion(sourceValue reflect.Value, targetField reflect.Value) error {
+	// 检查源是否是切片/数组
+	if sourceValue.Kind() != reflect.Slice && sourceValue.Kind() != reflect.Array {
+		return fmt.Errorf("源不是切片/数组类型，无法转换为切片")
+	}
+
+	// 获取目标元素类型
+	elemType := targetField.Type().Elem()
+
+	// 创建新切片
+	newSlice := reflect.MakeSlice(targetField.Type(), 0, sourceValue.Len())
+
+	// 遍历源切片
+	for i := 0; i < sourceValue.Len(); i++ {
+		sourceElem := sourceValue.Index(i)
+
+		// 创建新元素
+		var newElem reflect.Value
+		if elemType.Kind() == reflect.Ptr {
+			newElem = reflect.New(elemType.Elem())
+			err := convertAndSet(sourceElem.Interface(), newElem.Elem())
+			if err != nil {
+				return fmt.Errorf("切片元素转换失败: %v", err)
+			}
+			newSlice = reflect.Append(newSlice, newElem)
+		} else {
+			// 对于非指针类型，直接创建元素
+			newElem = reflect.New(elemType).Elem()
+			err := convertAndSet(sourceElem.Interface(), newElem)
+			if err != nil {
+				return fmt.Errorf("切片元素转换失败: %v", err)
+			}
+			newSlice = reflect.Append(newSlice, newElem)
+		}
+	}
+
+	// 设置字段值
+	targetField.Set(newSlice)
+	return nil
+}
+
+// 处理结构体转换
+func handleStructConversion(sourceValue reflect.Value, targetField reflect.Value) error {
+	// 如果源是map[string]any，可以递归调用MapByTag
+	if sourceMap, ok := sourceValue.Interface().(map[string]any); ok {
+		MapByTag(sourceMap, targetField.Addr().Interface())
+		return nil
+	}
+
+	// 如果源是gjson.Result，需要先转换为map[string]any
+	if gjsonResult, ok := sourceValue.Interface().(gjson.Result); ok {
+		// 尝试将gjson.Result转换为map
+		if gjsonResult.IsObject() {
+			resultMap := make(map[string]any)
+			gjsonResult.ForEach(func(key, value gjson.Result) bool {
+				resultMap[key.String()] = value.Value()
+				return true
+			})
+			MapByTag(resultMap, targetField.Addr().Interface())
+			return nil
+		}
+	}
+
+	// 其他情况尝试直接转换
+	if sourceValue.Type().ConvertibleTo(targetField.Type()) {
+		targetField.Set(sourceValue.Convert(targetField.Type()))
+		return nil
+	}
+
+	return fmt.Errorf("无法将 %v 转换为 %v", sourceValue.Type(), targetField.Type())
+}
+
+// 处理基本类型转换
+func handleBasicTypeConversion(sourceValue reflect.Value, targetField reflect.Value) error {
+	// 尝试直接转换
+	if sourceValue.Type().ConvertibleTo(targetField.Type()) {
+		targetField.Set(sourceValue.Convert(targetField.Type()))
+		return nil
+	}
+
+	// 特殊处理：gjson.Result到基本类型的转换
+	if gjsonResult, ok := sourceValue.Interface().(gjson.Result); ok {
+		switch targetField.Kind() {
+		case reflect.String:
+			targetField.SetString(gjsonResult.String())
+			return nil
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			targetField.SetInt(gjsonResult.Int())
+			return nil
+		case reflect.Float32, reflect.Float64:
+			targetField.SetFloat(gjsonResult.Float())
+			return nil
+		case reflect.Bool:
+			targetField.SetBool(gjsonResult.Bool())
+			return nil
+		}
+	}
+
+	return fmt.Errorf("无法将 %v 转换为 %v", sourceValue.Type(), targetField.Type())
 }
 
 // 插入爬取后的表数据，方法小写，不导出。非通用方法，插入的核心实现逻辑
@@ -710,6 +880,47 @@ func upsertSpiderTableData(tableName string, gjsonResultArr []map[string]any) er
 
 		// -- 批量插入
 		err := db.DBUpsertBatch(db.DBComic, comicArr, tableComicUniqueIndexArr, tableComicUpdateColArr)
+		if err != nil {
+			return err
+		}
+	case "author":
+		// -- 准备初始化
+		var authorArr []*models.Author
+
+		// -- 把爬到的 gjsonResultArr 转成 表对象 数组
+		log.Info("------- gjsonResultArr = ", gjsonResultArr)
+		for _, gjsonResult := range gjsonResultArr {
+
+			// 直接从gjsonResult获取name字段
+			// 准备插入参数, 循环清洗，空格+繁体 --
+			author := &models.Author{}
+			MapByTag(gjsonResult, author) // 爬取json内容，赋值给 author 对象
+			// 从gjsonResult中获取name字段
+			if nameValue, ok := gjsonResult["name"]; ok {
+				author.Name = fmt.Sprintf("%v", nameValue) // 获取name字段
+				log.Debug("-- author = ", author)
+
+				// 数据清洗 (空格，转简体) --
+				author.TrimSpaces()  // 调下自己的方法，去空格
+				author.Trad2Simple() // 调用自己实现的接口方法，转简体
+
+				// 添加到 authorArr数组 --
+				authorArr = append(authorArr, author)
+			}
+
+		}
+
+		// -- 数据校验，看有没有 不好用/错误的数据
+		for i, author := range authorArr {
+			// 如果 comic.name是空，那这批数据不能用
+			if author.Name == "" {
+				return errors.New("这批数据不能用, author.name是空, 需修改前端传参json, index= " + strconv.Itoa(i))
+			}
+			log.Infof("爬取后将插入的 author, index =%v, author = %v ", i, author)
+		}
+
+		// -- 批量插入
+		err := db.DBUpsertBatch(db.DBComic, authorArr, tableAuthorUniqueIndexArr, tableAuthorUpdateColArr)
 		if err != nil {
 			return err
 		}

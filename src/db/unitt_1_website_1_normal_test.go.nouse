@@ -79,7 +79,6 @@ func init() {
 	// // // 有id
 	websiteForAddHasIdNoZero = models.Website{
 		Id:        1, // 新增时,可以指定id,gorm会插入指定id,而不是自增
-		NameId:    1,
 		Name:      "Test Website Add",
 		Domain:    "http://add.com",
 		NeedProxy: true,
@@ -90,7 +89,6 @@ func init() {
 	websiteForAddHasIdHasZeroAll = WebsiteOps.returnObjZeroAll(websiteForAddHasIdNoZero)  // 用于add, 有id, 无0值-全为0
 	// // // 无id
 	websiteForAddNoIdNoZero = models.Website{
-		NameId:    1,
 		Name:      "Test Website Add",
 		Domain:    "http://add.com",
 		NeedProxy: true,
@@ -103,7 +101,6 @@ func init() {
 	// // // 有id
 	website2ForAddHasIdNoZero = models.Website{
 		Id:        2, // 新增时,可以指定id,gorm会插入指定id,而不是自增
-		NameId:    2,
 		Name:      "Test Website Add2",
 		Domain:    "http://add.com2",
 		NeedProxy: true,
@@ -114,7 +111,6 @@ func init() {
 
 	// // // 无id
 	website2ForAddNoIdNoZero = models.Website{
-		NameId:    2,
 		Name:      "Test Website Add2",
 		Domain:    "http://add.com2",
 		NeedProxy: true,
@@ -255,7 +251,7 @@ func initTestCasePoll() { // 不用返回了，已经修改了全局变量了
 // 参数3: 测试对象指针 t *testing.T  参数4:错误标题字符串，如: 【查 by nameId】中括号里内容
 func WebsiteCheck(query *models.Website, obj *models.Website, t *testing.T, errTitleStr string) {
 	if obj.Id == 0 { // 无id
-		if query.NameId != obj.NameId ||
+		if query.Id != obj.Id ||
 			query.Name != obj.Name ||
 			query.Domain != obj.Domain ||
 			query.NeedProxy != obj.NeedProxy ||
@@ -269,7 +265,6 @@ func WebsiteCheck(query *models.Website, obj *models.Website, t *testing.T, errT
 	}
 	// 判断第1个, 默认判断id
 	if query.Id != obj.Id ||
-		query.NameId != obj.NameId ||
 		query.Name != obj.Name ||
 		query.Domain != obj.Domain ||
 		query.NeedProxy != obj.NeedProxy ||
@@ -287,7 +282,6 @@ func WebsiteCheck(query *models.Website, obj *models.Website, t *testing.T, errT
 func WebsiteCheckHasId(query *models.Website, obj *models.Website, t *testing.T, errTitleStr string) {
 	// 判断第1个
 	if query.Id != obj.Id ||
-		query.NameId != obj.NameId ||
 		query.Name != obj.Name ||
 		query.Domain != obj.Domain ||
 		query.NeedProxy != obj.NeedProxy ||
@@ -304,7 +298,7 @@ func WebsiteCheckHasId(query *models.Website, obj *models.Website, t *testing.T,
 // 参数3: 测试对象指针 t *testing.T  参数4:错误标题字符串，如: 【查 by nameId】中括号里内容
 func WebsiteCheckNoId(query *models.Website, obj *models.Website, t *testing.T, errTitleStr string) {
 	// 判断第1个
-	if query.NameId != obj.NameId ||
+	if query.Id != obj.Id ||
 		query.Name != obj.Name ||
 		query.Domain != obj.Domain ||
 		query.NeedProxy != obj.NeedProxy ||
@@ -322,7 +316,7 @@ func WebsiteCheckNoId(query *models.Website, obj *models.Website, t *testing.T, 
 func WebsiteCheckSpace(query *models.Website, obj *models.Website, t *testing.T, errTitleStr string) {
 	// 判断第1个
 	if obj.Id == 0 { // 无id
-		if query.NameId != obj.NameId ||
+		if query.Id != obj.Id ||
 			query.Name != strings.TrimSpace(obj.Name) ||
 			query.Domain != strings.TrimSpace(obj.Domain) ||
 			query.NeedProxy != obj.NeedProxy ||
@@ -337,7 +331,6 @@ func WebsiteCheckSpace(query *models.Website, obj *models.Website, t *testing.T,
 
 	// 默认判断id
 	if query.Id != obj.Id ||
-		query.NameId != obj.NameId ||
 		query.Name != strings.TrimSpace(obj.Name) ||
 		query.Domain != strings.TrimSpace(obj.Domain) ||
 		query.NeedProxy != obj.NeedProxy ||
@@ -355,7 +348,6 @@ func WebsiteCheckSpace(query *models.Website, obj *models.Website, t *testing.T,
 func WebsiteCheckSpaceHasId(query *models.Website, obj *models.Website, t *testing.T, errTitleStr string) {
 	// 判断第1个
 	if query.Id != obj.Id ||
-		query.NameId != obj.NameId ||
 		query.Name != strings.TrimSpace(obj.Name) ||
 		query.Domain != strings.TrimSpace(obj.Domain) ||
 		query.NeedProxy != obj.NeedProxy ||
@@ -372,7 +364,7 @@ func WebsiteCheckSpaceHasId(query *models.Website, obj *models.Website, t *testi
 // 参数3: 测试对象指针 t *testing.T  参数4:错误标题字符串，如: 【查 by nameId】中括号里内容
 func WebsiteCheckSpaceNoId(query *models.Website, obj *models.Website, t *testing.T, errTitleStr string) {
 	// 判断第1个
-	if query.NameId != obj.NameId ||
+	if query.Id != obj.Id ||
 		query.Name != strings.TrimSpace(obj.Name) ||
 		query.Domain != strings.TrimSpace(obj.Domain) ||
 		query.NeedProxy != obj.NeedProxy ||
@@ -402,7 +394,7 @@ func WebsiteCheckDelete(queries []*models.Website, objs []*models.Website, t *te
 func WebsiteCheckUpdate(query *models.Website, obj map[string]interface{}, t *testing.T, errTitleStr string) {
 	idValue, hasId := obj["Id"]
 	if !hasId || idValue == nil || idValue == uint(0) { // 无id 或id为0
-		if query.NameId != obj["NameId"] ||
+		if query.Id != obj["Id"] ||
 			query.Name != obj["Name"] ||
 			query.Domain != obj["Domain"] ||
 			query.NeedProxy != obj["NeedProxy"] ||
@@ -417,7 +409,6 @@ func WebsiteCheckUpdate(query *models.Website, obj map[string]interface{}, t *te
 
 	// 判断第1个,默认检测id
 	if query.Id != obj["Id"] ||
-		query.NameId != obj["NameId"] ||
 		query.Name != obj["Name"] ||
 		query.Domain != obj["Domain"] ||
 		query.NeedProxy != obj["NeedProxy"] ||
@@ -435,7 +426,7 @@ func WebsiteCheckUpdate(query *models.Website, obj map[string]interface{}, t *te
 func WebsiteCheckUpdateHasId(query *models.Website, obj map[string]interface{}, t *testing.T, errTitleStr string) {
 	// 判断第1个
 	if query.Id != obj["Id"] ||
-		query.NameId != obj["NameId"] ||
+		query.Id != obj["Id"] ||
 		query.Name != obj["Name"] ||
 		query.Domain != obj["Domain"] ||
 		query.NeedProxy != obj["NeedProxy"] ||
@@ -452,7 +443,7 @@ func WebsiteCheckUpdateHasId(query *models.Website, obj map[string]interface{}, 
 // 参数3: 测试对象指针 t *testing.T  参数4:错误标题字符串，如: 【查 by nameId】中括号里内容
 func WebsiteCheckUpdateNoId(query *models.Website, obj map[string]interface{}, t *testing.T, errTitleStr string) {
 	// 判断第1个
-	if query.NameId != obj["NameId"] ||
+	if query.Id != obj["Id"] ||
 		query.Name != obj["Name"] ||
 		query.Domain != obj["Domain"] ||
 		query.NeedProxy != obj["NeedProxy"] ||
@@ -523,11 +514,11 @@ func commonDbTest_Website(t *testing.T, testDB *gorm.DB, tableNameSingular strin
 			} else if objs[0].Id == 0 { // Id字段是空的，用DeleteByNameId
 				var nameIds []int
 				for _, obj := range objs {
-					nameIds = append(nameIds, obj.NameId)
+					nameIds = append(nameIds, obj.Id)
 				}
 				WebsiteOps.BatchDeleteByNameId(nameIds)
 			} else {
-				var ids []uint
+				var ids []int
 				for _, obj := range objs {
 					ids = append(ids, obj.Id)
 				}
@@ -537,7 +528,7 @@ func commonDbTest_Website(t *testing.T, testDB *gorm.DB, tableNameSingular strin
 			if isByOther { // 使用byOther删除
 				WebsiteOps.DeleteByOther(condition, others[0])
 			} else if objs[0].Id == 0 { // Id字段是空的，用DeleteByNameId
-				WebsiteOps.DeleteByNameId(objs[0].NameId)
+				WebsiteOps.DeleteByNameId(objs[0].Id)
 			} else {
 				WebsiteOps.DeleteById(objs[0].Id) // 默认通过id删除
 			}
@@ -555,7 +546,7 @@ func commonDbTest_Website(t *testing.T, testDB *gorm.DB, tableNameSingular strin
 			if isByOther {
 				WebsiteOps.UpdateByOther(condition, others[0], updates[0])
 			} else if objs[0].Id == 0 { // Id字段是空的，用ByNameId
-				WebsiteOps.UpdateByNameId(objs[0].NameId, updates[0])
+				WebsiteOps.UpdateByNameId(objs[0].Id, updates[0])
 			} else {
 				WebsiteOps.UpdateById(objs[0].Id, updates[0]) // 默认通过id删除
 			}
@@ -569,7 +560,7 @@ func commonDbTest_Website(t *testing.T, testDB *gorm.DB, tableNameSingular strin
 	var queries []*models.Website
 	// 不区分大小写
 	if strings.ToLower(queryType) == "byid" {
-		var ids []uint
+		var ids []int
 		for _, obj := range objs {
 			ids = append(ids, obj.Id)
 		}
@@ -577,12 +568,12 @@ func commonDbTest_Website(t *testing.T, testDB *gorm.DB, tableNameSingular strin
 	} else if strings.ToLower(queryType) == "byother" {
 		queries, _ = WebsiteOps.BatchQueryByOther(condition, others, orderby, sort)
 	} else {
-		// byNameId - 默认方式
-		var nameIds []int
+		// byId - 默认方式
+		var ids []int
 		for _, obj := range objs {
-			nameIds = append(nameIds, obj.NameId)
+			ids = append(ids, obj.Id)
 		}
-		queries, _ = WebsiteOps.BatchQueryByNameId(nameIds)
+		queries, _ = WebsiteOps.BatchQueryByNameId(ids)
 	}
 
 	// 5. 检测对比

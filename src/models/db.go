@@ -75,3 +75,9 @@ type ModelMapping struct {
 	FiledType    string              // 字段类型。如 "string","int“,”float“,”array“ ..
 	Transform    func(value any) any // 转换函数。提取到字段后，转换成数据库字段类型
 }
+
+// 定义一个泛型接口
+type ModelIface interface {
+	*Website | *Country | *PornType | *Type | *ComicSpider |
+		*WebsiteType | *Process | *Author
+}

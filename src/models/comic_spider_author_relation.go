@@ -6,8 +6,8 @@
 package models
 
 // 定义 漫画-作者-关系表 模型
-type ComicAuthorRelation struct {
-	Id uint `gorm:"primaryKey;autoIncrement"` // 数据库id
+type ComicSpiderAuthorRelation struct {
+	Id int `gorm:"primaryKey;autoIncrement"` // 数据库id
 
 	// 外键
 	ComicSpiderId int `json:"comicSpiderId" gorm:"not null; uniqueIndex:idx_comic_spider_name_id_unique" ` // 漫画-Spider库 id-外键 组合索引字段
@@ -15,5 +15,5 @@ type ComicAuthorRelation struct {
 
 	// 关联外键写法，更新时，同步更新，删除时，不让删
 	ComicSpider ComicSpider `gorm:"foreignKey:ComicSpiderId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;" ` // 级联操作
-	Author      Author      `gorm:"foreignKey:AuthorId;references:NameId; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;" `
+	Author      Author      `gorm:"foreignKey:AuthorId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;" `
 }

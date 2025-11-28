@@ -19,26 +19,29 @@ type ComicSpider struct {
 	Id   int    `json:"id" gorm:"primaryKey;autoIncrement"`                                                          // 数据库id,主键、自增.
 	Name string `json:"name" gorm:"not null; uniqueIndex:idx_comic_unique;size:150;check:name <> ''" spider:"name" ` // 漫画名 组合索引字段
 	// 外键
-	WebsiteId  int `json:"websiteId" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"websiteId" `   // 网站id-外键 组合索引字段
-	PornTypeId int `json:"pornTypeId" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"pornTypeId" ` // 总分类id-最高级-外键 组合索引字段
-	CountryId  int `json:"countryId" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"countryId" `   // 国家id-外键 组合索引字段
-	TypeId     int `json:"typeId" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"typeId" `         // 类型id-外键 组合索引字段
-	ProcessId  int `json:"process" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"ProcessId" `     // 进度id-外键 组合索引字段
+	WebsiteId  int      `json:"websiteId" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"websiteId" `   // 网站id-外键 组合索引字段
+	PornTypeId int      `json:"pornTypeId" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"pornTypeId" ` // 总分类id-最高级-外键 组合索引字段
+	CountryId  int      `json:"countryId" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"countryId" `   // 国家id-外键 组合索引字段
+	TypeId     int      `json:"typeId" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"typeId" `         // 类型id-外键 组合索引字段
+	ProcessId  int      `json:"process" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"ProcessId" `     // 进度id-外键 组合索引字段
+	AuthorArr  []Author `gorm:"many2many:comic_spider_authors;" spider:"authorArr" `                           // 多对多关联
 
 	// 其它
-	LatestChapter        string    `json:"latestChapter" gorm:"not null" spider:"latestChapter" `                                    // 更新到多少集, 字符串,最新章节.可以是空字符串
-	Hits                 int       `json:"hits" gorm:"not null" spider:"hits" `                                                      // 人气
-	ComicUrlApiPath      string    `json:"comicUrlApiPath" gorm:"not null;check:comic_url_api_path <> ''" spider:"comicUrlApiPath" ` // 漫画链接.不能是空字符串
-	CoverUrlApiPath      string    `json:"coverUrlApiPath" gorm:"not null;check:cover_url_api_path <> ''" spider:"coverUrlApiPath" ` // 封面链接.不能是空字符串
-	BriefShort           string    `json:"briefShort" gorm:"not null" spider:"briefShort" `                                          // 简介-短.可以是空字符串
-	BriefLong            string    `json:"briefLong" gorm:"not null" spider:"briefLong" `                                            // 简介-长.可以是空字符串
-	End                  bool      `json:"end" gorm:"not null" spider:"end" `                                                        // 漫画是否完结,如果完结是1
-	Star                 float64   `json:"star" gorm:"not null" spider:"star" `                                                      // 评分
-	SpiderEndStatus      int       `json:"spiderEndStatus" gorm:"not null" spider:"spiderEndStatus" `                                // 爬取结束
-	DownloadEndStatus    int       `json:"downloadEndStatus" gorm:"not null" spider:"downloadEndStatus" `                            // 下载结束
-	UploadAwsEndStatus   int       `json:"uploadAwsEndStatus" gorm:"not null" spider:"uploadAwsEndStatus" `                          // 是否上传到aws
-	UploadBaiduEndStatus int       `json:"uploadBaiduEndStatus" gorm:"not null" spider:"uploadBaiduEndStatus" `                      // 是否上传到baidu网盘
-	ReleaseDate          time.Time `json:"releaseDate" gorm:"not null" spider:"releaseDate" `                                        // 发布日期.可以是空字符串
+	LatestChapter        string    `json:"latestChapter" gorm:"not null" spider:"latestChapter" `                                                                // 更新到多少集, 字符串,最新章节.可以是空字符串
+	Hits                 int       `json:"hits" gorm:"not null" spider:"hits" `                                                                                  // 人气
+	ComicUrlApiPath      string    `json:"comicUrlApiPath" gorm:"not null;check:comic_url_api_path <> ''" spider:"comicUrlApiPath" `                             // 漫画链接.不能是空字符串
+	CoverUrlApiPath      string    `json:"coverUrlApiPath" gorm:"not null;check:cover_url_api_path <> ''" spider:"coverUrlApiPath" `                             // 封面链接.不能是空字符串
+	BriefShort           string    `json:"briefShort" gorm:"not null" spider:"briefShort" `                                                                      // 简介-短.可以是空字符串
+	BriefLong            string    `json:"briefLong" gorm:"not null" spider:"briefLong" `                                                                        // 简介-长.可以是空字符串
+	End                  bool      `json:"end" gorm:"not null" spider:"end" `                                                                                    // 漫画是否完结,如果完结是1
+	Star                 float64   `json:"star" gorm:"not null" spider:"star" `                                                                                  // 评分
+	SpiderEndStatus      int       `json:"spiderEndStatus" gorm:"not null" spider:"spiderEndStatus" `                                                            // 爬取结束
+	DownloadEndStatus    int       `json:"downloadEndStatus" gorm:"not null" spider:"downloadEndStatus" `                                                        // 下载结束
+	UploadAwsEndStatus   int       `json:"uploadAwsEndStatus" gorm:"not null" spider:"uploadAwsEndStatus" `                                                      // 是否上传到aws
+	UploadBaiduEndStatus int       `json:"uploadBaiduEndStatus" gorm:"not null" spider:"uploadBaiduEndStatus" `                                                  // 是否上传到baidu网盘
+	ReleaseDate          time.Time `json:"releaseDate" gorm:"not null" spider:"releaseDate" `                                                                    // 发布日期.可以是空字符串
+	AuthorConcat         string    `json:"authorConcat" gorm:"not null;uniqueIndex:idx_comic_unique;size:500; check:author_concat <> ''" spider:"authorConcat" ` // 作者.不能是空字符串。组合索引
+	AuthorConcatType     int       `json:"authorConcatType" gorm:"not null" spider:"authorConcatType" `                                                          // 作者拼接方式，不能空。：0 默认，按爬取顺序拼接，1: 按字母升序拼接 2:按我的意愿拼接 3: 参考最权威的网站拼接(b比如有声书，参考喜马拉雅，韩漫参考toptoon，小说参考 起点-建议0 /3
 
 	// gorm自带时间更新，软删除
 	CreatedAt time.Time
@@ -46,11 +49,11 @@ type ComicSpider struct {
 	DeletedAt gorm.DeletedAt `gorm:"index"` // 启用软删除，并设置索引,加快查询. NULL表示没删除
 
 	// 关联外键写法，更新时，同步更新，删除时，不让删
-	Country  Country  `gorm:"foreignKey:CountryId;references:NameId; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"` // 可选：级联操作
-	Website  Website  `gorm:"foreignKey:WebsiteId;references:NameId; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
-	PornType PornType `gorm:"foreignKey:PornTypeId;references:NameId; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
-	Type     Type     `gorm:"foreignKey:TypeId;references:NameId; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
-	Process  Process  `gorm:"foreignKey:TypeId;references:NameId; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	Country  Country  `gorm:"foreignKey:CountryId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"` // 可选：级联操作
+	Website  Website  `gorm:"foreignKey:WebsiteId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	PornType PornType `gorm:"foreignKey:PornTypeId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	Type     Type     `gorm:"foreignKey:TypeId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	Process  Process  `gorm:"foreignKey:TypeId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 
 	// 写column写法
 	/*
@@ -95,6 +98,7 @@ func (c *ComicSpider) TrimSpaces() {
 	c.CoverUrlApiPath = strings.TrimSpace(c.CoverUrlApiPath)
 	c.BriefShort = strings.TrimSpace(c.BriefShort)
 	c.BriefLong = strings.TrimSpace(c.BriefLong)
+	c.AuthorConcat = strings.TrimSpace(c.AuthorConcat)
 }
 
 // 实现stringutils 里 繁体转简体 接口
@@ -106,6 +110,7 @@ func (c *ComicSpider) Trad2Simple() {
 	c.CoverUrlApiPath, _ = langutil.TraditionalToSimplified(c.CoverUrlApiPath)
 	c.BriefShort, _ = langutil.TraditionalToSimplified(c.BriefShort)
 	c.BriefLong, _ = langutil.TraditionalToSimplified(c.BriefLong)
+	c.AuthorConcat, _ = langutil.TraditionalToSimplified(c.AuthorConcat)
 }
 
 // 表字段的 ”爬取“映射关系 结构，写通用爬虫方法时，只要实现这个结构，就能用通用爬虫方法爬取数据

@@ -8,6 +8,7 @@
     "countryId": 2, 
     "typeId": 1,    
     "processId": 0,
+    "authorConcatType": 0,
     "needTcp": true,
     "coverNeedTcp": true,
     "adult": [

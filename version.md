@@ -213,35 +213,101 @@
         - 插入默认数据失败，就panic. 因为默认数据，必须插入成功
         - !!!!!!!! 为什么多了一个字段后，run main.go 不会自动更新列？？？ 因为看错表了，看的是comic,不是comic_spider表!
 
+# v0.0.0.17
+版本总结:
+    - 1. 打算用gorm，插入comic-author关系表，没成功，因为comic表加了 authroArr,卡在MapByTag。2. 删除name_id字段
+
+核心改动：
+    先弄简单的：
+    - comic数据库要有个author表，因为一个漫画/有声书/影视，可能有多个作者，所以得有个作者表
+        - 有 author 表 
+        - 有 comic_author_realation 表，表示 comic 和 author 的关系。多对多 
+            - 外键要关联上comic_nameid,author_nameid
+            - 建2个表 comci_spider_author_realation, comic_my_author_realation
+        - 数据迁移, 需要同步修改 
+    - comci表，唯一索引，加上author_concat 字段，叫作者拼接字符串
+        - comic_spider + comic_my 表：???
+            - comic 表，model, 唯一索引加上 author_concat √
+            - comic 表，model, 数据清洗 （判断空，繁体转简体） √
+            - 添加 author_concat_type, 作者拼接方式。比如：0 默认，按爬取顺序拼接，1: 按字母升序拼接 2:按我的意愿拼接 3: 参考最权威的网站拼接(b比如有声书，参考喜马拉雅，韩漫参考toptoon，小说参考 起点-建议0 /3) √
+                - 修改爬取json/ doc里json √
+            - comic 表，爬取操作，update列，加上 author_concat, author_concat_type √
+            - mapping 表，update列，唯一索引列, 加上 autho_concat √
+            - 爬取插入逻辑，需要修改。还要验证
+                - 爬取数据加上  author_concat, author_concat_type √
+    - models id类型都换成 int
+        - website_type 
+        - website
+        - comic
+        - author
+        - process
+        - comic_author_realation
+        - comic_spider_author_realation
+        - comic_my_author_realation
+
+    再弄复杂的：
+    - 删除NameId字段，用mysql的id字段作为索引，name_id字段可能多余
+    - 解决一个问题，为什么website_type 插入默认数据，不是从1开始，而是从3开始？每次都是这样？
+        - 具体原因未知，AI说是，可能为mysql自己优化逻辑导致，因为唯一索引是name
+    - 唯一索引换成 非id，比如name √
+        - website_type √
+        - website √
+        - type √
+        - process √
+        - porntype √
+        - country √
+        - comic-spider √
+        - comic_my √
+        - author √
+        - comic_author_realation √
+        - comic_spider_author_realation √
+        - 插入默认数据，索引也要改 √
+    - 删除所有表name_id  √
+        - website表，删除name_id字段 √
+            - 插入默认数据，同步改，简单搜索 用到NameId/name_id的地方，看是否要同步改
+            - 报错的地方，同步改
+            - comic 表关联外键的地方改 comic_spider, comic_my
+            - 如果 运行程序出错，看是不是数据已经有了字段，删除所有表后，重新运行 
+            - 插入默认数据，id就不能从0开始了，得从1开始，要不0那条插入不进去。-- 需要重新设计默认数据id
+        - website  √
+        - type 同上 √
+        - process √
+        - porntype √
+        - country √
+        - comic-spider √
+        - comic_my √
+        - author √
+        - comic_author_realation √
+        - comic_spider_author_realation √
+
+
+非核心改动: 
+
+
+# v0.0.0.18 还没实现
+核心改动：
+    拆分数据库表，把经常更新的数据，拆成2个表
 ------------------------------------------ 未解决问题如下：
+思路：能简单，别复杂
+
 要解决：
     - 应该先去爬网站？还是整理基础结构？还是校验数据，确保安全完整不污染
     建议：① 搭框架 → ② 建校验 → ③ 小规模爬取测试 → ④ 扩展到完整爬虫
 
-
     1. 搭框架相关：
     先弄简单的：
-    - comic数据库要有个author表，因为一个漫画/有声书/影视，可能有多个作者，所以得有个作者表
-        - 有 author 表 √
-        - 有 comic_author_realation 表，表示 comic 和 author 的关系。多对多
-            - 外键要关联上comic_nameid,author_nameid
-        - 数据迁移, 需要同步修改
-    - comci表，唯一索引，加上author_concat 字段，叫作者拼接字符串
-        - comic 表，唯一索引加上 author_concat
-        - comic 表，update列，加上 author_concat
-        - mapping 表，加上 author_concat
 
     - 加了某些东西之后，插入默认数据，插入默认数据-更新的类，爬取映射mapping, 更新的列，/ 数据迁移。这几个参考点，需要同步修改
 
     再弄复杂的：
 
-    - comic 少author字段
-        - 添加 author_concat ,作者拼接字段
-        - 添加 author_concat_type, 作者拼接方式。比如：0 默认，按爬取顺序拼接，1: 按字母升序拼接 2:按我的意愿拼接 3: 参考最权威的网站拼接(b比如有声书，参考喜马拉雅，韩漫参考toptoon，小说参考 起点-建议0 /4)
-        - 唯一索引要加上author_concat
-        - comic表和author表是多对多关系，还需要有一个关系表吗？
-        - 修改上述字段后，func=插入默认数据，需要同步改
+    - comic author表爬取，插入逻辑修改
+        - 插入默认数据，佚名，id=1 √
+        - 插入 author表，√
+        - 插入 comic_author_realation 表 ------- 难，没实现
+ 
     - 还要爬取作者，有的是2个作者，还得想好怎么存。
+    
     - comcic还少个作者字段 author,有多个作者怎么办？ 需要加一个作者数据库？多个作者用 作者1&作者2&作者3，拼接成author字段
 
     
@@ -274,9 +340,13 @@
     通用性相关:
     - 把mapping映射关系，写出json文件，类似配置文件的方式，通用，以后不用改代码，直接改json文件即可 -》 参考 spider.go -> ComicMappingForSpiderToptoonByJSON 这个变量
     - 实现：通过配置文件，或者键值对变量，控制：爬书的时候处理哪些字段，爬章节的时候，更新哪些父表-book表哪些字段。做成通用的框架
+    - 考虑把某个网站的爬取算法，放到一起，比如一个文件，里。方便归类，我喜欢归类清楚的东西
+    - 多个项目放到一个项目里，数据库，表、命名，文件结构都容易冲突，考虑如何实现
 
     4. 其他相关
     - 单元测试用例
+    - 画完整逻辑图，很长时间后，一看就知道逻辑了
+    - 想想自己工作时候，有什么娱乐的东西，无聊的话
 
 
 

@@ -53,7 +53,7 @@ func (w WebsiteOperations) BatchAdd(websites []*models.Website) {
 }
 
 // 删-通过id
-func (w WebsiteOperations) DeleteById(id uint) {
+func (w WebsiteOperations) DeleteById(id int) {
 	var website models.Website
 	result := DBComic.Delete(&website, id)
 	if result.Error != nil {
@@ -86,7 +86,7 @@ func (w WebsiteOperations) DeleteByOther(condition string, other any) {
 }
 
 // 批量删-通过id
-func (w WebsiteOperations) BatchDeleteById(ids []uint) {
+func (w WebsiteOperations) BatchDeleteById(ids []int) {
 	var websites []models.Website
 	result := DBComic.Delete(&websites, ids)
 	if result.Error != nil {
@@ -120,7 +120,7 @@ func (w WebsiteOperations) BatchDeleteByOther(condition string, others []any) {
 }
 
 // 改 - by Id
-func (w WebsiteOperations) UpdateById(id uint, update map[string]interface{}) {
+func (w WebsiteOperations) UpdateById(id int, update map[string]interface{}) {
 	// 预处理：去除字符串字段的首尾空格
 	stringutil.TrimSpaceMap(update)
 
@@ -253,7 +253,7 @@ func (w WebsiteOperations) QueryByOther(condition string, other any) *models.Web
 }
 
 // 批量查 - by ids
-func (w WebsiteOperations) BatchQueryById(ids []uint) ([]*models.Website, error) {
+func (w WebsiteOperations) BatchQueryById(ids []int) ([]*models.Website, error) {
 	var websites []*models.Website
 	result := DBComic.Find(&websites, ids)
 	if result.Error != nil {
@@ -310,7 +310,7 @@ func (w WebsiteOperations) BatchQueryAll() ([]*models.Website, error) {
 // 参数: 有id/无id 的 int值全是1的对象
 // 返回：有0值, 单个为0 的对象arr
 // 思路：1 有id一种思路 2 无id一种思路。不用区分id
-func (w WebsiteOperations) returnObjZeroOne(obj models.Website) []models.Website {
+func (w WebsiteOperations) ReturnObjZeroOne(obj models.Website) []models.Website {
 	var forAddHasZeroOneArr []models.Website
 	// 复制一份
 	forAddHasZeroOne := obj
@@ -373,7 +373,7 @@ func (w WebsiteOperations) returnObjZeroOne(obj models.Website) []models.Website
 // 参数: 有id/无id 的 int值全是1的对象  map对象
 // 返回：有0值, 单个为0 的对象arr
 // 思路：1 有id一种思路 2 无id一种思路。不用区分id
-func (w WebsiteOperations) returnObjZeroOneNegate(obj map[string]any) []map[string]any {
+func (w WebsiteOperations) ReturnObjZeroOneNegate(obj map[string]any) []map[string]any {
 	var arr []map[string]any
 	// 复制一份
 	hasZeroOne := obj
@@ -407,7 +407,7 @@ func (w WebsiteOperations) returnObjZeroOneNegate(obj map[string]any) []map[stri
 // 参数: 有id/无id 的 int值全是1的对象  map对象
 // 返回：有0值, 单个为0 的对象arr
 // 思路：1 有id一种思路 2 无id一种思路。不用区分id
-func (w WebsiteOperations) returnObjZeroAllNegate(obj map[string]any) map[string]any {
+func (w WebsiteOperations) ReturnObjZeroAllNegate(obj map[string]any) map[string]any {
 	// 复制一份
 	hasZeroOne := obj
 
@@ -435,7 +435,7 @@ func (w WebsiteOperations) returnObjZeroAllNegate(obj map[string]any) map[string
 // 参数: 有id/无id 的 int值全是1的对象
 // 返回：有0值, 单个为0 的对象arr
 // 思路：1 有id一种思路 2 无id一种思路。不用区分id
-func (w WebsiteOperations) returnObjZeroAll(obj models.Website) models.Website {
+func (w WebsiteOperations) ReturnObjZeroAll(obj models.Website) models.Website {
 	// 复制一份
 	forAddHasZeroAll := obj
 

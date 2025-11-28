@@ -101,7 +101,7 @@ func init() {
 	// -- 自动迁移表结构
 	err := db.DBComic.AutoMigrate(&models.Website{}, &models.Country{}, &models.PornType{}, &models.Type{},
 		&models.ComicSpider{}, &models.ComicMy{}, &models.WebsiteType{}, &models.Process{},
-		&models.Author{}, models.ComicAuthorRelation{}) // 有几个表, 写几个参数
+		&models.Author{}, models.ComicSpiderAuthorRelation{}, &models.ComicMyAuthorRelation{}) // 有几个表, 写几个参数
 	errorutil.ErrorPanic(err, "自动迁移表结构报错, err = ")
 
 	// -- 插入默认数据

@@ -4,7 +4,7 @@ package models
 // 订单数据
 type Order struct {
 	// 拼多多相关信息
-	Id                uint    `json:"id" gorm:"primaryKey;autoIncrement;column:id"`                                                 // 数据库id,主键、自增
+	Id                int     `json:"id" gorm:"primaryKey;autoIncrement;column:id"`                                                 // 数据库id,主键、自增
 	PddOrderId        string  `json:"pddOrderId" gorm:"not null; uniqueIndex:pdd_drop_shipping_unique;size:50;column:pdd_order_id"` // PDD订单号 数据库唯一索引
 	PddOrderTime      string  `json:"pddOrderTime" gorm:"not null;column:pdd_order_time"`                                           // 购买时间
 	PddOrderPrice     float64 `json:"pddOrderPrice" gorm:"not null;column:pdd_order_price"`                                         // 购买价格

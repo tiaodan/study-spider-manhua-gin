@@ -13,12 +13,16 @@ import (
 
 // -- 初始化 ------------------------------------------------------------------------------
 // -- 批量更新用到
-// comic 表
-var tableComicUniqueIndexArr = []string{"Name", "CountryId", "WebsiteId", "pornTypeId", "TypeId"} // 唯一索引字段
+// comic 表 --
+var tableComicUniqueIndexArr = []string{"Name", "CountryId", "WebsiteId", "pornTypeId", "TypeId", "authorConcat"} // 唯一索引字段
 var tableComicUpdateColArr = []string{"latest_chapter", "hits", "comic_url_api_path", "cover_url_api_path", "brief_short", "brief_long", "end",
 	"star", "spider_end_status", "download_end_status", "upload_aws_end_status", "upload_baidu_end_status", "release_date",
 	"updated_at",
-	"website_id", "porn_type_id", "country_id", "type_id", "process_id"} // 要更新的字段。要传updated_at ，upsert必须传, UPDATE()方法不用传，会自动改
+	"website_id", "porn_type_id", "country_id", "type_id", "process_id",
+	"author_concat", "author_concat_type"} // 要更新的字段。要传updated_at ，upsert必须传, UPDATE()方法不用传，会自动改
+// author 表 --
+var tableAuthorUniqueIndexArr = []string{"Id"} // 唯一索引字段,用 models 里 字段
+var tableAuthorUpdateColArr = []string{"name"} // 要更新的字段。要传updated_at ，upsert必须传, UPDATE()方法不用传，会自动改
 
 // -- 爬漫画用 mapping
 // 表映射，爬 https:/www.toptoon.net (台湾服务器) 用，爬的JSON数据
@@ -36,10 +40,24 @@ var ComicMappingForSpiderToptoonByJSON = map[string]models.ModelMapping{
 			id := v.(string)
 			return "/comic/epList/" + id
 		}}, // Template 表示模板：能实现拼接"/comic/epList/" + id
-	"coverUrlApiPath": {GetFieldPath: "adult.%d.thumbnail.standard", FiledType: "string"},
-	"briefLong":       {GetFieldPath: "adult.%d.meta.description", FiledType: "string"},
-	"star":            {GetFieldPath: "adult.%d.meta.rating", FiledType: "float"},
-	"releaseDate":     {GetFieldPath: "adult.%d.lastUpdated.pubDate", FiledType: "time"},
+	"coverUrlApiPath":  {GetFieldPath: "adult.%d.thumbnail.standard", FiledType: "string"},
+	"briefLong":        {GetFieldPath: "adult.%d.meta.description", FiledType: "string"},
+	"star":             {GetFieldPath: "adult.%d.meta.rating", FiledType: "float"},
+	"releaseDate":      {GetFieldPath: "adult.%d.lastUpdated.pubDate", FiledType: "time"},
+	"authorConcat":     {GetFieldPath: "adult.%d.meta.author.authorString", FiledType: "string"},
+	"authorConcatType": {GetFieldPath: "authorConcatType", FiledType: "int"},
+	"authorArr":        {GetFieldPath: "adult.%d.meta.author.authorData", FiledType: "array"}, // []any 表示数组
+}
+
+// 表映射，爬 https:/www.toptoon.net (台湾服务器)  - 作者相关 用，爬的JSON数据
+var AuthorMappingForSpiderToptoonByJSON = map[string]models.ModelMapping{
+	"name": {GetFieldPath: "adult.%d.meta.author.authorData.%d.name", FiledType: "string"}, // 参考 /doc/F12找到的JSON/comic项目/类别/任一json
+}
+
+func init() {
+	// 为防止控制台警告，看着烦，临时写点日志打印。后续可以删除
+	fmt.Println("-------------------- func=init() . 为防止控制台警告，看着烦，临时打印", tableAuthorUniqueIndexArr)
+	fmt.Println("-------------------- func=init() . 为防止控制台警告，看着烦，临时打印", tableAuthorUpdateColArr)
 }
 
 // -- 初始化 ------------------------------------------- end -----------------------------------
@@ -49,7 +67,7 @@ var ComicMappingForSpiderToptoonByJSON = map[string]models.ModelMapping{
 /*
 参数：
 	1. mapping map[string]any  // 带%d 的mapping (内容不固定)，给%d赋值
-	1. index int  // 要赋的值
+	1. indices ...int  // 要赋的值，支持多个值
 
 返回：
 	1. mapping map[string]any  // 赋完值的mapping
@@ -58,8 +76,8 @@ var ComicMappingForSpiderToptoonByJSON = map[string]models.ModelMapping{
 
 作用详细说:
 
-核心思路:
-	1.
+核心思路：
+	1. 支持多个%d占位符的替换
 
 参考通用思路：
 	1. 校验传参
@@ -71,8 +89,10 @@ var ComicMappingForSpiderToptoonByJSON = map[string]models.ModelMapping{
 注意：
 
 使用方式：
+	- 对于单个%d占位符：mappingAssign(mapping, index)
+	- 对于多个%d占位符：mappingAssign(mapping, index1, index2, ...)
 */
-func mappingAssign(mapping map[string]models.ModelMapping, index int) map[string]models.ModelMapping {
+func mappingAssign(mapping map[string]models.ModelMapping, indices ...int) map[string]models.ModelMapping {
 	// 1. 校验传参
 	// -- 至少校验空
 	if mapping == nil {
@@ -88,7 +108,21 @@ func mappingAssign(mapping map[string]models.ModelMapping, index int) map[string
 	for k, v := range mapping {
 		// ！！！重要。只会带%号的处理，因为如果所有都 赋值，会报错
 		if strings.Contains(v.GetFieldPath, "%d") {
-			v.GetFieldPath = fmt.Sprintf(v.GetFieldPath, index) // 替换 %d
+			// 根据传入的参数数量，使用不同的fmt.Sprintf调用方式
+			if len(indices) == 1 {
+				v.GetFieldPath = fmt.Sprintf(v.GetFieldPath, indices[0]) // 单个参数
+			} else if len(indices) == 2 {
+				v.GetFieldPath = fmt.Sprintf(v.GetFieldPath, indices[0], indices[1]) // 两个参数
+			} else if len(indices) == 3 {
+				v.GetFieldPath = fmt.Sprintf(v.GetFieldPath, indices[0], indices[1], indices[2]) // 三个参数
+			} else {
+				// 对于更多参数的情况，使用反射来动态处理
+				args := make([]interface{}, len(indices))
+				for i, idx := range indices {
+					args[i] = idx
+				}
+				v.GetFieldPath = fmt.Sprintf(v.GetFieldPath, args...)
+			}
 		}
 		mapping[k] = v
 	}

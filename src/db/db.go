@@ -23,6 +23,7 @@ var tableNamePornType = "porntype"        // 数据库表名-色情类型，用�
 var tableNameCountry = "country"          // 数据库表名-国家，用于日志打印
 var tableNameType = "type"                // 数据库表名-类型，用于日志打印
 var tableNameProcess = "process"          // 数据库表名-进度，用于日志打印
+var tableNameAuthor = "author"            // 数据库表名-作者，用于日志打印
 
 // 定义统一的操作接口,方便单元测试的时候调用. 为了把所有表的增删改查都叫Add
 // 定义 model 约束
@@ -110,104 +111,113 @@ func InsertDefaultData() {
 	// v0.3 方式：使用通用 增删改查方法。但是实现方式：用循环实现
 	// 1. 准备插入数据
 	// 准备默认数据 - website_type ,必须在website 之前插入，否则报错 --
-	websiteTypeDefaultNoClass := &models.WebsiteType{Name: "待分类", NameId: 0}
-	websiteTypeDefaultComic := &models.WebsiteType{Name: "漫画", NameId: 1}
-	websiteTypeDefaultNovel := &models.WebsiteType{Name: "小说", NameId: 2}
-	websiteTypeDefaultAudiobook := &models.WebsiteType{Name: "有声书", NameId: 3}
-	websiteTypeDefaultVideo := &models.WebsiteType{Name: "视频", NameId: 4}
-	websiteTypeDefaultMusic := &models.WebsiteType{Name: "音乐", NameId: 5}
-	websiteTypeDefaultCloudDisk := &models.WebsiteType{Name: "网盘", NameId: 6}
+	websiteTypeDefaultNoClass := &models.WebsiteType{Id: 1, Name: "待分类"}
+	websiteTypeDefaultComic := &models.WebsiteType{Id: 2, Name: "漫画"}
+	websiteTypeDefaultNovel := &models.WebsiteType{Id: 3, Name: "小说"}
+	websiteTypeDefaultAudiobook := &models.WebsiteType{Id: 4, Name: "有声书"}
+	websiteTypeDefaultVideo := &models.WebsiteType{Id: 5, Name: "视频"}
+	websiteTypeDefaultMusic := &models.WebsiteType{Id: 6, Name: "音乐"}
+	websiteTypeDefaultCloudDisk := &models.WebsiteType{Id: 7, Name: "网盘"}
+	websiteTypeDefaultMuitiEntertainment := &models.WebsiteType{Id: 8, Name: "综合娱乐"} // 多种娱乐. Entertainment -》 娱乐 英文
 	defaultDataWebsiteTypeArr := []*models.WebsiteType{websiteTypeDefaultNoClass, websiteTypeDefaultComic,
-		websiteTypeDefaultNovel, websiteTypeDefaultAudiobook,
-		websiteTypeDefaultVideo, websiteTypeDefaultMusic, websiteTypeDefaultCloudDisk}
-	websiteTypeUniqueIndexArr := []string{"NameId"}
+		websiteTypeDefaultNovel, websiteTypeDefaultAudiobook, websiteTypeDefaultVideo, websiteTypeDefaultMusic,
+		websiteTypeDefaultCloudDisk, websiteTypeDefaultMuitiEntertainment}
+	websiteTypeUniqueIndexArr := []string{"Name"}
 	WebsiteTypeUpdateDBColumnRealNameArr := []string{"name"}
 
 	// 准备默认数据- website --
-	websiteDefaultNoClass := &models.Website{Name: "待分类", NameId: 0, Domain: "未知", NeedProxy: false, IsHttps: false,
+	websiteDefaultNoClass := &models.Website{Name: "待分类", Id: 1, Domain: "未知", NeedProxy: false, IsHttps: false,
 		CoverURLIsNeedHttps: true, ChapterContentURLIsNeedHttps: true,
 		CoverURLConcatRule:          "{website表-protocol}://{website表-domain}/{book表-cover_url_api_path}",
 		ChapterContentURLConcatRule: "{website表-protocol}://{website表-domain}/{book表-chapter_content_url_api_path}",
 		CoverDomain:                 "www.未知.com", ChapterContentDomain: "www.未知.com",
-		IsRefer: false, WebsiteTypeId: 0}
-	websiteDefaultJ88d := &models.Website{Name: "j88d", NameId: 1, Domain: "www.j88d.com", NeedProxy: false, IsHttps: false,
+		IsRefer: false, WebsiteTypeId: 1}
+	websiteDefaultJ88d := &models.Website{Name: "j88d", Id: 2, Domain: "www.j88d.com", NeedProxy: false, IsHttps: false,
 		CoverURLIsNeedHttps: false, ChapterContentURLIsNeedHttps: false,
 		CoverURLConcatRule:          "{website表-protocol}://{website表-domain}/{book表-cover_url_api_path}",
 		ChapterContentURLConcatRule: "{website表-protocol}://{website表-domain}/{book表-chapter_content_url_api_path}",
 		CoverDomain:                 "www.j88d.com", ChapterContentDomain: "www.j88d.com",
-		IsRefer: true, WebsiteTypeId: 0}
-	websiteDefaultAwsS3 := &models.Website{Name: "aws-s3", NameId: 2, Domain: "ap-northeast-2.console.aws.amazon.com/s3/home?region=ap-northeast-2", NeedProxy: false,
+		IsRefer: true, WebsiteTypeId: 8}
+	websiteDefaultAwsS3 := &models.Website{Name: "aws-s3", Id: 3, Domain: "ap-northeast-2.console.aws.amazon.com/s3/home?region=ap-northeast-2", NeedProxy: false,
 		IsHttps: true, CoverURLIsNeedHttps: false, ChapterContentURLIsNeedHttps: false,
 		CoverURLConcatRule:          "{website表-protocol}://{website表-domain}/{book表-cover_url_api_path}",
 		ChapterContentURLConcatRule: "{website表-protocol}://{website表-domain}/{book表-chapter_content_url_api_path}",
 		CoverDomain:                 "www.awsS3.com", ChapterContentDomain: "www.awsS3.com",
-		IsRefer: true, WebsiteTypeId: 6}
-	websiteDefaultYuliu := &models.Website{Name: "预留", NameId: 3, Domain: "www.yuliu.com", NeedProxy: false, IsHttps: false,
+		IsRefer: true, WebsiteTypeId: 7}
+	websiteDefaultYuliu := &models.Website{Name: "预留", Id: 4, Domain: "www.yuliu.com", NeedProxy: false, IsHttps: false,
 		CoverURLIsNeedHttps: false, ChapterContentURLIsNeedHttps: false,
 		CoverURLConcatRule:          "{website表-protocol}://{website表-domain}/{book表-cover_url_api_path}",
 		ChapterContentURLConcatRule: "{website表-protocol}://{website表-domain}/{book表-chapter_content_url_api_path}",
 		CoverDomain:                 "www.预留.com", ChapterContentDomain: "www.预留.com",
-		IsRefer: false, WebsiteTypeId: 6} // 预留
+		IsRefer: false, WebsiteTypeId: 1} // 预留
 	defaultDataWebsiteArr := []*models.Website{websiteDefaultNoClass, websiteDefaultJ88d, websiteDefaultAwsS3, websiteDefaultYuliu} // 要插入数据
-	websiteUniqueIndexArr := []string{"NameId"}                                                                                     // 唯一索引
-	websiteUpdateDBColumnRealNameArr := []string{"name", "domain", "need_proxy", "Is_https", "is_refer",
+	websiteUniqueIndexArr := []string{"Name", "Domain"}                                                                             // 唯一索引
+	websiteUpdateDBColumnRealNameArr := []string{"need_proxy", "Is_https", "is_refer",
 		"cover_url_is_need_https", "chapter_content_url_is_need_https",
 		"cover_url_concat_rule", "chapter_content_url_concat_rule",
 		"cover_domain", "chapter_content_domain"} // 要更新的字段
 
 	// 准备默认数据- pornType 色情类型 --
-	pornTypeDefaultNoCategory := &models.PornType{Name: "待分类", NameId: 0}
-	pornTypeDefaultCartoonNormal := &models.PornType{Name: "普通漫画", NameId: 1}
-	pornTypeDefaultCartoonSex := &models.PornType{Name: "色漫", NameId: 2}
+	pornTypeDefaultNoCategory := &models.PornType{Name: "待分类", Id: 1}
+	pornTypeDefaultCartoonNormal := &models.PornType{Name: "普通漫画", Id: 2}
+	pornTypeDefaultCartoonSex := &models.PornType{Name: "色漫", Id: 3}
 	defaultDataPornTypeArr := []*models.PornType{pornTypeDefaultNoCategory, pornTypeDefaultCartoonNormal, pornTypeDefaultCartoonSex}
-	pornTypeUniqueIndexArr := []string{"NameId"}          // 唯一索引
+	pornTypeUniqueIndexArr := []string{"Name"}            // 唯一索引
 	pornTypeUpdateDBColumnRealNameArr := []string{"name"} // 要更新的字段
 
 	// 准备默认数据- country --
-	countryDefaultNoType := &models.Country{Name: "待分类", NameId: 0}
-	countryDefaultChina := &models.Country{Name: "中国", NameId: 1}
-	countryDefaultKoren := &models.Country{Name: "韩国", NameId: 2}
-	countryDefaultAmerica := &models.Country{Name: "欧美", NameId: 3}
-	countryDefaultJapan := &models.Country{Name: "日本", NameId: 4}
+	countryDefaultNoType := &models.Country{Name: "待分类", Id: 1}
+	countryDefaultChina := &models.Country{Name: "中国", Id: 2}
+	countryDefaultKoren := &models.Country{Name: "韩国", Id: 3}
+	countryDefaultAmerica := &models.Country{Name: "欧美", Id: 4}
+	countryDefaultJapan := &models.Country{Name: "日本", Id: 5}
 	defaultDataCountryArr := []*models.Country{countryDefaultNoType, countryDefaultChina, countryDefaultKoren, countryDefaultAmerica, countryDefaultJapan}
-	countryUniqueIndexArr := []string{"NameId"}          // 唯一索引
+	countryUniqueIndexArr := []string{"Name"}            // 唯一索引
 	countryUpdateDBColumnRealNameArr := []string{"name"} // 要更新的字段
 
 	// 准备默认数据-type --
 	// 一级分类
-	typeDefaultNoTypeLevel1 := &models.Type{NameId: 0, Name: "待分类", Level: 1}
-	typeDefaultKoren := &models.Type{NameId: 1, Name: "韩漫", Level: 1}
-	typeDefaultJapan := &models.Type{NameId: 2, Name: "日漫", Level: 1}
-	typeDefaultRealPerson := &models.Type{NameId: 3, Name: "真人漫画", Level: 1}
-	typeDefault3D := &models.Type{NameId: 4, Name: "3D漫画", Level: 1}
-	typeDefaultAmeraica := &models.Type{NameId: 5, Name: "欧美漫画", Level: 1}
-	typeDefaultSameSex := &models.Type{NameId: 6, Name: "同性", Level: 1}
+	typeDefaultNoTypeLevel1 := &models.Type{Id: 1, Name: "待分类", Level: 1}
+	typeDefaultKoren := &models.Type{Id: 2, Name: "韩漫", Level: 1}
+	typeDefaultJapan := &models.Type{Id: 3, Name: "日漫", Level: 1}
+	typeDefaultRealPerson := &models.Type{Id: 4, Name: "真人漫画", Level: 1}
+	typeDefault3D := &models.Type{Id: 5, Name: "3D漫画", Level: 1}
+	typeDefaultAmeraica := &models.Type{Id: 6, Name: "欧美漫画", Level: 1}
+	typeDefaultSameSex := &models.Type{Id: 7, Name: "同性", Level: 1}
 	defaultDataTypeArr := []*models.Type{
 		// 一级分类
 		typeDefaultNoTypeLevel1, typeDefaultKoren, typeDefaultJapan,
 		typeDefaultRealPerson, typeDefault3D, typeDefaultAmeraica,
 		typeDefaultSameSex,
 	}
-	typeUniqueIndexArr := []string{"NameId"}                             // 唯一索引
-	typeUpdateDBColumnRealNameArr := []string{"name", "level", "parent"} // 要更新的字段
+	typeUniqueIndexArr := []string{"Name"}                       // 唯一索引
+	typeUpdateDBColumnRealNameArr := []string{"level", "parent"} // 要更新的字段
 
 	// 准备默认数据- process --
-	processDefaultNoType := &models.Process{NameId: 0, Name: "待分类"}
-	processDefaultOngoing := &models.Process{NameId: 1, Name: "连载"}
-	processDefaultCompleted := &models.Process{NameId: 2, Name: "完结"}
+	processDefaultNoType := &models.Process{Id: 1, Name: "待分类"}
+	processDefaultOngoing := &models.Process{Id: 2, Name: "连载"}
+	processDefaultCompleted := &models.Process{Id: 3, Name: "完结"}
 	defaultDataProcessArr := []*models.Process{processDefaultNoType, processDefaultOngoing, processDefaultCompleted}
-	processUniqueIndexArr := []string{"NameId"}          // 唯一索引
+	processUniqueIndexArr := []string{"Name"}            // 唯一索引
 	processUpdateDBColumnRealNameArr := []string{"name"} // 要更新的字段
 
+	// 准备默认数据- author --
+	authorDefaultNoName := &models.Author{Id: 1, Name: "佚名"}
+	defaultDataAuthorArr := []*models.Author{authorDefaultNoName}
+	authorUniqueIndexArr := []string{"Name"}            // 唯一索引
+	authorUpdateDBColumnRealNameArr := []string{"name"} // 要更新的字段
+
 	dataObjArr := []any{defaultDataWebsiteTypeArr, defaultDataWebsiteArr, defaultDataPornTypeArr, defaultDataCountryArr,
-		defaultDataTypeArr, defaultDataProcessArr} // 插入对象 数组 . 必须website_type 在最前面，否则报错
+		defaultDataTypeArr, defaultDataProcessArr, defaultDataAuthorArr} // 插入对象 数组 . 必须website_type 在最前面，否则报错
 	indexArr := [][]string{websiteTypeUniqueIndexArr, websiteUniqueIndexArr, pornTypeUniqueIndexArr, countryUniqueIndexArr,
-		typeUniqueIndexArr, processUniqueIndexArr} // 唯一索引 数组
+		typeUniqueIndexArr, processUniqueIndexArr, authorUniqueIndexArr} // 唯一索引 数组
 	dbColArr := [][]string{WebsiteTypeUpdateDBColumnRealNameArr, websiteUpdateDBColumnRealNameArr, pornTypeUpdateDBColumnRealNameArr,
-		countryUpdateDBColumnRealNameArr, typeUpdateDBColumnRealNameArr, processUpdateDBColumnRealNameArr} // 要更新的字段 数组
-	dbNameArr := []string{dbNameComic, dbNameComic, dbNameComic, dbNameComic, dbNameComic, dbNameComic} // 数据库名称 数组，仅用于日志打印
+		countryUpdateDBColumnRealNameArr, typeUpdateDBColumnRealNameArr, processUpdateDBColumnRealNameArr,
+		authorUpdateDBColumnRealNameArr} // 要更新的字段 数组
+	dbNameArr := []string{dbNameComic, dbNameComic, dbNameComic, dbNameComic, dbNameComic,
+		dbNameComic, dbNameComic} // 数据库名称 数组，仅用于日志打印
 	tableNameArr := []string{tableNameWebsiteType, tableNameWebsite, tableNamePornType, tableNameCountry,
-		tableNameType, tableNameProcess} // 表名称 数组，仅用于日志打印
+		tableNameType, tableNameProcess, tableNameAuthor} // 表名称 数组，仅用于日志打印
 	// 2. 插入数据
 	// -- 校验参数个数是否一致
 

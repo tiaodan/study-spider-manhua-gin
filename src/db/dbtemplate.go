@@ -131,7 +131,7 @@ updateDBColumnRealNameArr 必须传数据库真实字段，全小写带_ 的那�
 	1. DBConnObj *gorm.DB 类型 // 数据库连接对象
 		- 比如连了 comic 数据库，就传 comidcDB 对象
 		- 比如连了 audiobook 数据库，就传 		- 比如连了 audiobook 数据库，就传 comidcDB 对象
-	2 modelObjs any类型 //需要插入或更新的,数据模型对象 如 comic *models.Comic
+	2 modelObjs any //需要插入或更新的,数据模型对象 如 comic *models.Comic
 		- model 是一条数据对象，而不是 表名
 		- model 可以是对象指针，也可以是对象。一般是直接传指针
 	3 uniqueIndexArr []string 类型 // 用Model里定义的字段，不用数据库真实列名。 唯一索引字段,可以是多个 如 []string{"Name", "Id"}
@@ -141,26 +141,6 @@ updateDBColumnRealNameArr 必须传数据库真实字段，全小写带_ 的那�
 		- 一种方式是：直接传 数据库真实列名，不是model里定义的列名 !!!!!!!!!!! -》 推荐 !!!!!!
 */
 func DBUpsertBatch(DBConnObj *gorm.DB, modelObjs any, uniqueIndexArr []string, updateDBColumnRealNameArr []string) error {
-
-	// v0.1 写法 批量插入，循环调用单个插入方法
-	// 不推荐。因为：
-	// - 不能确保完全插入进去。1000个数据，可能成功1部分，失败1部分
-	// - 失败，不能回滚。不能确保 1000个数据完全插入，或者完全未插入
-	// - 性能低。1000个数据，循环调用1000次插入方法
-	/*
-		func ComicBatchAdd(comics []*models.Comic) {
-			for i, comic := range comics {
-				err := ComicUpsert(comic)
-				if err == nil {
-					log.Debugf("批量创建第%d条成功, comic: %v", i+1, &comic)
-				} else {
-					log.Errorf("批量创建第%d条失败, err: %v", i+1, err)
-				}
-			}
-		}
-	*/
-
-	// v0.2 写法 事务 里包裹 Upsert，并且每次 按gorm默认实现：插入500条
 
 	// 1. 校验传参
 	// 2. 数据清洗
@@ -193,6 +173,26 @@ func DBUpsertBatch(DBConnObj *gorm.DB, modelObjs any, uniqueIndexArr []string, u
 
 	// 5. 返回结果
 	return nil // 批量插入成功
+
+	// v0.1 写法 批量插入，循环调用单个插入方法
+	// 不推荐。因为：
+	// - 不能确保完全插入进去。1000个数据，可能成功1部分，失败1部分
+	// - 失败，不能回滚。不能确保 1000个数据完全插入，或者完全未插入
+	// - 性能低。1000个数据，循环调用1000次插入方法
+	/*
+		func ComicBatchAdd(comics []*models.Comic) {
+			for i, comic := range comics {
+				err := ComicUpsert(comic)
+				if err == nil {
+					log.Debugf("批量创建第%d条成功, comic: %v", i+1, &comic)
+				} else {
+					log.Errorf("批量创建第%d条失败, err: %v", i+1, err)
+				}
+			}
+		}
+	*/
+
+	// v0.2 写法 事务 里包裹 Upsert，并且每次 按gorm默认实现：插入500条
 }
 
 // 配合 DBUpsert 方法使用，把wtring数组，转成gorm 类型的column
