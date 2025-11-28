@@ -1,13 +1,13 @@
 /**
 漫画spider -作者-关系表
+package models
 
 */
 
-package models
-
-// 定义 漫画-作者-关系表 模型
-type ComicSpiderAuthorRelation struct {
-	Id int `gorm:"primaryKey;autoIncrement"` // 数据库id
+// 定义 漫画-作者-关系表 模型 - 弃用，这是我自己加的
+/*
+type ComicMyAuthorRelation struct {
+	Id uint `gorm:"primaryKey;autoIncrement"` // 数据库id
 
 	// 外键
 	ComicSpiderId int `json:"comicSpiderId" gorm:"not null; uniqueIndex:idx_comic_spider_name_id_unique" ` // 漫画-Spider库 id-外键 组合索引字段
@@ -17,3 +17,4 @@ type ComicSpiderAuthorRelation struct {
 	ComicSpider ComicSpider `gorm:"foreignKey:ComicSpiderId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;" ` // 级联操作
 	Author      Author      `gorm:"foreignKey:AuthorId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;" `
 }
+*/

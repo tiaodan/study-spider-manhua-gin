@@ -647,28 +647,6 @@ func GetOneTypeFirstPageFullURL(needTcp, needHttps bool, websitePrefix, apiPath 
 // 通用函数 根据 model 模型里的tag, 爬取到的json结果 result -> 转成成 模型对象. AI给的真的好用，仔细了解下这个方法！！
 func MapByTag(result map[string]any, out any) {
 	// v0.1 的写法。能适配大部分场景，comic里加了AuthorArr之后就不能用了
-	// /*
-	t := reflect.TypeOf(out).Elem()
-	v := reflect.ValueOf(out).Elem()
-
-	for i := 0; i < t.NumField(); i++ {
-		f := t.Field(i)
-		spiderKey := f.Tag.Get("spider") // 获取 tag
-
-		if spiderKey == "" {
-			continue
-		}
-
-		if val, ok := result[spiderKey]; ok {
-			field := v.Field(i)
-			if field.CanSet() {
-				field.Set(reflect.ValueOf(val).Convert(field.Type()))
-			}
-		}
-	}
-	// */
-
-	// v0.2 的写法。支持切片类型和结构体类型的转换
 	/*
 		t := reflect.TypeOf(out).Elem()
 		v := reflect.ValueOf(out).Elem()
@@ -684,21 +662,43 @@ func MapByTag(result map[string]any, out any) {
 			if val, ok := result[spiderKey]; ok {
 				field := v.Field(i)
 				if field.CanSet() {
-					// 处理不同类型的转换
-					err := convertAndSet(val, field)
-					if err != nil {
-						// 如果转换失败，尝试使用原来的方法
-						if reflect.ValueOf(val).Type().ConvertibleTo(field.Type()) {
-							field.Set(reflect.ValueOf(val).Convert(field.Type()))
-						} else {
-							// 记录错误但继续处理其他字段
-							fmt.Printf("字段转换失败: %v\n", err)
-						}
-					}
+					field.Set(reflect.ValueOf(val).Convert(field.Type()))
 				}
 			}
 		}
 	*/
+
+	// v0.2 的写法。支持切片类型和结构体类型的转换
+
+	t := reflect.TypeOf(out).Elem()
+	v := reflect.ValueOf(out).Elem()
+
+	for i := 0; i < t.NumField(); i++ {
+		f := t.Field(i)
+		spiderKey := f.Tag.Get("spider") // 获取 tag
+
+		if spiderKey == "" {
+			continue
+		}
+
+		if val, ok := result[spiderKey]; ok {
+			field := v.Field(i)
+			if field.CanSet() {
+				// 处理不同类型的转换
+				err := convertAndSet(val, field)
+				if err != nil {
+					// 如果转换失败，尝试使用原来的方法
+					if reflect.ValueOf(val).Type().ConvertibleTo(field.Type()) {
+						field.Set(reflect.ValueOf(val).Convert(field.Type()))
+					} else {
+						// 记录错误但继续处理其他字段
+						fmt.Printf("字段转换失败: %v\n", err)
+					}
+				}
+			}
+		}
+	}
+
 }
 
 // 通用转换函数，处理各种类型转换
@@ -869,6 +869,11 @@ func upsertSpiderTableData(tableName string, gjsonResultArr []map[string]any) er
 			comicArr = append(comicArr, comic)
 		}
 
+		// -- 为AuthorArr补齐作者id，确保多对多关联能写入
+		if err := attachAuthorIDs(comicArr); err != nil {
+			return err
+		}
+
 		// -- 数据校验，看有没有 不好用/错误的数据
 		for i, comic := range comicArr {
 			// 如果 comic.name是空，那这批数据不能用
@@ -931,6 +936,68 @@ func upsertSpiderTableData(tableName string, gjsonResultArr []map[string]any) er
 	// 5. 返回结果
 	return nil // 成功
 
+}
+
+// attachAuthorIDs 根据作者名称补齐作者id，防止多对多关联写入外键失败
+func attachAuthorIDs(comicArr []*models.ComicSpider) error {
+	if len(comicArr) == 0 {
+		return nil
+	}
+
+	// 收集所有作者名
+	nameSet := make(map[string]struct{})
+	for _, comic := range comicArr {
+		for idx := range comic.AuthorArr {
+			author := &comic.AuthorArr[idx]
+			author.TrimSpaces()
+			author.Trad2Simple()
+			if author.Name == "" {
+				continue
+			}
+			nameSet[author.Name] = struct{}{}
+		}
+	}
+
+	if len(nameSet) == 0 {
+		return nil
+	}
+
+	names := make([]string, 0, len(nameSet))
+	for name := range nameSet {
+		names = append(names, name)
+	}
+
+	var authors []models.Author
+	if err := db.DBComic.Where("name IN ?", names).Find(&authors).Error; err != nil {
+		return err
+	}
+
+	authorNameIDMap := make(map[string]int, len(authors))
+	for _, author := range authors {
+		authorNameIDMap[author.Name] = author.Id
+	}
+
+	for _, comic := range comicArr {
+		var filtered []models.Author
+		for _, author := range comic.AuthorArr {
+			authorCopy := author
+			authorCopy.TrimSpaces()
+			authorCopy.Trad2Simple()
+			if authorCopy.Name == "" {
+				continue
+			}
+			id, ok := authorNameIDMap[authorCopy.Name]
+			if !ok {
+				log.Warnf("func=attachAuthorIDs 漫画[%s]作者[%s]未找到id, 跳过该作者", comic.Name, authorCopy.Name)
+				continue
+			}
+			authorCopy.Id = id
+			filtered = append(filtered, authorCopy)
+		}
+		comic.AuthorArr = filtered
+	}
+
+	return nil
 }
 
 // -- 方法 ------------------------------------------- end -----------------------------------

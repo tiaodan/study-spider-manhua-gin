@@ -15,7 +15,7 @@ import (
 1 - 佚名
 */
 type Author struct {
-	Id   uint   `gorm:"primaryKey;autoIncrement"`                        // 主键
+	Id   int    `gorm:"primaryKey;autoIncrement"`                        // 主键
 	Name string `gorm:"not null;unique;check:name <> ''" spider:"name" ` // 作者名字. 唯一索引
 }
 
