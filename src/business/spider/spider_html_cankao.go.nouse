@@ -1,6 +1,6 @@
 /*
 *
-参考代码，弃用 !!
+参考代码，colly框架, xpath爬取html内容。弃用，但仍有参考价值 !!
 */
 package spider
 

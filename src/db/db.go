@@ -60,9 +60,9 @@ type TableOperations[T Model] interface { // 定义泛型接口  也能用
 	BatchQueryByOther(condition string, others []any, orderby string, sort string) ([]T, error)
 }
 
-// 实例化接口操作对象
-var WebsiteOps WebsiteOperations // 另一种写法: var WebsiteOps = WebsiteOperations{}
-var CountryOps CountryOperations // 另一种写法: var WebsiteOps = WebsiteOperations{}
+// 实例化接口操作对象 --> 改用通用模板方法后，好像没用了，先保留，用的时候再说
+// var WebsiteOps WebsiteOperations // 另一种写法: var WebsiteOps = WebsiteOperations{}
+// var CountryOps CountryOperations // 另一种写法: var WebsiteOps = WebsiteOperations{}
 
 // ---------------------------- 变量 end ----------------------------
 

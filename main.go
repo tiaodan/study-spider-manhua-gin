@@ -8,8 +8,6 @@
 package main
 
 import (
-	"study-spider-manhua-gin/src/business/comic"
-	"study-spider-manhua-gin/src/business/order"
 	"study-spider-manhua-gin/src/business/spider"
 	"study-spider-manhua-gin/src/config"
 	"study-spider-manhua-gin/src/db"
@@ -99,8 +97,12 @@ func init() {
 	db.InitDB("mysql", cfg.DB.Name, cfg.DB.User, cfg.DB.Password)
 
 	// -- 自动迁移表结构
+	/*
+		创建时有讲究的，一般先创新主表，再创建从表。因为从表要关联主表id，主表id没有会报错。
+		比如 &models.ComicSpiderStats{}, &models.ComicSpider{},一定要 ComicSpider主表在前
+	*/
 	err := db.DBComic.AutoMigrate(&models.Website{}, &models.Country{}, &models.PornType{}, &models.Type{},
-		&models.ComicSpider{}, &models.ComicMy{}, &models.WebsiteType{}, &models.Process{},
+		&models.ComicSpider{}, &models.ComicSpiderStats{}, &models.ComicMy{}, &models.WebsiteType{}, &models.Process{},
 		&models.Author{}) // 有几个表, 写几个参数
 	errorutil.ErrorPanic(err, "自动迁移表结构报错, err = ")
 
@@ -148,15 +150,18 @@ func main() {
 	r.Use(cors.Default()) // 允许所有跨域
 
 	// 提供接口 --
-	r.POST("/orders", order.OrderAdd)
-	r.DELETE("/orders/:id", order.OrderDelete)
-	r.PUT("/orders", order.OrderUpdate)
-	r.GET("/orders", order.OrdersPageQuery) // 分页查询
+	// 这些接口是参考，不用了 --
+	/*
+		r.POST("/orders", order.OrderAdd)
+		r.DELETE("/orders/:id", order.OrderDelete)
+		r.PUT("/orders", order.OrderUpdate)
+		r.GET("/orders", order.OrdersPageQuery) // 分页查询
 
-	r.POST("/comics", comic.ComicAdd)
-	r.DELETE("/comics/:id", comic.ComicDelete)
-	r.PUT("/comics", comic.ComicUpdateByIdOmitIndex)
-	r.GET("/comics", comic.ComicsQueryByPage) // 分页查询
+		r.POST("/comics", comic.ComicAdd)
+		r.DELETE("/comics/:id", comic.ComicDelete)
+		r.PUT("/comics", comic.ComicUpdateByIdOmitIndex)
+		r.GET("/comics", comic.ComicsQueryByPage) // 分页查询
+	*/
 
 	// 3. 提供API接口(爬虫相关)
 	// 爬虫

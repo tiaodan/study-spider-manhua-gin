@@ -186,6 +186,7 @@ func BookTemSpiderTypeByHtml(context *gin.Context) {
 		e.ForEach(".common-comic-item", func(i int, element *colly.HTMLElement) {
 			// 创建对象comic
 			comic := &models.ComicSpider{}
+			comicSpiderStats := models.ComicSpiderStats{} // 子表，统计数据
 
 			// 1. 爬数据, 自动去重前后空格
 			// 1.1 爬名字,唯一索引,如果为空, return
@@ -293,14 +294,13 @@ func BookTemSpiderTypeByHtml(context *gin.Context) {
 			// 计算具体数字 HitsNum * hitsUnit
 			hitsFloat, err := strconv.ParseFloat(hitsNumStr, 64)
 			if err != nil || hitsFloat < 0 {
-				comic.Hits = 0 // 错误或负值设为0
+				comicSpiderStats.Hits = 0 // 错误或负值设为0
 			} else {
-				comic.Hits = int(hitsFloat * float64(numUnit))
+				comicSpiderStats.Hits = int(hitsFloat * float64(numUnit))
 			}
 
 			// 4. 把参数赋值给 comic对象
 			comic.Name = comicName
-			comic.LatestChapter = updateStr
 			comic.ComicUrlApiPath = comicUrlApiPath
 			comic.CoverUrlApiPath = coverUrlApiPath
 			comic.BriefShort = comicBriefShort
@@ -308,6 +308,9 @@ func BookTemSpiderTypeByHtml(context *gin.Context) {
 			comic.WebsiteId = requestBody.WebsiteId
 			comic.PornTypeId = requestBody.PornTypeId
 			comic.TypeId = requestBody.TypeId
+			// 把参数赋值给 comic对象 -- 子表
+			comicSpiderStats.LatestChapter = updateStr
+			comic.Stats = comicSpiderStats
 
 			// comic对象加入到数组中,把每个对象存起来
 			comicArr = append(comicArr, comic)
@@ -315,7 +318,7 @@ func BookTemSpiderTypeByHtml(context *gin.Context) {
 			// 4.1 统一打印
 			log.Debug("更新到: ", updateStr)
 			log.Debug("人气: ", HitsStr)
-			log.Debug("计算后人气: ", comic.Hits)
+			log.Debug("计算后人气: ", comicSpiderStats.Hits)
 			log.Debug("封面链接: ", coverUrlApiPath)
 			log.Debug("漫画链接:  ", comicUrlApiPath)
 			log.Debugf("当前%d, 漫画名称转简体= %s -> %s", i+1, comicNameTradition, comicName)
@@ -893,7 +896,7 @@ func upsertSpiderTableData(tableName string, gjsonResultArr []map[string]any) er
 		var authorArr []*models.Author
 
 		// -- 把爬到的 gjsonResultArr 转成 表对象 数组
-		log.Info("------- gjsonResultArr = ", gjsonResultArr)
+		log.Debug("------- gjsonResultArr = ", gjsonResultArr)
 		for _, gjsonResult := range gjsonResultArr {
 
 			// 直接从gjsonResult获取name字段
