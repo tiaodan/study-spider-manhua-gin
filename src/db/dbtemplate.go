@@ -152,10 +152,10 @@ func DBUpsertBatch(DBConnObj *gorm.DB, modelObjs any, uniqueIndexArr []string, u
 	// 事务里 包Upsert操作 。 db.Transcation就是创建事务
 	err := DBConnObj.Transaction(func(tx *gorm.DB) error { // 原本写法应该是这样，但是DB用的全局参数，所以tx那里就不用传参了. tx是事务对象
 		// 批量插入 + 冲突更新
-		result := tx.Clauses(clause.OnConflict{
-			Columns:   toGormColumns(uniqueIndexArr), // 判断唯一索引: 如：Name + Id。多个条件是 并且的关系
+		result := tx.Omit(clause.Associations).Clauses(clause.OnConflict{
+			Columns:   toGormColumns(uniqueIndexArr), // 判断唯一索引: 如：Name + Id。多个条件是 并且的关系。Omit(clause.Associations) -》 为了不更新关联表，只更新主表
 			DoUpdates: clause.AssignmentColumns(updateDBColumnRealNameArr),
-		}).Create(modelObjs) // 等价于 CreateInBatches(users, 1000)
+		}).Select("*").Create(modelObjs) // 等价于 CreateInBatches(users, 1000). Select("*"， “Stats”) -》 为了更新关联表 Stats.Select(*)必须保留，因为Select("*") + Omit(clause.Associations)才能保证不更新关联表
 
 		if result.Error != nil {
 			// log.Error("批量插入失败, err = ", result.Error)  // 此文件不打日志，错误已经返回给上级

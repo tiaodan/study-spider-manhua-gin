@@ -102,8 +102,8 @@ func init() {
 		比如 &models.ComicSpiderStats{}, &models.ComicSpider{},一定要 ComicSpider主表在前
 	*/
 	err := db.DBComic.AutoMigrate(&models.Website{}, &models.Country{}, &models.PornType{}, &models.Type{},
-		&models.ComicSpider{}, &models.ComicSpiderStats{}, &models.ComicMy{}, &models.WebsiteType{}, &models.Process{},
-		&models.Author{}) // 有几个表, 写几个参数
+		&models.ComicSpider{}, &models.ComicSpiderStats{}, &models.ComicMy{}, &models.ComicMyStats{},
+		&models.WebsiteType{}, &models.Process{}, &models.Author{}, &models.Chapter{}) // 有几个表, 写几个参数
 	errorutil.ErrorPanic(err, "自动迁移表结构报错, err = ")
 
 	// -- 插入默认数据

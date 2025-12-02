@@ -309,7 +309,7 @@ func BookTemSpiderTypeByHtml(context *gin.Context) {
 			comic.PornTypeId = requestBody.PornTypeId
 			comic.TypeId = requestBody.TypeId
 			// 把参数赋值给 comic对象 -- 子表
-			comicSpiderStats.LatestChapter = updateStr
+			comicSpiderStats.LatestChapterName = updateStr
 			comic.Stats = comicSpiderStats
 
 			// comic对象加入到数组中,把每个对象存起来
@@ -542,16 +542,48 @@ func GetTableFieldValueBySpiderMapping(jsonByteData []byte, spiderMapping map[st
 			case "array":
 				value = v.Array()
 			case "time":
-				// value = v.Time() // 转成日期+时间 time.Time 格式 YYYY-MM-DD HH:MM:SS， 不好用，弃用
-				// 使用time.Parse替代v.Time()，因为v.Time()无法解析"2025-11-18 22:00:00"这种格式
-				value, _ = time.Parse("2006-01-02 15:04:05", v.String())
+				// -- 考虑健壮性，而且有的字段 not null ,不让时间用nil。所以设置一个 sql支持的默认值。如：1001-01-01 00:00:00
+				defaultTime := time.Date(1001, 1, 1, 0, 0, 0, 0, time.UTC)
+				if parsedTime, err := time.Parse("2006-01-02 15:04:05", v.String()); err == nil {
+					value = parsedTime
+				} else {
+					value = defaultTime
+				}
 
 			default:
 				value = v.Value() // fallback ?啥意思
 			}
 		}
 
-		result[key] = value
+		// 支持嵌套字段写法，如 stats.latestChapter
+		if strings.Contains(key, ".") {
+			parts := strings.Split(key, ".")
+			current := result
+
+			for i := 0; i < len(parts)-1; i++ {
+				part := parts[i]
+				next, exists := current[part]
+				if !exists {
+					newMap := make(map[string]any)
+					current[part] = newMap
+					current = newMap
+					continue
+				}
+
+				if nestedMap, ok := next.(map[string]any); ok {
+					current = nestedMap
+					continue
+				}
+
+				newMap := make(map[string]any)
+				current[part] = newMap
+				current = newMap
+			}
+
+			current[parts[len(parts)-1]] = value
+		} else {
+			result[key] = value
+		}
 	}
 
 	return result
@@ -649,30 +681,8 @@ func GetOneTypeFirstPageFullURL(needTcp, needHttps bool, websitePrefix, apiPath 
 
 // 通用函数 根据 model 模型里的tag, 爬取到的json结果 result -> 转成成 模型对象. AI给的真的好用，仔细了解下这个方法！！
 func MapByTag(result map[string]any, out any) {
-	// v0.1 的写法。能适配大部分场景，comic里加了AuthorArr之后就不能用了
-	/*
-		t := reflect.TypeOf(out).Elem()
-		v := reflect.ValueOf(out).Elem()
-
-		for i := 0; i < t.NumField(); i++ {
-			f := t.Field(i)
-			spiderKey := f.Tag.Get("spider") // 获取 tag
-
-			if spiderKey == "" {
-				continue
-			}
-
-			if val, ok := result[spiderKey]; ok {
-				field := v.Field(i)
-				if field.CanSet() {
-					field.Set(reflect.ValueOf(val).Convert(field.Type()))
-				}
-			}
-		}
-	*/
 
 	// v0.2 的写法。支持切片类型和结构体类型的转换
-
 	t := reflect.TypeOf(out).Elem()
 	v := reflect.ValueOf(out).Elem()
 
@@ -701,6 +711,28 @@ func MapByTag(result map[string]any, out any) {
 			}
 		}
 	}
+
+	// v0.1 的写法。能适配大部分场景，comic里加了AuthorArr之后就不能用了
+	/*
+		t := reflect.TypeOf(out).Elem()
+		v := reflect.ValueOf(out).Elem()
+
+		for i := 0; i < t.NumField(); i++ {
+			f := t.Field(i)
+			spiderKey := f.Tag.Get("spider") // 获取 tag
+
+			if spiderKey == "" {
+				continue
+			}
+
+			if val, ok := result[spiderKey]; ok {
+				field := v.Field(i)
+				if field.CanSet() {
+					field.Set(reflect.ValueOf(val).Convert(field.Type()))
+				}
+			}
+		}
+	*/
 
 }
 
@@ -865,8 +897,19 @@ func upsertSpiderTableData(tableName string, gjsonResultArr []map[string]any) er
 			MapByTag(gjsonResult, comic) // 爬取json内容，赋值给 comic对象
 
 			// 数据清洗 (空格，转简体) --
-			comic.TrimSpaces()  // 调下自己的方法，去空格
-			comic.Trad2Simple() // 调用自己实现的接口方法，转简体
+			comic.DataClean() // v0.2写法
+			/* v0.1 写法-弃用
+			comic.TrimSpaces()        // 调下自己的方法，去空格
+			comic.Trad2Simple()       // 调用自己实现的接口方法，转简体
+			comic.BusinessDataClean() // 业务数据清理
+			*/
+			// 子表也清洗下
+			comic.Stats.DataClean() // v0.2写法
+			/* v0.1 写法-弃用
+			comic.Stats.TrimSpaces()        // 调下自己的方法，去空格
+			comic.Stats.Trad2Simple()       // 调用自己实现的接口方法，转简体
+			comic.Stats.BusinessDataClean() // 业务数据清理
+			*/
 
 			// 添加到 comicArr数组 --
 			comicArr = append(comicArr, comic)
@@ -886,10 +929,56 @@ func upsertSpiderTableData(tableName string, gjsonResultArr []map[string]any) er
 			log.Infof("爬取后将插入的comic, index =%v, comic = %v ", i, comic)
 		}
 
-		// -- 批量插入
+		// -- 批量插入 主表数据
 		err := db.DBUpsertBatch(db.DBComic, comicArr, tableComicUniqueIndexArr, tableComicUpdateColArr)
 		if err != nil {
 			return err
+		}
+
+		// -- 主表插入 / 更新完成后，回填真实的主键 Id
+		if err := fillComicIDs(comicArr); err != nil {
+			return err
+		}
+
+		// -- 批量插入 / 更新 子表 Stats 数据（ComicSpiderStats）
+		// 说明：
+		// 1. 上面循环里已经对 comic.Stats 做了 TrimSpaces / Trad2Simple 清洗
+		// 2. 这里把所有 Stats 抽出来，按 ComicID 作为唯一索引做 upsert
+		var statsArr []*models.ComicSpiderStats
+		for _, comic := range comicArr {
+			if comic == nil || comic.Id == 0 {
+				log.Warnf("func=upsertSpiderTableData 漫画[%s]未能回填真实ID, 跳过其统计数据", comic.Name)
+				continue
+			}
+
+			stats := &models.ComicSpiderStats{
+				ComicID:                   comic.Id,
+				Star:                      comic.Stats.Star,
+				LatestChapterName:         comic.Stats.LatestChapterName, // 最新章节名字
+				Hits:                      comic.Stats.Hits,
+				TotalChapter:              comic.Stats.TotalChapter,
+				LastestChapterReleaseDate: comic.Stats.LastestChapterReleaseDate,
+				// LatestChapter: comic.Stats.LatestChapter, // 考虑删除，想着都是冗余了，如果用不到就先删除，用到再说
+			}
+
+			stats.TrimSpaces()
+			stats.Trad2Simple()
+
+			statsArr = append(statsArr, stats)
+		}
+
+		if len(statsArr) > 0 {
+			// ComicSpiderStats 模型里唯一索引是 ComicID
+			// 需要更新的列：latest_chapter / star / hits
+			log.Infof("--- 打印不太对-打不出值。插入子表comic_spider_stats, 用的comic数据= %+v \n", statsArr)
+			err = db.DBUpsertBatch(db.DBComic, statsArr,
+				[]string{"ComicID"},
+				[]string{"latest_chapter_id", "star", "latest_chapter_name", "hits", "total_chapter",
+					"lastest_chapter_release_date"}, // 用数据库真实小写的
+			)
+			if err != nil {
+				return err
+			}
 		}
 	case "author":
 		// -- 准备初始化
@@ -1001,6 +1090,77 @@ func attachAuthorIDs(comicArr []*models.ComicSpider) error {
 	}
 
 	return nil
+}
+
+// fillComicIDs 根据唯一索引回填漫画的真实主键 Id，确保子表能引用正确的外键
+func fillComicIDs(comicArr []*models.ComicSpider) error {
+	if len(comicArr) == 0 {
+		return nil
+	}
+
+	keyComicMap := make(map[string]*models.ComicSpider, len(comicArr))
+	nameSet := make(map[string]struct{})
+
+	for _, comic := range comicArr {
+		if comic == nil {
+			continue
+		}
+		keyComicMap[buildComicUniqueKey(comic)] = comic
+		name := strings.TrimSpace(comic.Name)
+		if name != "" {
+			nameSet[name] = struct{}{}
+		}
+	}
+
+	if len(nameSet) == 0 {
+		return nil
+	}
+
+	names := make([]string, 0, len(nameSet))
+	for name := range nameSet {
+		names = append(names, name)
+	}
+
+	var dbComics []models.ComicSpider
+	if err := db.DBComic.Where("name IN ?", names).Find(&dbComics).Error; err != nil {
+		return err
+	}
+
+	for idx := range dbComics {
+		dbComic := &dbComics[idx]
+		key := buildComicUniqueKey(dbComic)
+		if target, ok := keyComicMap[key]; ok {
+			target.Id = dbComic.Id
+		}
+	}
+
+	var missingKeys []string
+	for key, comic := range keyComicMap {
+		if comic.Id == 0 {
+			missingKeys = append(missingKeys, key)
+		}
+	}
+
+	if len(missingKeys) > 0 {
+		return fmt.Errorf("fillComicIDs 未获取到主键, keys=%v", missingKeys)
+	}
+
+	return nil
+}
+
+func buildComicUniqueKey(comic *models.ComicSpider) string {
+	if comic == nil {
+		return ""
+	}
+	return fmt.Sprintf("%s|%d|%d|%d|%d|%d|%s",
+		strings.TrimSpace(comic.Name),
+		comic.CountryId,
+		comic.WebsiteId,
+		comic.PornTypeId,
+		comic.TypeId,
+		comic.ProcessId,
+		strings.TrimSpace(comic.AuthorConcat),
+	)
 }
 
 // -- 方法 ------------------------------------------- end -----------------------------------

@@ -12,6 +12,23 @@ import (
 )
 
 // -- 初始化 ------------------------------------------------------------------------------
+// -- 接口
+// 定义一个接口-业务数据清理，约定所有 要清理业务数据 的对象都要实现这个方法
+type BusinessDataCleanable interface {
+	BusinessDataClean() // 业务数据清理
+}
+
+// 定义一个统一：数据清理入口-包含 TrimSpaces() Trad2Simple() BusinessDataClean() 等方法啊
+type DataCleanable interface {
+	/*
+		DataClean 真实逻辑，包含以下内容：
+		TrimSpaces()        // 去除空格
+		Trad2Simple()       // 繁体转简体
+		BusinessDataClean() // 业务数据清理
+	*/
+	DataClean() // 数据清理
+}
+
 // -- 批量更新用到
 // comic 表 --
 var tableComicUniqueIndexArr = []string{"Name", "CountryId", "WebsiteId", "pornTypeId", "TypeId", "authorConcat"} // 唯一索引字段
@@ -27,14 +44,12 @@ var tableAuthorUpdateColArr = []string{"name"} // 要更新的字段。要传upd
 // -- 爬漫画用 mapping
 // 表映射，爬 https:/www.toptoon.net (台湾服务器) 用，爬的JSON数据
 var ComicMappingForSpiderToptoonByJSON = map[string]models.ModelMapping{
-	"name":          {GetFieldPath: "adult.%d.meta.title", FiledType: "string"}, // adult.100.meta.title 这样能获取第100个 的内容
-	"websiteId":     {GetFieldPath: "websiteId", FiledType: "int"},
-	"pornTypeId":    {GetFieldPath: "pornTypeId", FiledType: "int"},
-	"countryId":     {GetFieldPath: "countryId", FiledType: "int"},
-	"typeId":        {GetFieldPath: "typeId", FiledType: "int"},
-	"processId":     {GetFieldPath: "processId", FiledType: "int"},
-	"latestChapter": {GetFieldPath: "adult.%d.lastUpdated.episodeTitle", FiledType: "string"},
-	"hits":          {GetFieldPath: "adult.%d.meta.viewCount", FiledType: "int"},
+	"name":       {GetFieldPath: "adult.%d.meta.title", FiledType: "string"}, // adult.100.meta.title 这样能获取第100个 的内容
+	"websiteId":  {GetFieldPath: "websiteId", FiledType: "int"},
+	"pornTypeId": {GetFieldPath: "pornTypeId", FiledType: "int"},
+	"countryId":  {GetFieldPath: "countryId", FiledType: "int"},
+	"typeId":     {GetFieldPath: "typeId", FiledType: "int"},
+	"processId":  {GetFieldPath: "processId", FiledType: "int"},
 	"comicUrlApiPath": {GetFieldPath: "adult.%d.id", FiledType: "string",
 		Transform: func(v any) any {
 			id := v.(string)
@@ -42,11 +57,16 @@ var ComicMappingForSpiderToptoonByJSON = map[string]models.ModelMapping{
 		}}, // Template 表示模板：能实现拼接"/comic/epList/" + id
 	"coverUrlApiPath":  {GetFieldPath: "adult.%d.thumbnail.standard", FiledType: "string"},
 	"briefLong":        {GetFieldPath: "adult.%d.meta.description", FiledType: "string"},
-	"star":             {GetFieldPath: "adult.%d.meta.rating", FiledType: "float"},
 	"releaseDate":      {GetFieldPath: "adult.%d.lastUpdated.pubDate", FiledType: "time"},
 	"authorConcat":     {GetFieldPath: "adult.%d.meta.author.authorString", FiledType: "string"},
 	"authorConcatType": {GetFieldPath: "authorConcatType", FiledType: "int"},
 	"authorArr":        {GetFieldPath: "adult.%d.meta.author.authorData", FiledType: "array"}, // []any 表示数组
+
+	"stats.latestChapterName":         {GetFieldPath: "adult.%d.lastUpdated.episodeTitle", FiledType: "string"},
+	"stats.hits":                      {GetFieldPath: "adult.%d.meta.viewCount", FiledType: "int"},
+	"stats.star":                      {GetFieldPath: "adult.%d.meta.rating", FiledType: "float"},
+	"stats.totalChapter":              {GetFieldPath: "adult.%d.meta.epTotalCnt", FiledType: "int"},
+	"stats.lastestChapterReleaseDate": {GetFieldPath: "adult.%d.lastUpdated.pubDate", FiledType: "time"},
 }
 
 // 表映射，爬 https:/www.toptoon.net (台湾服务器)  - 作者相关 用，爬的JSON数据
@@ -131,6 +151,16 @@ func mappingAssign(mapping map[string]models.ModelMapping, indices ...int) map[s
 
 	// 5. 返回结果
 	return mapping
+}
+
+// 实现接口。处理 models对象，清洗 业务数据
+func BusinessDataCleanObj(obj BusinessDataCleanable) {
+	obj.BusinessDataClean()
+}
+
+// 实现接口: 数据清理，统一入口。处理 models 对象
+func DataCleanObj(obj DataCleanable) {
+	obj.DataClean() // 业务数据清理
 }
 
 // -- 方法 ------------------------------------------- end -----------------------------------

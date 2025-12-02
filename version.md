@@ -313,7 +313,103 @@
     - comic 少字段 release_date // 发布时间,每一章也要有发布时间 √
 
     再弄复杂的：
+
+# v0.0.0.19
+版本总结:
+    - comic基本结构差不多了。comic,拆成2个表,并增加了数据清洗。
+        - dbUPsertBatch加了 Omit(clause.Associations) -》 为了不更新关联表，只更新主表
+        - dbUPsertBatch加了 Slect(*) -》 搭配Omit,才能 不更新关联表，只更新主表
+
+核心改动:
+     1. 搭框架相关：
+    先弄简单的：
+    - models 里 comic_my表 copy了子表结构，从 comic_spider
+        - mian.go 迁移表时，加上了子表
+    - comic子表 插入之前，调用下自己实现的数据处理接口：
+        - 去除空格
+        - 繁体转简体
+    - 把 doc/F12找到的json里websiteId 都改为1-未分类，防止因为外键报错，原来是10，导致测试时，每次重新建表后，都要重新加上id=10 的website √
+
+    再弄复杂的：
+    - 拆分数据库表，把经常更新的数据，拆成2个表 
+        - 拆分comic表，把打分、点击率单独拿出来，因为可能经常更新。这样需要联表查询，这块代码需要改下
+            - 插入默认数据要改
+            - 插入默认数据-更新的列 需要改 
+            - 爬取映射mapping，需要改 
+            - 报错的地方，需要改
+        - 拆分comic表，就需要考虑 联表操作(增删改查)
+        - comic-spider + comic-my都要改
+    - comic有2个字段，考虑要不要有，要不要放 经常更新的表里  --> 考虑，cursor推荐。cursor是目前，我用过的最好的AI编程(用过 chatgpt网页版-只能问答、通义灵码、codeGeex-好、github copllot-一般，不能改项目代码) -------------------------？？？？？？？？？？？？？？？
+        - 要创建chapter models库。先简单写，后期再补 √ 
+            - 迁移表要加上 √ 
+        - AI推荐: comic_stats 里放 latest_chapter_id(外键)、total_chapter(总章节数)、latest_chapter_num(序号一章序号)、latest_chapter_name(最后一章名称)。latest_chapter_id(外键) 是冗余的一个，就是为了方便  √
+        - AI推荐: comic 里加 latest_chapter_id(外键)，这个外键属于业务场景，不属于统计场景。2个表都更新 √
+        - comic_spider_stats, comic_my_stats 表, comic_xx_stats 里加 latest_chapter_id(外键)，在这里属于冗余一个，就是为了查询方便，不用join影响性能  
+        - total_chapter // 总章节数量 2个表都更新
+            - 可以空？ 不能，让默认为0
+                - 还没爬章节场景，可以空，爬完章节，再更新
+                - 需要加默认为0吗？默认为0，避免 NULL 值带来的查询和统计复杂度
+            - 需要更新：
+                - 插入默认数据 x
+                - 插入默认数据-更新的列 x
+                - 数据迁移 x
+                - mapping爬取结构 √ 能爬到
+                - 插入stats表数据时的 新增字段赋值 √
+                - 插入stats表数据时的 updateCol √ 
+            - 2个表都更新 √
+        - stats表里 LatestChapter 结构体 考虑删除，想着都是冗余了，如果用不到就先删除，用到再说 √
+        - latest_chapter_name // 最后一章名称 
+            - 可爬  
+            - 插入默认数据 x
+            - 插入默认数据-更新的列 x
+            - 数据迁移 x
+            - mapping爬取结构 √ 
+            - 插入stats表数据时的 新增字段赋值 √
+            - 插入stats表数据时的 updateCol √
+        - comic 少total_chapter字段，不考虑这个字段，最后一章的name_id就是总数，放到 频繁更新的表里, 经常用often 英文 . 考虑做成外键 -》关联chapter_id √
+            - 之前是这么考虑的。后来想的是：
+                - 还是要total_chapter,为了查询简单，不用join 联表查询了
+                - 还要要有外键id chapterId。本来在stats表，这个外键id没用，但是还是加上了，以防万一
+        - latest_chapter_id(外键), 外键id考虑可以null,因为爬取的时候，可能没有这个章节。爬完章节再来更新这个字段 √
+        - comic_spider、comic_my 表，都要更新 √
+        - comic_spider_stats, comic_my_stats 表，都要更新 √
+    - comic 少字段 最后更新时间 last_update_date = 最新章节发布时间 ,可以同步最新章节的-发布时间，用于查询：本周有哪些更新
+        有2种方式：-- 不用
+        - = 最新章节的发布时间，用于查询：对于这本书，官方本周有哪些更新
+        - = 表 update_at 字段，表示，我这周更新了哪些章节。用于查询，对于这本书，我 主动 本周有哪些更新
+        用以下方式实现：
+        - comic 加字段：最后章节更新时间 lastest_chapter_release_date
+            - 可爬？是的 √
+            - 插入默认数据 x 不用改
+            - 插入默认数据-更新的列 x 不用改
+            - 数据迁移 x 不用改
+            - mapping爬取结构 √ 
+            - models 表结构，假如新增字段 (comic_spider comic_my都要改 ) √
+            - 插入stats表数据时的 新增字段赋值 √
+            - 插入stats表数据时的 updateCol √
     
+    2. 校验相关:
+    - 插入前数据+业务校验，
+        数据校验- 对于通用的东西：
+        - string类型 √
+            - 去除空格 TrimSpaces()
+            - 繁体转简体 Trad2Simple()
+        - 注意：插入数据，前调用下 √
+        - 注意：comic_spider comic_my都要改 √
+
+        业务校验-对于业务的数据 BusinessDataCleanObj() 
+        - int类型
+            - 比如star，最高10.0，如果超出，就按0算 √
+        - 注意：插入数据，前调用下 √
+        - 注意：comic_spider comic_my都要改 √
+    - comic 实现一个数据清洗接口，（数据清洗自动实现，去除空格、繁体转简体，自动去除协议头：http/https，超出范围，自动置为某个值）√
+        实现思路：√
+        - sider.go里加一个统一接口: 数据清洗 DataClean(), 包含 TrimSpaces() Trad2Simple() BusinessDataClean() √
+        - comic_spider comic_my 结构体里，加一个数据清洗接口，比如：func (c *Comic) BusinessDataCleanObj() √
+        - 注意：comic_spider comic_my都要改  √
+    - 数据清洗的时候，如果有https或者http头，自动删除。√
+非核心改动:
+    -
 
 ------------------------------------------ 未解决问题如下：
 思路：能简单，别复杂。不能老是学自己不会的，要把会的完全应用
@@ -329,36 +425,8 @@
 
     再弄复杂的：
 
-    - 拆分数据库表，把经常更新的数据，拆成2个表 ？？？？？？？？
-        - 拆分comic表，把打分、点击率单独拿出来，因为可能经常更新。这样需要联表查询，这块代码需要改下
-            - 插入默认数据要改
-            - 插入默认数据-更新的列 需要改？
-            - 爬取映射mapping，需要改？
-            - 报错的地方，需要改
-        - 拆分comic表，就需要考虑 联表操作(增删改查)
-        - comic-spider + comic-my都要改
-    
-
-
-    - chapter 少字段 最后更新时间 last_update_date ,可以同步最新章节的-发布时间，用于查询：本周有哪些更新
-        有2种方式：
-        - = 最新章节的发布时间，用于查询：对于这本书，官方本周有哪些更新
-        - = 表 update_at 字段，表示，我这周更新了哪些章节。用于查询，对于这本书，我 主动 本周有哪些更新
-    - comic有2个字段，考虑要不要有，要不要放 经常更新的表里  --> 不考虑了，做成外键，chapterLastestId 就能实现
-        - total_chapter // 总章节数量
-        - update_to chapter // 更新到哪一章，那一章叫什么    
-        - comic 少total_chapter字段，不考虑这个字段，最后一章的name_id就是总数，放到 频繁更新的表里, 经常用often 英文 . 考虑做成外键 -》关联chapter_name_id,
-
-
-    - comic_spider -> 能转成 comic_my,不更新 cover_save_path_api_path 字段
-        - 考虑cover_save_path_api_path字段,如果已经有了，要是不小心，传空咋办，就会替换成空了.已解决，comic_spider表，不带该字段
-        - cover_save_path)api 是最关键的字段，没有它，所有业务都不行
-        - !!!重要：comic_spider不带 cover_save_path 字段，comic_my带 cover_save_path 字段，这样comic_spider不管传啥，都不会影响该字段。并且测试，comic_my的 upsert方法，cover_save_path有值，如果传参不带 cover_save_path字段，且update 需要更新此字段，会发生什么琴科给
-
     2. 校验相关:
-    - 插入前数据校验，你如star，最高10.0，如果超出，就按0算
-    - 数据清洗的时候，如果有https或者http头，自动删除。comic 实现一个数据清洗接口，（数据清洗自动实现，去除空格、繁体转简体，自动去除协议头：http/https，超出范围，自动置为某个值）
-    - 数据清洗分2个方面：1. 前端传参、方法间传参，数据清洗-属于前端编程人员操作 2. 插入db前数据清洗 -》 属于后端编程人员操作
+    - 数据清洗分2个方面：1. 前端传参、方法间传参，数据清洗-属于前端编程人员操作 2. 插入db前数据清洗(这个实现了一部分) -》 属于后端编程人员操作
     - 给所有报错，给出推断原因，让用户自己去简单排查。缩短排查时间
 
     3. 爬取相关:
@@ -368,6 +436,12 @@
     - 实现：通过配置文件，或者键值对变量，控制：爬书的时候处理哪些字段，爬章节的时候，更新哪些父表-book表哪些字段。做成通用的框架
     - 考虑把某个网站的爬取算法，放到一起，比如一个文件，里。方便归类，我喜欢归类清楚的东西
     - 多个项目放到一个项目里，数据库，表、命名，文件结构都容易冲突，考虑如何实现
+
+    爬取后处理 -》 转到我用的表
+    - comic_spider -> 能转成 comic_my,不更新 cover_save_path_api_path 字段
+        - 考虑cover_save_path_api_path字段,如果已经有了，要是不小心，传空咋办，就会替换成空了.已解决，comic_spider表，不带该字段
+        - cover_save_path)api 是最关键的字段，没有它，所有业务都不行
+        - !!!重要：comic_spider不带 cover_save_path 字段，comic_my带 cover_save_path 字段，这样comic_spider不管传啥，都不会影响该字段。并且测试，comic_my的 upsert方法，cover_save_path有值，如果传参不带 cover_save_path字段，且update 需要更新此字段，会发生什么琴科给
 
     4. 其他相关
     - 单元测试用例

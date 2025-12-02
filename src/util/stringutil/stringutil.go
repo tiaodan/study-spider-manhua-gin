@@ -1,7 +1,10 @@
 // 处理字符串工具
 package stringutil
 
-import "strings"
+import (
+	"regexp"
+	"strings"
+)
 
 // 定义一个接口，约定所有可清理的对象都要实现这个方法
 type TrimAble interface {
@@ -43,4 +46,11 @@ func TrimSpaceMap(obj map[string]interface{}) {
 			obj[key] = strings.TrimSpace(str) // 去除首尾空格
 		}
 	}
+}
+
+// 通过正则去除 http 头前缀. http:// https:// 都能去除
+func TrimHttpPrefix(str string) string {
+	// 匹配并移除 http:// 或 https:// 前缀
+	re := regexp.MustCompile(`^https?://`)
+	return re.ReplaceAllString(str, "")
 }

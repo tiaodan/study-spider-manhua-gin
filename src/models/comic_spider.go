@@ -3,7 +3,9 @@ package models
 
 import (
 	"strings"
+	"study-spider-manhua-gin/src/log"
 	"study-spider-manhua-gin/src/util/langutil"
+	"study-spider-manhua-gin/src/util/stringutil"
 	"time"
 
 	"gorm.io/gorm"
@@ -19,12 +21,13 @@ type ComicSpider struct {
 	Id   int    `json:"id" gorm:"primaryKey;autoIncrement"`                                                          // 数据库id,主键、自增.
 	Name string `json:"name" gorm:"not null; uniqueIndex:idx_comic_unique;size:150;check:name <> ''" spider:"name" ` // 漫画名 组合索引字段
 	// 外键
-	WebsiteId  int      `json:"websiteId" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"websiteId" `   // 网站id-外键 组合索引字段
-	PornTypeId int      `json:"pornTypeId" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"pornTypeId" ` // 总分类id-最高级-外键 组合索引字段
-	CountryId  int      `json:"countryId" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"countryId" `   // 国家id-外键 组合索引字段
-	TypeId     int      `json:"typeId" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"typeId" `         // 类型id-外键 组合索引字段
-	ProcessId  int      `json:"process" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"ProcessId" `     // 进度id-外键 组合索引字段
-	AuthorArr  []Author `gorm:"many2many:comic_spider_authors;" spider:"authorArr" `                           // 多对多关联
+	WebsiteId       int      `json:"websiteId" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"websiteId" `   // 网站id-外键 组合索引字段
+	PornTypeId      int      `json:"pornTypeId" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"pornTypeId" ` // 总分类id-最高级-外键 组合索引字段
+	CountryId       int      `json:"countryId" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"countryId" `   // 国家id-外键 组合索引字段
+	TypeId          int      `json:"typeId" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"typeId" `         // 类型id-外键 组合索引字段
+	ProcessId       int      `json:"process" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"processId" `     // 进度id-外键 组合索引字段
+	AuthorArr       []Author `gorm:"many2many:comic_spider_authors;" spider:"authorArr" `                           // 多对多关联
+	LatestChapterId *int     `json:"latestChapterId" spider:"latestChapterId" `                                     // 最新章节id。可为空，因为爬书的时候，章节表还没有内容。传指针，传nil时，就是null
 
 	// 其它
 	ComicUrlApiPath      string    `json:"comicUrlApiPath" gorm:"not null;check:comic_url_api_path <> ''" spider:"comicUrlApiPath" `                             // 漫画链接.不能是空字符串
@@ -32,8 +35,8 @@ type ComicSpider struct {
 	BriefShort           string    `json:"briefShort" gorm:"not null" spider:"briefShort" `                                                                      // 简介-短.可以是空字符串
 	BriefLong            string    `json:"briefLong" gorm:"not null" spider:"briefLong" `                                                                        // 简介-长.可以是空字符串
 	End                  bool      `json:"end" gorm:"not null" spider:"end" `                                                                                    // 漫画是否完结,如果完结是1
-	SpiderEndStatus      int       `json:"spiderEndStatus" gorm:"not null" spider:"spiderEndStatus" `                                                            // 爬取结束
-	DownloadEndStatus    int       `json:"downloadEndStatus" gorm:"not null" spider:"downloadEndStatus" `                                                        // 下载结束
+	SpiderEndStatus      int       `json:"spiderEndStatus" gorm:"not null" spider:"spiderEndStatus" `                                                            // 爬取结束状态
+	DownloadEndStatus    int       `json:"downloadEndStatus" gorm:"not null" spider:"downloadEndStatus" `                                                        // 下载结束状态
 	UploadAwsEndStatus   int       `json:"uploadAwsEndStatus" gorm:"not null" spider:"uploadAwsEndStatus" `                                                      // 是否上传到aws
 	UploadBaiduEndStatus int       `json:"uploadBaiduEndStatus" gorm:"not null" spider:"uploadBaiduEndStatus" `                                                  // 是否上传到baidu网盘
 	ReleaseDate          time.Time `json:"releaseDate" gorm:"not null" spider:"releaseDate" `                                                                    // 发布日期.可以是空字符串
@@ -47,12 +50,13 @@ type ComicSpider struct {
 
 	// 关联外键写法，更新时，同步更新，删除时，不让删
 	// 注意：references 写主表id, foreignKey 写从表id
-	Country  Country          `gorm:"foreignKey:CountryId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"` // 可选：级联操作
-	Website  Website          `gorm:"foreignKey:WebsiteId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
-	PornType PornType         `gorm:"foreignKey:PornTypeId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
-	Type     Type             `gorm:"foreignKey:TypeId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
-	Process  Process          `gorm:"foreignKey:ProcessId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
-	Stats    ComicSpiderStats `gorm:"foreignKey:ComicID;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"` // 漫画 统计
+	Country       Country          `gorm:"foreignKey:CountryId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"` // 可选：级联操作
+	Website       Website          `gorm:"foreignKey:WebsiteId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	PornType      PornType         `gorm:"foreignKey:PornTypeId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	Type          Type             `gorm:"foreignKey:TypeId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	Process       Process          `gorm:"foreignKey:ProcessId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
+	Stats         ComicSpiderStats `gorm:"foreignKey:ComicID;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;" spider:"stats"` // 漫画 统计
+	LatestChapter Chapter          `gorm:"foreignKey:LatestChapterId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;" spider:"latestChapter"`
 
 	// 写column写法
 	/*
@@ -90,13 +94,19 @@ type ComicSpider struct {
 
 // 统计状态。频繁更新的字段放这个表里，相当于 comic 子表，通过外键关联上
 type ComicSpiderStats struct {
-	ID      int `json:"id" gorm:"primaryKey;autoIncrement"`
-	ComicID int `gorm:"uniqueIndex"` // 外键，唯一索引保证一对一
+	ID              int  `json:"id" gorm:"primaryKey;autoIncrement"`
+	ComicID         int  `gorm:"not null;uniqueIndex"`                      // 外键，唯一索引保证一对一
+	LatestChapterId *int `json:"latestChapterId" spider:"latestChapterId" ` // 最新章节id。可为空，因为爬书的时候，章节表还没有内容。冗余1个，为了查询方便，不join影响性能。传指针，传nil时，就是null
 
 	// 频繁更新字段
-	Star          float64 `json:"star" gorm:"not null" spider:"star" `                   // 评分
-	LatestChapter string  `json:"latestChapter" gorm:"not null" spider:"latestChapter" ` // 更新到多少集, 字符串,最新章节.可以是空字符串
-	Hits          int     `json:"hits" gorm:"not null" spider:"hits" `                   // 人气
+	Star                      float64   `json:"star" gorm:"not null" spider:"star" `                           // 评分
+	LatestChapterName         string    `json:"latestChapterName" gorm:"not null" spider:"latestChapterName" ` // 更新到多少集, 字符串,最新章节.可以是空字符串
+	Hits                      int       `json:"hits" gorm:"not null" spider:"hits" `                           // 人气
+	TotalChapter              int       `json:"totalChapter" gorm:"not null" spider:"totalChapter" `           // 总章节数
+	LastestChapterReleaseDate time.Time `json:"lastestChapterReleaseDate" spider:"lastestChapterReleaseDate" ` // 最新章节发布时间，可以空
+
+	// 外键结构
+	// LatestChapter Chapter `gorm:"foreignKey:LatestChapterId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;" spider:"latestChapter"` // 考虑删除，想着都是冗余了，如果用不到就先删除，用到再说
 }
 
 // 实现stringutils 里 处理空格接口
@@ -112,8 +122,7 @@ func (c *ComicSpider) TrimSpaces() {
 
 // 实现stringutils 里 处理空格接口 - 处理子表 -统计数据
 func (c *ComicSpiderStats) TrimSpaces() {
-	c.LatestChapter = strings.TrimSpace(c.LatestChapter)
-
+	c.LatestChapterName = strings.TrimSpace(c.LatestChapterName)
 }
 
 // 实现stringutils 里 繁体转简体 接口
@@ -129,7 +138,45 @@ func (c *ComicSpider) Trad2Simple() {
 
 // 实现stringutils 里 繁体转简体 接口 - 处理子表 -统计数据
 func (c *ComicSpiderStats) Trad2Simple() {
-	c.LatestChapter, _ = langutil.TraditionalToSimplified(c.LatestChapter)
+	c.LatestChapterName, _ = langutil.TraditionalToSimplified(c.LatestChapterName)
+}
+
+// 实现 业务数据清理接口 - comicSpider 表
+func (c *ComicSpider) BusinessDataClean() {
+	// -- string 类型
+	// 去除 http 协议头 --
+	if len(c.ComicUrlApiPath) > 8 && (strings.HasPrefix(c.ComicUrlApiPath, "http://") || strings.HasPrefix(c.ComicUrlApiPath, "https://")) {
+		log.Info("业务数据清理, ComicUrlApiPath 有http前缀, 去除. apiPath= ", c.ComicUrlApiPath)
+		c.ComicUrlApiPath = stringutil.TrimHttpPrefix(c.ComicUrlApiPath)
+	}
+
+	if len(c.CoverUrlApiPath) > 8 && (strings.HasPrefix(c.CoverUrlApiPath, "http://") || strings.HasPrefix(c.CoverUrlApiPath, "https://")) {
+		log.Info("业务数据清理, CoverUrlApiPath 有http前缀, 去除. apiPath= ", c.CoverUrlApiPath)
+		c.CoverUrlApiPath = stringutil.TrimHttpPrefix(c.CoverUrlApiPath)
+	}
+}
+
+// 实现 业务数据清理接口 - comicSpiderStats 表
+func (c *ComicSpiderStats) BusinessDataClean() {
+	// 评分超过10，就置为0。可能是人为设置错了。0代表未设置
+	if c.Star > 10 {
+		log.Infof("进行业务数据清洗, c.star=%v >10, 重置为0", c.Star)
+		c.Star = 0
+	}
+}
+
+// 实现 数据清理统一入口 - comicSpider 表
+func (c *ComicSpider) DataClean() {
+	c.TrimSpaces()
+	c.Trad2Simple()
+	c.BusinessDataClean()
+}
+
+// 实现 数据清理统一入口 - comicSpiderStats 表
+func (c *ComicSpiderStats) DataClean() {
+	c.TrimSpaces()
+	c.Trad2Simple()
+	c.BusinessDataClean()
 }
 
 // 表字段的 ”爬取“映射关系 结构，写通用爬虫方法时，只要实现这个结构，就能用通用爬虫方法爬取数据
