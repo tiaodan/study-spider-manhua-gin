@@ -30,18 +30,18 @@ type ComicSpider struct {
 	LatestChapterId *int     `json:"latestChapterId" spider:"latestChapterId" `                                     // 最新章节id。可为空，因为爬书的时候，章节表还没有内容。传指针，传nil时，就是null
 
 	// 其它
-	ComicUrlApiPath      string    `json:"comicUrlApiPath" gorm:"not null;check:comic_url_api_path <> ''" spider:"comicUrlApiPath" `                             // 漫画链接.不能是空字符串
-	CoverUrlApiPath      string    `json:"coverUrlApiPath" gorm:"not null;check:cover_url_api_path <> ''" spider:"coverUrlApiPath" `                             // 封面链接.不能是空字符串
-	BriefShort           string    `json:"briefShort" gorm:"not null" spider:"briefShort" `                                                                      // 简介-短.可以是空字符串
-	BriefLong            string    `json:"briefLong" gorm:"not null" spider:"briefLong" `                                                                        // 简介-长.可以是空字符串
-	End                  bool      `json:"end" gorm:"not null" spider:"end" `                                                                                    // 漫画是否完结,如果完结是1
-	SpiderEndStatus      int       `json:"spiderEndStatus" gorm:"not null" spider:"spiderEndStatus" `                                                            // 爬取结束状态
-	DownloadEndStatus    int       `json:"downloadEndStatus" gorm:"not null" spider:"downloadEndStatus" `                                                        // 下载结束状态
-	UploadAwsEndStatus   int       `json:"uploadAwsEndStatus" gorm:"not null" spider:"uploadAwsEndStatus" `                                                      // 是否上传到aws
-	UploadBaiduEndStatus int       `json:"uploadBaiduEndStatus" gorm:"not null" spider:"uploadBaiduEndStatus" `                                                  // 是否上传到baidu网盘
-	ReleaseDate          time.Time `json:"releaseDate" gorm:"not null" spider:"releaseDate" `                                                                    // 发布日期.可以是空字符串
-	AuthorConcat         string    `json:"authorConcat" gorm:"not null;uniqueIndex:idx_comic_unique;size:500; check:author_concat <> ''" spider:"authorConcat" ` // 作者.不能是空字符串。组合索引
-	AuthorConcatType     int       `json:"authorConcatType" gorm:"not null" spider:"authorConcatType" `                                                          // 作者拼接方式，不能空。：0 默认，按爬取顺序拼接，1: 按字母升序拼接 2:按我的意愿拼接 3: 参考最权威的网站拼接(b比如有声书，参考喜马拉雅，韩漫参考toptoon，小说参考 起点-建议0 /3
+	ComicUrlApiPath      string    `json:"comicUrlApiPath" gorm:"not null;check:comic_url_api_path <> ''" spider:"comicUrlApiPath" `  // 漫画链接.不能是空字符串
+	CoverUrlApiPath      string    `json:"coverUrlApiPath" gorm:"not null;check:cover_url_api_path <> ''" spider:"coverUrlApiPath" `  // 封面链接.不能是空字符串
+	BriefShort           string    `json:"briefShort" gorm:"not null" spider:"briefShort" `                                           // 简介-短.可以是空字符串
+	BriefLong            string    `json:"briefLong" gorm:"not null" spider:"briefLong" `                                             // 简介-长.可以是空字符串
+	End                  int       `json:"end" gorm:"not null" spider:"end" `                                                         // 漫画是否完结,如果 未知1 连载2 完结3 == processId
+	SpiderEndStatus      int       `json:"spiderEndStatus" gorm:"not null" spider:"spiderEndStatus" `                                 // 爬取结束状态
+	DownloadEndStatus    int       `json:"downloadEndStatus" gorm:"not null" spider:"downloadEndStatus" `                             // 下载结束状态
+	UploadAwsEndStatus   int       `json:"uploadAwsEndStatus" gorm:"not null" spider:"uploadAwsEndStatus" `                           // 是否上传到aws
+	UploadBaiduEndStatus int       `json:"uploadBaiduEndStatus" gorm:"not null" spider:"uploadBaiduEndStatus" `                       // 是否上传到baidu网盘
+	ReleaseDate          time.Time `json:"releaseDate" gorm:"not null" spider:"releaseDate" `                                         // 发布日期.可以是空字符串
+	AuthorConcat         string    `json:"authorConcat" gorm:"not null;uniqueIndex:idx_comic_unique;size:500" spider:"authorConcat" ` // 作者.不能是空字符串。组合索引。有可能爬不到，不校验空字符串
+	AuthorConcatType     int       `json:"authorConcatType" gorm:"not null" spider:"authorConcatType" `                               // 作者拼接方式，不能空。：0 默认，按爬取顺序拼接，1: 按字母升序拼接 2:按我的意愿拼接 3: 参考最权威的网站拼接(b比如有声书，参考喜马拉雅，韩漫参考toptoon，小说参考 起点-建议0 /3
 
 	// gorm自带时间更新，软删除
 	CreatedAt time.Time
@@ -56,7 +56,7 @@ type ComicSpider struct {
 	Type          Type             `gorm:"foreignKey:TypeId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 	Process       Process          `gorm:"foreignKey:ProcessId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 	Stats         ComicSpiderStats `gorm:"foreignKey:ComicID;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;" spider:"stats"` // 漫画 统计
-	LatestChapter Chapter          `gorm:"foreignKey:LatestChapterId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;" spider:"latestChapter"`
+	LatestChapter ChapterSpider    `gorm:"foreignKey:LatestChapterId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;" spider:"latestChapter"`
 
 	// 写column写法
 	/*
@@ -154,15 +154,38 @@ func (c *ComicSpider) BusinessDataClean() {
 		log.Info("业务数据清理, CoverUrlApiPath 有http前缀, 去除. apiPath= ", c.CoverUrlApiPath)
 		c.CoverUrlApiPath = stringutil.TrimHttpPrefix(c.CoverUrlApiPath)
 	}
+
+	// -- int 类型
+	// end 完结状态 --
+	/* 判断逻辑
+		  processId是人为传的，
+	            - processId = 1, 表示待分类，end应该 == processId = 1
+	                - end 爬不到, == 1
+	                - end 爬到了， == 爬到的值 (2或3)
+	            - processId = 2, 表示连载，  end应该 == processId = 2
+	            - processId = 3, 表示完结，  end应该 == processId = 3
+	*/
+	c.End = 1             // 默认是1 - 待分类 / 不知道。反正不让是0. 要和processId 保持一致
+	if c.ProcessId == 1 { // 不知道，需要机器自行判断。除非人 特别确认是完结/连载，否则前端传参，都传1
+		if strings.Contains(c.Stats.LatestChapterName, "休刊公告") || strings.Contains(c.Stats.LatestChapterName, "后记") {
+			c.End = 3 //完结
+		}
+		// 连载不知道咋判断
+	} else {
+		c.End = c.ProcessId
+	}
 }
 
 // 实现 业务数据清理接口 - comicSpiderStats 表
 func (c *ComicSpiderStats) BusinessDataClean() {
+	// -- int 类型
+	// 评分 --
 	// 评分超过10，就置为0。可能是人为设置错了。0代表未设置
 	if c.Star > 10 {
 		log.Infof("进行业务数据清洗, c.star=%v >10, 重置为0", c.Star)
 		c.Star = 0
 	}
+
 }
 
 // 实现 数据清理统一入口 - comicSpider 表

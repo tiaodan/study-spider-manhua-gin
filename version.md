@@ -411,7 +411,111 @@
 非核心改动:
     -
 
------------------------------------------- 未解决问题如下：
+# v0.0.0.20
+版本总结:
+    - 打算实现通过html爬comic,l奥报错，先上传
+    - 实现 comic_spider 通过html方式爬取 ？？
+    - 考虑爬取，插入逻辑。思考：并发爬，插入sql时，只能执行1个。并发爬取结果，存到一个数组里。插入时,从插入库中取，保证数据完整，连续，美观，不混乱
+        - 总结就是：爬取并发爬，插入串行插入。没实现？？？
+        - 因为我想的gorm 批量插入也是很快的
+    - 爬chapter,并完善chapter表, 完善chapter处理逻辑 。没实现？？？？ 
+    - chapter也分 chapter_spider chapter_my 2个表。没实现？？？？？
+
+核心改动:
+    1. 搭框架相关：
+    先弄简单的：
+    - 1 先创建chapter表
+        - chapter_spider表
+            - 迁移表，需要改 √
+            - 可爬？是的 
+            - 插入默认数据 x 不用改
+            - 插入默认数据-更新的列 x 不用改
+            - 建立表结构 √ 
+            - 实现数据清洗各种接口 √
+            - mapping爬取结构 需要改 √
+            - models 表结构，假如新增字段 x 不用改,没新增
+        - chapter_my表
+            - 迁移表，需要改 √
+            - 可爬？是的 
+            - 插入默认数据 x 不用改
+            - 插入默认数据-更新的列 x 不用改
+            - 建立表结构 √
+            - 实现数据清洗各种接口 √
+            - mapping爬取结构 不用，用spider爬到的就行 x 不用改
+            - models 表结构，假如新增字段  x 不用改,没新增
+    - comci end字段，作为冗余字段，就是纯显示用，，已经关联外键id,- processId。 ？？？？？？？？？？？？
+        - end 字段 json数据里爬不到
+        - end 类型要 从 bool 改成 int类型.  comic_spider comic_my 2表都要改
+        - end 和爬取的processId之间逻辑，还要优化下。-》在业务数据清理的地方. comic_spider comic_my 2表都要改
+            processId是人为传的，
+            - processId = 1, 表示待分类，end应该 == processId = 1
+                - end 爬不到, == 1
+                - end 爬到了， == 爬到的值 (2或3)
+            - processId = 2, 表示连载，  end应该 == processId = 2
+            - processId = 3, 表示完结，  end应该 == processId = 3
+        - 应该用哪个字段，作为真实显示？ end √
+        - 先这样实现，后续 插入 comic_my数据库，人为严格判断 √
+
+    - website 加几列数据，
+        - book_can_spider_type: 可选:json/html/both/bothno  book可以的爬取方式:json还是html还是2者都行,还是都不行，有的网站通过html找不到有用数据
+            toptoon-tw: json -> 只有json方式
+            - 可爬？x 
+            - 插入默认数据 要改 √
+            - 插入默认数据-更新的列 要改 √
+            - 数据迁移  x 不用改
+            - mapping爬取结构  x 不用改
+            - models 表结构，假如新增字段 要改 √
+        - chapter_can_spider_type: json/html/both/bothno  chapter可以的爬取方式:json还是html还是2者都行,还是都不行，有的网站通过html找不到有用数据
+            toptoon-tw: bothno -> 都不行
+            - 可爬？x 
+            - 插入默认数据 要改 √
+            - 插入默认数据-更新的列 要改 √
+            - 数据迁移  x 不用改
+            - mapping爬取结构  x 不用改
+            - models 表结构，假如新增字段 要改 √
+        - book_spider_req_body_eg_server_filepath 爬取book时,请求体内容示例,后台服务器路径,不要求必须有值,字符串空也可以
+            如：json -> 给出请求体，传什么数据
+            如: html -> 给出请求体，传什么数据
+            如："爬json:doc/项目/comic/toptoon-tw/book_spider_req_body_eg_byjson.json; 爬html:doc/项目/comic/toptoon-tw/book_spider_req_body_eg_byhtml.html"
+            - 可爬？x 
+            - 插入默认数据 要改 √
+            - 插入默认数据-更新的列 要改 √
+            - 数据迁移  x 不用改
+            - mapping爬取结构  x 不用改
+            - models 表结构，假如新增字段 要改 √
+        - chapter_spider_req_body_eg_server_filepath 爬取chapter时,请求体内容示例,后台服务器路径,不要求必须有值,字符串空也可以
+            如：json -> 给出请求体，传什么数据
+            如: html -> 给出请求体，传什么数据
+            如："爬json:doc/项目/comic/toptoon-tw/chapter_spider_req_body_eg_byjson.json; 爬html:doc/项目/comic/toptoon-tw/chapter_spider_req_body_eg_byhtml.html"
+            - 可爬？x 
+            - 插入默认数据 要改 √
+            - 插入默认数据-更新的列 要改 √
+            - 数据迁移  x 不用改
+            - mapping爬取结构  x 不用改
+            - models 表结构，假如新增字段 要改 √
+        - 打分方式：star_type string
+            - 没有参考的网站，或者网站评分系统无参考价值，就自己主观打分。 
+            - my -> 表示我自己打的
+            - copy_toptoon -> 表示从toptoon网站爬取的
+            - copy_18to -> 表示从18to网站爬取的
+            - 可爬？x 
+            - 插入默认数据 要改 √
+            - 插入默认数据-更新的列 要改 √
+            - 数据迁移  x 不用改
+            - mapping爬取结构  x 不用改
+            - models 表结构，假如新增字段 要改 √
+
+    再弄复杂的
+
+    2. 校验相关:
+    3. 爬取相关:
+    4. 其他相关
+
+非核心改动:
+    -
+
+
+------------------------------------------ 未解决问题如下： -------------- 钱钱钱，挣钱买摩托
 思路：能简单，别复杂。不能老是学自己不会的，要把会的完全应用
 
 要解决：
@@ -420,6 +524,13 @@
 
     1. 搭框架相关：
     先弄简单的：
+    ------------------------------- 请求传参 websiteId 等外键id,赋值给comic 对象
+
+        
+    - - 实现 comic_spider 通过html方式爬取 ？？？？？？？？？？
+    
+    - 2 再实现爬chappter 逻辑 - 没有F12 json,只能爬html
+    - 3 再实现插入sql逻辑
 
     - 加了某些东西之后，插入默认数据，插入默认数据-更新的列，爬取映射mapping, 更新的列，/ 数据迁移。这几个参考点，需要同步修改
 
@@ -450,12 +561,21 @@
 
 
 
+
 ------------------------- 解决完再上传
 
+
 # 待办
+- comic估计是没有打分非常好的网站, 就自己打分吧
+    - level1: 自己主观打分
+    - level2: 根据公式打分
+    - level3: 根据公式+用户权重打分
+- 梳理项目代码，画图，要很久以后，还一目了然
+- 最完美的通用模板，应该是所有用的东西都是配置化的，比如新增列，新加列，都是通过配置实现，根本不用动源代码。现实吗？
 - comic表加上时间，创建时间，更新时间，是否删除标志 √ 没测
 - 更新至，内容包含 '最终话'、'完结' 认为是完结了 √ 没测
 - 人气，字符串里可能没带单位。如何处理？ 如：'人气：5555' √ 没测
+- 优化思路：更新过程，应该是有什么字段，只更新你获取到的，没获取到的，不要乱更新！！！！
 - 漫画爬取过程去重 √ 没测
 - 把队列池循环20改成1 √
 - 爬取的漫画，关联外键type表 √ 没测

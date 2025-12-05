@@ -1,0 +1,2121 @@
+{
+    "spiderTag": { 
+        "website": "toptoon-tw",
+        "table": "comic"
+     },
+    "websiteId": 1,  
+    "pornTypeId": 2,
+    "countryId": 2, 
+    "typeId": 1,    
+    "processId": 1,
+    "authorConcatType": 0,
+    "needTcp": true,
+    "coverNeedTcp": true,
+    "adult": [
+        {
+            "idx": 1645,
+            "id": "81075",
+            "contentType": "1",
+            "comicLanguage": "3",
+            "meta": {
+                "title": "夜間診療室",
+                "title_cn": "",
+                "description": "當醫院所有燈光關閉的瞬間，純潔無瑕的白衣天使們在撒旦的精心調教之下，變成一隻隻跪爬在地的小狗，拴著項圈看似掙扎卻又樂在其中，而她們發狂又渴切的目光都只注視著一個人…「乖~我的小狗狗們，快過來讓我調教妳們!!」",
+                "genre": [
+                    {
+                        "idx": 2,
+                        "name": "戲劇"
+                    },
+                    {
+                        "idx": 256,
+                        "name": "大尺度"
+                    }
+                ],
+                "author": {
+                    "authorData": [
+                        {
+                            "idx": 881,
+                            "name": "Idu"
+                        },
+                        {
+                            "idx": 1474,
+                            "name": "太監"
+                        }
+                    ],
+                    "authorString": "Idu&太監"
+                },
+                "adult": 1,
+                "rating": 9.9,
+                "viewCount": 688274,
+                "viewCountText": "68萬",
+                "epTotalCnt": 128,
+                "epAvailablePurchaseCnt": 128,
+                "epNonFreeTotalCnt": 127
+            },
+            "adultSearchHidden": 0,
+            "lastUpdated": {
+                "episodeIdx": "60647",
+                "episodeTitle": "第128話 最終話",
+                "episodeSubTitle": "幸福結局",
+                "pubDate": "2025-11-18 22:00:00"
+            },
+            "keyword": [
+                {
+                    "idx": 79,
+                    "name": "完結推薦",
+                    "orderNo": 1,
+                    "adultStatus": 1
+                }
+            ],
+            "hashTag": [
+                {
+                    "idx": 107,
+                    "name": "NTL",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 153,
+                    "name": "凌辱",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 159,
+                    "name": "護理師",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 3,
+                    "name": "調教",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 23,
+                    "name": "大尺度",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 181,
+                    "name": "奴隸",
+                    "orderNo": 9999,
+                    "adultStatus": 0
+                },
+                {
+                    "idx": 30,
+                    "name": "強迫",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 203,
+                    "name": "醫院",
+                    "orderNo": 1,
+                    "adultStatus": 1
+                }
+            ],
+            "thumbnail": {
+                "standard": "\/www_v1\/imgComic\/co_thumb13\/x2\/1645_1763600992.5768.jpg",
+                "square": "\/www_v1\/imgComic\/co_thumb10\/x2\/1645_1763455044.2544.jpg",
+                "rectangle": "\/www_v1\/imgComic\/co_thumb1\/x2\/1645_1763455044.1509.jpg",
+                "landscape": [
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1645_1750044311.8310.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1645_1688713138.6861.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1645_1688976494.1593.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1645_1688976486.6255.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1645_1688976526.9415.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1645_1688976406.5274.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1645_1688976501.1819.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1645_1688713151.7424.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1645_1688976511.3655.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1645_1689059138.4628.jpg"
+                ],
+                "wide": ""
+            },
+            "thumbnailNonAdult": {
+                "standard": "\/www_v1\/imgComic\/co_thumb14\/x2\/1645_1688543501.5138.jpg",
+                "square": "\/www_v1\/imgComic\/co_thumb12\/x2\/1645_1688543501.6482.jpg",
+                "rectangle": "\/www_v1\/imgComic\/co_thumb7\/x2\/1645_1688543500.6144.jpg",
+                "landscape": "\/www_v1\/imgComic\/co_thumb6\/x2\/1645_1688713123.8669.jpg",
+                "wide": ""
+            },
+            "icon": {
+                "discount": false,
+                "top10": false,
+                "new": false,
+                "end": false,
+                "up": false,
+                "adult": true,
+                "only": true,
+                "clear": false,
+                "novel": false
+            },
+            "comicWeekly": [
+                {
+                    "comic_weekly": 5005,
+                    "order_no": 115
+                },
+                {
+                    "comic_weekly": 1003,
+                    "order_no": 10
+                },
+                {
+                    "comic_weekly": 2004,
+                    "order_no": 165
+                },
+                {
+                    "comic_weekly": 4003,
+                    "order_no": 23
+                },
+                {
+                    "comic_weekly": 4004,
+                    "order_no": 34
+                },
+                {
+                    "comic_weekly": 1008,
+                    "order_no": 23
+                },
+                {
+                    "comic_weekly": 2001,
+                    "order_no": 15
+                },
+                {
+                    "comic_weekly": 2002,
+                    "order_no": 1
+                },
+                {
+                    "comic_weekly": 2025,
+                    "order_no": 2
+                },
+                {
+                    "comic_weekly": 2006,
+                    "order_no": 4
+                },
+                {
+                    "comic_weekly": 2013,
+                    "order_no": 1
+                }
+            ],
+            "comicLocation": "",
+            "service_date": "2023-07-11 21:00:00",
+            "expired_status": ""
+        },
+        {
+            "idx": 1703,
+            "id": "81133",
+            "contentType": "1",
+            "comicLanguage": "3",
+            "meta": {
+                "title": "偏偏慾到妳",
+                "title_cn": "",
+                "description": "在匿名聊天室意外配對到當年霸凌我的主謀…如今不雅照在手，復仇大業不是夢?!我要讓妳的家人、朋友，通通成為我的囊中物!",
+                "genre": [
+                    {
+                        "idx": 2,
+                        "name": "戲劇"
+                    }
+                ],
+                "author": {
+                    "authorData": [
+                        {
+                            "idx": 1550,
+                            "name": "Diamond"
+                        },
+                        {
+                            "idx": 1542,
+                            "name": "人帥一生順遂"
+                        },
+                        {
+                            "idx": 1551,
+                            "name": "奇可"
+                        },
+                        {
+                            "idx": 1147,
+                            "name": "雲雀"
+                        }
+                    ],
+                    "authorString": "Diamond&人帥一生順遂&奇可&雲雀"
+                },
+                "adult": 1,
+                "rating": 9.7,
+                "viewCount": 287881,
+                "viewCountText": "28萬",
+                "epTotalCnt": 62,
+                "epAvailablePurchaseCnt": 62,
+                "epNonFreeTotalCnt": 61
+            },
+            "adultSearchHidden": 0,
+            "lastUpdated": {
+                "episodeIdx": "60130",
+                "episodeTitle": "第62話 最終話",
+                "episodeSubTitle": "性福美滿的新生活♥",
+                "pubDate": "2025-10-16 22:00:00"
+            },
+            "keyword": [
+                {
+                    "idx": 96,
+                    "name": "小說改編",
+                    "orderNo": 16,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 79,
+                    "name": "完結推薦",
+                    "orderNo": 2,
+                    "adultStatus": 1
+                }
+            ],
+            "hashTag": [
+                {
+                    "idx": 161,
+                    "name": "攻略",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 266,
+                    "name": "太妹",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 3,
+                    "name": "調教",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 44,
+                    "name": "姐妹",
+                    "orderNo": 9999,
+                    "adultStatus": 0
+                }
+            ],
+            "thumbnail": {
+                "standard": "\/www_v1\/imgComic\/co_thumb13\/x2\/1703_1760922448.6681.jpg",
+                "square": "\/www_v1\/imgComic\/co_thumb10\/x2\/1703_1760605579.3939.jpg",
+                "rectangle": "\/www_v1\/imgComic\/co_thumb1\/x2\/1703_1760605579.7533.jpg",
+                "landscape": [
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1703_1727254958.2386.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1703_1726803462.3033.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1703_1726803484.5850.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1703_1726803471.2078.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1703_1726803488.7411.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1703_1726803492.5772.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1703_1726803466.6359.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1703_1726803496.2333.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1703_1726803480.9661.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1703_1726803475.8449.jpg"
+                ],
+                "wide": ""
+            },
+            "thumbnailNonAdult": {
+                "standard": "\/www_v1\/imgComic\/co_thumb14\/x2\/1703_1727254912.4147.jpg",
+                "square": "\/www_v1\/imgComic\/co_thumb12\/x2\/1703_1727254912.9639.jpg",
+                "rectangle": "\/www_v1\/imgComic\/co_thumb7\/x2\/1703_1727254911.9419.jpg",
+                "landscape": "\/www_v1\/imgComic\/co_thumb6\/x2\/1703_1727254911.5230.jpg",
+                "wide": ""
+            },
+            "icon": {
+                "discount": false,
+                "top10": false,
+                "new": false,
+                "end": false,
+                "up": false,
+                "adult": true,
+                "only": true,
+                "clear": false,
+                "novel": true
+            },
+            "comicWeekly": [
+                {
+                    "comic_weekly": 5005,
+                    "order_no": 59
+                },
+                {
+                    "comic_weekly": 1005,
+                    "order_no": 11
+                },
+                {
+                    "comic_weekly": 2004,
+                    "order_no": 316
+                },
+                {
+                    "comic_weekly": 4003,
+                    "order_no": 91
+                },
+                {
+                    "comic_weekly": 1008,
+                    "order_no": 91
+                },
+                {
+                    "comic_weekly": 2001,
+                    "order_no": 27
+                },
+                {
+                    "comic_weekly": 2002,
+                    "order_no": 2
+                },
+                {
+                    "comic_weekly": 2025,
+                    "order_no": 15
+                },
+                {
+                    "comic_weekly": 2006,
+                    "order_no": 30
+                }
+            ],
+            "comicLocation": "",
+            "service_date": "2024-09-26 21:00:00",
+            "expired_status": ""
+        },
+        {
+            "idx": 1723,
+            "id": "81150",
+            "contentType": "1",
+            "comicLanguage": "3",
+            "meta": {
+                "title": "選手村:母豬調教",
+                "title_cn": "",
+                "description": "「總教練，我願意用身體換取機會…」在腐敗的選手村裡，總教練握有絕對的權力，選手們只能任憑擺布。人們對成功的渴望不斷滋長，卻也因為過度的慾望瀕臨崩潰…",
+                "genre": [
+                    {
+                        "idx": 2,
+                        "name": "戲劇"
+                    },
+                    {
+                        "idx": 256,
+                        "name": "大尺度"
+                    }
+                ],
+                "author": {
+                    "authorData": [
+                        {
+                            "idx": 1299,
+                            "name": "沃林"
+                        },
+                        {
+                            "idx": 1545,
+                            "name": "蜜果實"
+                        }
+                    ],
+                    "authorString": "沃林&蜜果實"
+                },
+                "adult": 1,
+                "rating": 9.6,
+                "viewCount": 278408,
+                "viewCountText": "27萬",
+                "epTotalCnt": 45,
+                "epAvailablePurchaseCnt": 45,
+                "epNonFreeTotalCnt": 44
+            },
+            "adultSearchHidden": 0,
+            "lastUpdated": {
+                "episodeIdx": "60395",
+                "episodeTitle": "第45話",
+                "episodeSubTitle": "無法擺脫仇恨的束縛",
+                "pubDate": "2025-10-15 22:00:00"
+            },
+            "keyword": [
+                {
+                    "idx": 79,
+                    "name": "完結推薦",
+                    "orderNo": 3,
+                    "adultStatus": 1
+                }
+            ],
+            "hashTag": [
+                {
+                    "idx": 153,
+                    "name": "凌辱",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 3,
+                    "name": "調教",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 29,
+                    "name": "報仇",
+                    "orderNo": 9999,
+                    "adultStatus": 0
+                },
+                {
+                    "idx": 324,
+                    "name": "選手村",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 325,
+                    "name": "體操",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 326,
+                    "name": "硬調色情",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                }
+            ],
+            "thumbnail": {
+                "standard": "\/www_v1\/imgComic\/co_thumb13\/x2\/1723_1760664709.8577.jpg",
+                "square": "\/www_v1\/imgComic\/co_thumb10\/x2\/1723_1760517647.2643.jpg",
+                "rectangle": "\/www_v1\/imgComic\/co_thumb1\/x2\/1723_1760517646.7979.jpg",
+                "landscape": [
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1723_1737426242.1076.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1723_1736918288.3703.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1723_1736918380.9541.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1723_1736918376.5794.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1723_1736918372.4524.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1723_1736918368.1387.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1723_1736918353.6433.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1723_1736918363.5311.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1723_1736918359.5209.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1723_1736918350.3054.jpg"
+                ],
+                "wide": ""
+            },
+            "thumbnailNonAdult": {
+                "standard": "\/www_v1\/imgComic\/co_thumb14\/x2\/1723_1736918288.2658.jpg",
+                "square": "\/www_v1\/imgComic\/co_thumb12\/x2\/1723_1736918288.7916.jpg",
+                "rectangle": "\/www_v1\/imgComic\/co_thumb7\/x2\/1723_1736918287.9065.jpg",
+                "landscape": "\/www_v1\/imgComic\/co_thumb6\/x2\/1723_1736918288.6121.jpg",
+                "wide": ""
+            },
+            "icon": {
+                "discount": false,
+                "top10": false,
+                "new": false,
+                "end": false,
+                "up": false,
+                "adult": true,
+                "only": true,
+                "clear": false,
+                "novel": false
+            },
+            "comicWeekly": [
+                {
+                    "comic_weekly": 5005,
+                    "order_no": 44
+                },
+                {
+                    "comic_weekly": 1004,
+                    "order_no": 13
+                },
+                {
+                    "comic_weekly": 2004,
+                    "order_no": 305
+                },
+                {
+                    "comic_weekly": 4003,
+                    "order_no": 88
+                },
+                {
+                    "comic_weekly": 1008,
+                    "order_no": 88
+                },
+                {
+                    "comic_weekly": 2001,
+                    "order_no": 16
+                },
+                {
+                    "comic_weekly": 2002,
+                    "order_no": 3
+                },
+                {
+                    "comic_weekly": 2025,
+                    "order_no": 13
+                },
+                {
+                    "comic_weekly": 2006,
+                    "order_no": 27
+                },
+                {
+                    "comic_weekly": 2013,
+                    "order_no": 7
+                }
+            ],
+            "comicLocation": "",
+            "service_date": "2025-01-22 21:00:00",
+            "expired_status": ""
+        },
+        {
+            "idx": 1734,
+            "id": "81160",
+            "contentType": "1",
+            "comicLanguage": "3",
+            "meta": {
+                "title": "網紅女老師",
+                "title_cn": "",
+                "description": "「午休時間記得傳訊息告訴我，這個校園裡最隱密的場所」想安穩度過教師生活的哲瀚，不小心和新來的實習老師彩凜共享了不為人知的秘密?!",
+                "genre": [
+                    {
+                        "idx": 2,
+                        "name": "戲劇"
+                    },
+                    {
+                        "idx": 256,
+                        "name": "大尺度"
+                    }
+                ],
+                "author": {
+                    "authorData": [
+                        {
+                            "idx": 1593,
+                            "name": "TEAM SNS"
+                        }
+                    ],
+                    "authorString": "TEAM SNS"
+                },
+                "adult": 1,
+                "rating": 9.8,
+                "viewCount": 170392,
+                "viewCountText": "17萬",
+                "epTotalCnt": 32,
+                "epAvailablePurchaseCnt": 32,
+                "epNonFreeTotalCnt": 31
+            },
+            "adultSearchHidden": 0,
+            "lastUpdated": {
+                "episodeIdx": "60192",
+                "episodeTitle": "最終話 第32話",
+                "episodeSubTitle": "深陷名為歡愉的沼澤",
+                "pubDate": "2025-09-29 22:00:00"
+            },
+            "keyword": [
+                {
+                    "idx": 79,
+                    "name": "完結推薦",
+                    "orderNo": 4,
+                    "adultStatus": 1
+                }
+            ],
+            "hashTag": [
+                {
+                    "idx": 158,
+                    "name": "老師",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 160,
+                    "name": "巨鵰",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 282,
+                    "name": "秘密",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 3,
+                    "name": "調教",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 356,
+                    "name": "教師",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 357,
+                    "name": "學校",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 358,
+                    "name": "社群軟體",
+                    "orderNo": 1,
+                    "adultStatus": 1
+                }
+            ],
+            "thumbnail": {
+                "standard": "\/www_v1\/imgComic\/co_thumb13\/x2\/1734_1759280976.2705.jpg",
+                "square": "\/www_v1\/imgComic\/co_thumb10\/x2\/1734_1759137582.5965.jpg",
+                "rectangle": "\/www_v1\/imgComic\/co_thumb1\/x2\/1734_1759137582.4862.jpg",
+                "landscape": [
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1734_1744343636.5952.png",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1734_1744183064.7347.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1734_1744183484.1611.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1734_1744183473.3456.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1734_1744183494.6817.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1734_1744183453.9462.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1734_1744183684.1168.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1734_1744183460.9859.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1734_1744183507.6642.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1734_1744183446.2853.jpg"
+                ],
+                "wide": ""
+            },
+            "thumbnailNonAdult": {
+                "standard": "\/www_v1\/imgComic\/co_thumb14\/x2\/1734_1744352982.1492.jpg",
+                "square": "\/www_v1\/imgComic\/co_thumb12\/x2\/1734_1744183064.9566.jpg",
+                "rectangle": "\/www_v1\/imgComic\/co_thumb7\/x2\/1734_1744183063.8150.jpg",
+                "landscape": "\/www_v1\/imgComic\/co_thumb6\/x2\/1734_1744183064.7095.jpg",
+                "wide": ""
+            },
+            "icon": {
+                "discount": false,
+                "top10": false,
+                "new": false,
+                "end": false,
+                "up": false,
+                "adult": true,
+                "only": true,
+                "clear": false,
+                "novel": false
+            },
+            "comicWeekly": [
+                {
+                    "comic_weekly": 1002,
+                    "order_no": 11
+                },
+                {
+                    "comic_weekly": 5005,
+                    "order_no": 32
+                },
+                {
+                    "comic_weekly": 2004,
+                    "order_no": 357
+                },
+                {
+                    "comic_weekly": 2001,
+                    "order_no": 34
+                },
+                {
+                    "comic_weekly": 2002,
+                    "order_no": 4
+                },
+                {
+                    "comic_weekly": 2025,
+                    "order_no": 25
+                },
+                {
+                    "comic_weekly": 2006,
+                    "order_no": 65
+                },
+                {
+                    "comic_weekly": 2013,
+                    "order_no": 14
+                }
+            ],
+            "comicLocation": "",
+            "service_date": "2025-04-14 21:00:00",
+            "expired_status": ""
+        },
+        {
+            "idx": 1768,
+            "id": "team_leader_man",
+            "contentType": "3",
+            "comicLanguage": "3",
+            "meta": {
+                "title": "調教女上司",
+                "title_cn": "",
+                "description": "平凡的上班族朴豐久，每天上班都必須面對女上司的職場霸凌和性騷擾。某天他終於忍無可忍，開始絕地大反擊，把女上司調教成自己的形狀…",
+                "genre": [
+                    {
+                        "idx": 2,
+                        "name": "戲劇"
+                    },
+                    {
+                        "idx": 4,
+                        "name": "奇幻"
+                    },
+                    {
+                        "idx": 256,
+                        "name": "大尺度"
+                    }
+                ],
+                "author": {
+                    "authorData": [
+                        {
+                            "idx": 1616,
+                            "name": "studio19"
+                        }
+                    ],
+                    "authorString": "studio19"
+                },
+                "adult": 1,
+                "rating": 9,
+                "viewCount": 21480,
+                "viewCountText": "2.1萬",
+                "epTotalCnt": 3,
+                "epAvailablePurchaseCnt": 3,
+                "epNonFreeTotalCnt": 3
+            },
+            "adultSearchHidden": 0,
+            "lastUpdated": {
+                "episodeIdx": "60417",
+                "episodeTitle": "第3話 最終話",
+                "episodeSubTitle": "",
+                "pubDate": "2025-09-25 15:00:00"
+            },
+            "keyword": [
+                {
+                    "idx": 77,
+                    "name": "辦公室",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 69,
+                    "name": "新作",
+                    "orderNo": 10,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 79,
+                    "name": "完結推薦",
+                    "orderNo": 5,
+                    "adultStatus": 1
+                }
+            ],
+            "hashTag": [
+                {
+                    "idx": 112,
+                    "name": "職場女前輩",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 260,
+                    "name": "關係逆轉",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 3,
+                    "name": "調教",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 460,
+                    "name": "AI",
+                    "orderNo": 9999,
+                    "adultStatus": 0
+                }
+            ],
+            "thumbnail": {
+                "standard": "\/www_v1\/imgComic\/co_thumb13\/x2\/1768_1758621737.3032.jpg",
+                "square": "\/www_v1\/imgComic\/co_thumb10\/x2\/1768_1758621737.5014.jpg",
+                "rectangle": "\/www_v1\/imgComic\/co_thumb1\/x2\/1768_1758621736.7614.jpg",
+                "landscape": [
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1768_1758781968.2823.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1768_1758621780.4368.jpg"
+                ],
+                "wide": ""
+            },
+            "thumbnailNonAdult": {
+                "standard": "\/www_v1\/imgComic\/co_thumb14\/x2\/1768_1758621737.6145.jpg",
+                "square": "\/www_v1\/imgComic\/co_thumb12\/x2\/1768_1758621737.7932.jpg",
+                "rectangle": "\/www_v1\/imgComic\/co_thumb7\/x2\/1768_1758621736.5359.jpg",
+                "landscape": "\/www_v1\/imgComic\/co_thumb6\/x2\/1768_1758621780.5408.jpg",
+                "wide": ""
+            },
+            "icon": {
+                "discount": false,
+                "top10": false,
+                "new": true,
+                "end": false,
+                "up": false,
+                "adult": true,
+                "only": false,
+                "clear": true,
+                "novel": false
+            },
+            "comicWeekly": [
+                {
+                    "comic_weekly": 5005,
+                    "order_no": 10
+                },
+                {
+                    "comic_weekly": 2004,
+                    "order_no": 442
+                },
+                {
+                    "comic_weekly": 7001,
+                    "order_no": 2
+                },
+                {
+                    "comic_weekly": 3002,
+                    "order_no": 15
+                },
+                {
+                    "comic_weekly": 4002,
+                    "order_no": 16
+                },
+                {
+                    "comic_weekly": 2002,
+                    "order_no": 5
+                },
+                {
+                    "comic_weekly": 2025,
+                    "order_no": 26
+                },
+                {
+                    "comic_weekly": 2006,
+                    "order_no": 67
+                },
+                {
+                    "comic_weekly": 2007,
+                    "order_no": 9
+                },
+                {
+                    "comic_weekly": 2013,
+                    "order_no": 15
+                }
+            ],
+            "comicLocation": "",
+            "service_date": "2025-09-25 15:00:00",
+            "expired_status": ""
+        },
+        {
+            "idx": 1764,
+            "id": "no_office_romance",
+            "contentType": "3",
+            "comicLanguage": "3",
+            "meta": {
+                "title": "禁戀辦公室",
+                "title_cn": "",
+                "description": "同公司的絢音跟春樹一見鍾情。由於公司規定不能談辦公室戀愛，兩人便瞞著所有人偷偷交往，不料還是被那個變態部長發現...!沒想到部長的保密條件，竟是要絢音當他的性奴…",
+                "genre": [
+                    {
+                        "idx": 256,
+                        "name": "大尺度"
+                    }
+                ],
+                "author": {
+                    "authorData": [
+                        {
+                            "idx": 1616,
+                            "name": "studio19"
+                        }
+                    ],
+                    "authorString": "studio19"
+                },
+                "adult": 1,
+                "rating": 9.7,
+                "viewCount": 60219,
+                "viewCountText": "6.0萬",
+                "epTotalCnt": 4,
+                "epAvailablePurchaseCnt": 4,
+                "epNonFreeTotalCnt": 4
+            },
+            "adultSearchHidden": 0,
+            "lastUpdated": {
+                "episodeIdx": "60289",
+                "episodeTitle": "第4話 最終話",
+                "episodeSubTitle": "",
+                "pubDate": "2025-09-17 10:00:00"
+            },
+            "keyword": [
+                {
+                    "idx": 79,
+                    "name": "完結推薦",
+                    "orderNo": 6,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 69,
+                    "name": "新作",
+                    "orderNo": 12,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 281,
+                    "name": "無碼",
+                    "orderNo": 1,
+                    "adultStatus": 1
+                }
+            ],
+            "hashTag": [
+                {
+                    "idx": 265,
+                    "name": "隱藏的慾望",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 297,
+                    "name": "主從關係",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 305,
+                    "name": "上班族",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 1,
+                    "name": "戲劇",
+                    "orderNo": 9999,
+                    "adultStatus": 0
+                },
+                {
+                    "idx": 2,
+                    "name": "浪漫",
+                    "orderNo": 9999,
+                    "adultStatus": 0
+                },
+                {
+                    "idx": 3,
+                    "name": "調教",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 9,
+                    "name": "辦公室",
+                    "orderNo": 9999,
+                    "adultStatus": 0
+                },
+                {
+                    "idx": 36,
+                    "name": "NTR",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 460,
+                    "name": "AI",
+                    "orderNo": 9999,
+                    "adultStatus": 0
+                }
+            ],
+            "thumbnail": {
+                "standard": "\/www_v1\/imgComic\/co_thumb13\/x2\/1764_1757583696.4024.jpg",
+                "square": "\/www_v1\/imgComic\/co_thumb10\/x2\/1764_1757583695.5594.jpg",
+                "rectangle": "\/www_v1\/imgComic\/co_thumb1\/x2\/1764_1757583695.1737.jpg",
+                "landscape": [
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1764_1757653621.3411.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1764_1757583876.2525.jpg"
+                ],
+                "wide": ""
+            },
+            "thumbnailNonAdult": {
+                "standard": "\/www_v1\/imgComic\/co_thumb14\/x2\/1764_1757583696.4861.jpg",
+                "square": "\/www_v1\/imgComic\/co_thumb12\/x2\/1764_1757583696.1274.jpg",
+                "rectangle": "\/www_v1\/imgComic\/co_thumb7\/x2\/1764_1757583695.9722.jpg",
+                "landscape": "\/www_v1\/imgComic\/co_thumb6\/x2\/1764_1757583876.2963.jpg",
+                "wide": ""
+            },
+            "icon": {
+                "discount": false,
+                "top10": false,
+                "new": true,
+                "end": false,
+                "up": false,
+                "adult": true,
+                "only": false,
+                "clear": true,
+                "novel": false
+            },
+            "comicWeekly": [
+                {
+                    "comic_weekly": 5005,
+                    "order_no": 12
+                },
+                {
+                    "comic_weekly": 2004,
+                    "order_no": 402
+                },
+                {
+                    "comic_weekly": 7001,
+                    "order_no": 1
+                },
+                {
+                    "comic_weekly": 3002,
+                    "order_no": 16
+                },
+                {
+                    "comic_weekly": 4003,
+                    "order_no": 64
+                },
+                {
+                    "comic_weekly": 4004,
+                    "order_no": 65
+                },
+                {
+                    "comic_weekly": 4002,
+                    "order_no": 13
+                },
+                {
+                    "comic_weekly": 1008,
+                    "order_no": 64
+                },
+                {
+                    "comic_weekly": 2001,
+                    "order_no": 77
+                },
+                {
+                    "comic_weekly": 2002,
+                    "order_no": 6
+                },
+                {
+                    "comic_weekly": 2025,
+                    "order_no": 8
+                },
+                {
+                    "comic_weekly": 2013,
+                    "order_no": 4
+                }
+            ],
+            "comicLocation": "",
+            "service_date": "2025-09-17 10:00:00",
+            "expired_status": ""
+        },
+        {
+            "idx": 1576,
+            "id": "81044",
+            "contentType": "1",
+            "comicLanguage": "3",
+            "meta": {
+                "title": "癡漢成癮",
+                "title_cn": "",
+                "description": "一如既往擁擠的一號線地鐵車廂中，有雙穿過人群的手往著小太妹身上摸了過去，心裡雖然充滿恐懼，害怕被人發現自己光裸裸，但隨著那雙陌生的手不斷愛撫與逗弄，有種奇怪的感覺漸漸席捲全身，轉換為一絲絲快感…「我怎麼會對這種變態的事，越來越有感覺…」",
+                "genre": [
+                    {
+                        "idx": 2,
+                        "name": "戲劇"
+                    }
+                ],
+                "author": {
+                    "authorData": [
+                        {
+                            "idx": 1237,
+                            "name": "小胖手"
+                        },
+                        {
+                            "idx": 1175,
+                            "name": "紅色都市"
+                        }
+                    ],
+                    "authorString": "小胖手&紅色都市"
+                },
+                "adult": 1,
+                "rating": 9.8,
+                "viewCount": 1953771,
+                "viewCountText": "195萬",
+                "epTotalCnt": 140,
+                "epAvailablePurchaseCnt": 140,
+                "epNonFreeTotalCnt": 139
+            },
+            "adultSearchHidden": 0,
+            "lastUpdated": {
+                "episodeIdx": "60055",
+                "episodeTitle": "第140話 最終話",
+                "episodeSubTitle": "無法忘懷的才叫做成癮",
+                "pubDate": "2025-09-12 22:00:00"
+            },
+            "keyword": [
+                {
+                    "idx": 79,
+                    "name": "完結推薦",
+                    "orderNo": 7,
+                    "adultStatus": 1
+                }
+            ],
+            "hashTag": [
+                {
+                    "idx": 3,
+                    "name": "調教",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 107,
+                    "name": "NTL",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 156,
+                    "name": "地鐵",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 1,
+                    "name": "戲劇",
+                    "orderNo": 9999,
+                    "adultStatus": 0
+                },
+                {
+                    "idx": 87,
+                    "name": "慾望",
+                    "orderNo": 291,
+                    "adultStatus": 1
+                }
+            ],
+            "thumbnail": {
+                "standard": "\/www_v1\/imgComic\/co_thumb13\/x2\/1576_1757898688.8801.jpg",
+                "square": "\/www_v1\/imgComic\/co_thumb10\/x2\/1576_1757668238.1969.jpg",
+                "rectangle": "\/www_v1\/imgComic\/co_thumb1\/x2\/1576_1757668237.9174.jpg",
+                "landscape": [
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1576_1739432366.9378.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1576_1715586797.3176.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1576_1715586813.7773.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1576_1715586802.8436.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1576_1715586807.6665.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1576_1715586792.2919.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1576_1669017174.6169.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1576_1669191196.3314.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1576_1669191014.9690.jpg"
+                ],
+                "wide": ""
+            },
+            "thumbnailNonAdult": {
+                "standard": "\/www_v1\/imgComic\/co_thumb14\/x2\/1576_1668498380.2634.jpg",
+                "square": "\/www_v1\/imgComic\/co_thumb12\/x2\/1576_1668498379.2485.jpg",
+                "rectangle": "\/www_v1\/imgComic\/co_thumb7\/x2\/1576_1668498379.3982.jpg",
+                "landscape": "\/www_v1\/imgComic\/co_thumb6\/x2\/1576_1668590496.6546.jpg",
+                "wide": ""
+            },
+            "icon": {
+                "discount": false,
+                "top10": false,
+                "new": false,
+                "end": false,
+                "up": false,
+                "adult": true,
+                "only": true,
+                "clear": false,
+                "novel": false
+            },
+            "comicWeekly": [
+                {
+                    "comic_weekly": 5005,
+                    "order_no": 149
+                },
+                {
+                    "comic_weekly": 1006,
+                    "order_no": 14
+                },
+                {
+                    "comic_weekly": 2004,
+                    "order_no": 70
+                },
+                {
+                    "comic_weekly": 4003,
+                    "order_no": 52
+                },
+                {
+                    "comic_weekly": 4004,
+                    "order_no": 52
+                },
+                {
+                    "comic_weekly": 1008,
+                    "order_no": 52
+                },
+                {
+                    "comic_weekly": 2001,
+                    "order_no": 7
+                },
+                {
+                    "comic_weekly": 2002,
+                    "order_no": 7
+                },
+                {
+                    "comic_weekly": 2025,
+                    "order_no": 7
+                },
+                {
+                    "comic_weekly": 2006,
+                    "order_no": 14
+                }
+            ],
+            "comicLocation": "",
+            "service_date": "2022-11-25 21:00:00",
+            "expired_status": ""
+        },
+        {
+            "idx": 1720,
+            "id": "81147",
+            "contentType": "1",
+            "comicLanguage": "3",
+            "meta": {
+                "title": "秘密溫泉:混湯旅館",
+                "title_cn": "",
+                "description": "翔太與他暗戀已久的青梅竹馬麻衣開始了在溫泉旅館打工的生活。忙了一天正準備洗淨疲勞身軀的翔太，無料卻被旅館老闆娘朱里小姐撲倒，並主動向他提議性愛教學課程?!「特殊服務時間從現在開始。」",
+                "genre": [
+                    {
+                        "idx": 1,
+                        "name": "愛情"
+                    },
+                    {
+                        "idx": 2,
+                        "name": "戲劇"
+                    }
+                ],
+                "author": {
+                    "authorData": [
+                        {
+                            "idx": 1565,
+                            "name": "Kirishima Yozakura"
+                        },
+                        {
+                            "idx": 1566,
+                            "name": "WUYOU"
+                        }
+                    ],
+                    "authorString": "Kirishima Yozakura&WUYOU"
+                },
+                "adult": 1,
+                "rating": 9.5,
+                "viewCount": 191739,
+                "viewCountText": "19萬",
+                "epTotalCnt": 42,
+                "epAvailablePurchaseCnt": 42,
+                "epNonFreeTotalCnt": 41
+            },
+            "adultSearchHidden": 0,
+            "lastUpdated": {
+                "episodeIdx": "59924",
+                "episodeTitle": "第42話 最終話",
+                "episodeSubTitle": "外傳 第6話 期待您再度光臨♡",
+                "pubDate": "2025-09-05 22:00:00"
+            },
+            "keyword": [
+                {
+                    "idx": 79,
+                    "name": "完結推薦",
+                    "orderNo": 8,
+                    "adultStatus": 1
+                }
+            ],
+            "hashTag": [
+                {
+                    "idx": 128,
+                    "name": "純情",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 1,
+                    "name": "戲劇",
+                    "orderNo": 9999,
+                    "adultStatus": 0
+                },
+                {
+                    "idx": 2,
+                    "name": "浪漫",
+                    "orderNo": 9999,
+                    "adultStatus": 0
+                },
+                {
+                    "idx": 24,
+                    "name": "後宮",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 44,
+                    "name": "姐妹",
+                    "orderNo": 9999,
+                    "adultStatus": 0
+                },
+                {
+                    "idx": 318,
+                    "name": "溫泉",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 66,
+                    "name": "好友",
+                    "orderNo": 33,
+                    "adultStatus": 0
+                }
+            ],
+            "thumbnail": {
+                "standard": "\/www_v1\/imgComic\/co_thumb13\/x2\/1720_1757293635.6246.jpg",
+                "square": "\/www_v1\/imgComic\/co_thumb10\/x2\/1720_1757065116.4817.jpg",
+                "rectangle": "\/www_v1\/imgComic\/co_thumb1\/x2\/1720_1757065116.3671.jpg",
+                "landscape": [
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1720_1736473627.7787.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1720_1735802295.8625.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1720_1735802386.4923.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1720_1735802382.5911.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1720_1735802602.1349.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1720_1735802399.6695.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1720_1735802378.9496.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1720_1735802394.7936.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1720_1735802390.5456.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1720_1735802301.2642.jpg"
+                ],
+                "wide": ""
+            },
+            "thumbnailNonAdult": {
+                "standard": "\/www_v1\/imgComic\/co_thumb14\/x2\/1720_1735789316.9198.jpg",
+                "square": "\/www_v1\/imgComic\/co_thumb12\/x2\/1720_1735789315.7198.jpg",
+                "rectangle": "\/www_v1\/imgComic\/co_thumb7\/x2\/1720_1735789315.7058.jpg",
+                "landscape": "\/www_v1\/imgComic\/co_thumb6\/x2\/1720_1735789315.2932.jpg",
+                "wide": ""
+            },
+            "icon": {
+                "discount": false,
+                "top10": false,
+                "new": false,
+                "end": false,
+                "up": false,
+                "adult": true,
+                "only": true,
+                "clear": false,
+                "novel": false
+            },
+            "comicWeekly": [
+                {
+                    "comic_weekly": 5005,
+                    "order_no": 46
+                },
+                {
+                    "comic_weekly": 1006,
+                    "order_no": 12
+                },
+                {
+                    "comic_weekly": 2004,
+                    "order_no": 355
+                },
+                {
+                    "comic_weekly": 4003,
+                    "order_no": 35
+                },
+                {
+                    "comic_weekly": 4004,
+                    "order_no": 64
+                },
+                {
+                    "comic_weekly": 1008,
+                    "order_no": 35
+                },
+                {
+                    "comic_weekly": 2001,
+                    "order_no": 32
+                },
+                {
+                    "comic_weekly": 2002,
+                    "order_no": 8
+                },
+                {
+                    "comic_weekly": 2025,
+                    "order_no": 4
+                },
+                {
+                    "comic_weekly": 2005,
+                    "order_no": 1
+                },
+                {
+                    "comic_weekly": 2006,
+                    "order_no": 9
+                }
+            ],
+            "comicLocation": "",
+            "service_date": "2025-01-10 21:00:00",
+            "expired_status": ""
+        },
+        {
+            "idx": 1701,
+            "id": "81132",
+            "contentType": "1",
+            "comicLanguage": "3",
+            "meta": {
+                "title": "縱夏夜之夢(無碼版)",
+                "title_cn": "",
+                "description": "正雄成為大學生後迎來第一個暑假，因為一封訊息讓他時隔10年回到了老家，開始準備度過一個讓他難忘的…縱夏夜之夢。",
+                "genre": [
+                    {
+                        "idx": 2,
+                        "name": "戲劇"
+                    }
+                ],
+                "author": {
+                    "authorData": [
+                        {
+                            "idx": 70,
+                            "name": "倂秀氏"
+                        }
+                    ],
+                    "authorString": "倂秀氏"
+                },
+                "adult": 1,
+                "rating": 9.8,
+                "viewCount": 592550,
+                "viewCountText": "59萬",
+                "epTotalCnt": 115,
+                "epAvailablePurchaseCnt": 115,
+                "epNonFreeTotalCnt": 114
+            },
+            "adultSearchHidden": 0,
+            "lastUpdated": {
+                "episodeIdx": "58403",
+                "episodeTitle": "第115話 最終話",
+                "episodeSubTitle": "我的真命天女",
+                "pubDate": "2025-09-01 22:00:00"
+            },
+            "keyword": [
+                {
+                    "idx": 79,
+                    "name": "完結推薦",
+                    "orderNo": 9,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 281,
+                    "name": "無碼",
+                    "orderNo": 2,
+                    "adultStatus": 1
+                }
+            ],
+            "hashTag": [
+                {
+                    "idx": 1,
+                    "name": "戲劇",
+                    "orderNo": 9999,
+                    "adultStatus": 0
+                },
+                {
+                    "idx": 10,
+                    "name": "野外",
+                    "orderNo": 9999,
+                    "adultStatus": 0
+                },
+                {
+                    "idx": 19,
+                    "name": "肉慾",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 25,
+                    "name": "觀淫",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 27,
+                    "name": "初體驗",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 35,
+                    "name": "旅行",
+                    "orderNo": 9999,
+                    "adultStatus": 0
+                },
+                {
+                    "idx": 62,
+                    "name": "3P",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 87,
+                    "name": "慾望",
+                    "orderNo": 325,
+                    "adultStatus": 1
+                }
+            ],
+            "thumbnail": {
+                "standard": "\/www_v1\/imgComic\/co_thumb13\/x2\/1701_1756885506.5640.jpg",
+                "square": "\/www_v1\/imgComic\/co_thumb10\/x2\/1701_1756448364.4714.jpg",
+                "rectangle": "\/www_v1\/imgComic\/co_thumb1\/x2\/1701_1756448364.5949.jpg",
+                "landscape": [
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1701_1758271878.9374.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1701_1724989594.3919.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1701_1724989587.3812.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1701_1742187593.6609.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1701_1724989581.8634.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1701_1724989577.2974.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1701_1724989573.4424.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1701_1724989568.8374.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1701_1724989546.7943.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1701_1724989541.7574.jpg"
+                ],
+                "wide": ""
+            },
+            "thumbnailNonAdult": {
+                "standard": "\/www_v1\/imgComic\/co_thumb14\/x2\/1701_1724989502.6818.jpg",
+                "square": "\/www_v1\/imgComic\/co_thumb12\/x2\/1701_1724989502.2886.jpg",
+                "rectangle": "\/www_v1\/imgComic\/co_thumb7\/x2\/1701_1724989501.3228.jpg",
+                "landscape": "\/www_v1\/imgComic\/co_thumb6\/x2\/1701_1724989534.7789.jpg",
+                "wide": ""
+            },
+            "icon": {
+                "discount": false,
+                "top10": false,
+                "new": false,
+                "end": false,
+                "up": false,
+                "adult": true,
+                "only": true,
+                "clear": true,
+                "novel": false
+            },
+            "comicWeekly": [
+                {
+                    "comic_weekly": 1002,
+                    "order_no": 13
+                },
+                {
+                    "comic_weekly": 5005,
+                    "order_no": 36
+                },
+                {
+                    "comic_weekly": 1006,
+                    "order_no": 13
+                },
+                {
+                    "comic_weekly": 2004,
+                    "order_no": 180
+                },
+                {
+                    "comic_weekly": 4003,
+                    "order_no": 47
+                },
+                {
+                    "comic_weekly": 4004,
+                    "order_no": 40
+                },
+                {
+                    "comic_weekly": 1008,
+                    "order_no": 47
+                },
+                {
+                    "comic_weekly": 2001,
+                    "order_no": 4
+                },
+                {
+                    "comic_weekly": 2002,
+                    "order_no": 9
+                },
+                {
+                    "comic_weekly": 2025,
+                    "order_no": 5
+                },
+                {
+                    "comic_weekly": 2006,
+                    "order_no": 11
+                }
+            ],
+            "comicLocation": "",
+            "service_date": "2025-03-17 21:00:00",
+            "expired_status": ""
+        },
+        {
+            "idx": 1714,
+            "id": "81143",
+            "contentType": "1",
+            "comicLanguage": "3",
+            "meta": {
+                "title": "已婚學生想壞壞",
+                "title_cn": "",
+                "description": "至聖是位國中國文老師。某天，曾經的學生以家長身分出現在他面前。她們從學生時代就對至聖抱有愛慕之心，成家後依舊對他念念不忘。究竟至聖能不能嚴守道德底線，抵抗美人們來勢洶洶的誘惑?",
+                "genre": [
+                    {
+                        "idx": 2,
+                        "name": "戲劇"
+                    }
+                ],
+                "author": {
+                    "authorData": [
+                        {
+                            "idx": 1562,
+                            "name": "iMA"
+                        },
+                        {
+                            "idx": 1561,
+                            "name": "Potter"
+                        }
+                    ],
+                    "authorString": "iMA&Potter"
+                },
+                "adult": 1,
+                "rating": 9.6,
+                "viewCount": 228270,
+                "viewCountText": "22萬",
+                "epTotalCnt": 45,
+                "epAvailablePurchaseCnt": 45,
+                "epNonFreeTotalCnt": 44
+            },
+            "adultSearchHidden": 0,
+            "lastUpdated": {
+                "episodeIdx": "59845",
+                "episodeTitle": "第45話 最終話",
+                "episodeSubTitle": "遲來的畢業典禮",
+                "pubDate": "2025-08-26 22:00:00"
+            },
+            "keyword": [
+                {
+                    "idx": 73,
+                    "name": "校園",
+                    "orderNo": 38,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 79,
+                    "name": "完結推薦",
+                    "orderNo": 10,
+                    "adultStatus": 1
+                }
+            ],
+            "hashTag": [
+                {
+                    "idx": 158,
+                    "name": "老師",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 197,
+                    "name": "恢復單身",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 1,
+                    "name": "戲劇",
+                    "orderNo": 9999,
+                    "adultStatus": 0
+                },
+                {
+                    "idx": 24,
+                    "name": "後宮",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                }
+            ],
+            "thumbnail": {
+                "standard": "\/www_v1\/imgComic\/co_thumb13\/x2\/1714_1759218754.8820.jpg",
+                "square": "\/www_v1\/imgComic\/co_thumb10\/x2\/1714_1756176819.3401.jpg",
+                "rectangle": "\/www_v1\/imgComic\/co_thumb1\/x2\/1714_1756176819.1871.jpg",
+                "landscape": [
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1714_1733189678.5788.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1714_1733121133.8439.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1714_1733121216.5909.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1714_1733121228.6851.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1714_1733121212.6402.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1714_1733121232.2746.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1714_1733121220.6779.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1714_1733121224.6713.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1714_1733121148.1651.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1714_1733121145.4549.jpg"
+                ],
+                "wide": ""
+            },
+            "thumbnailNonAdult": {
+                "standard": "\/www_v1\/imgComic\/co_thumb14\/x2\/1714_1733121134.6344.jpg",
+                "square": "\/www_v1\/imgComic\/co_thumb12\/x2\/1714_1733121133.4671.jpg",
+                "rectangle": "\/www_v1\/imgComic\/co_thumb7\/x2\/1714_1733121132.9183.jpg",
+                "landscape": "\/www_v1\/imgComic\/co_thumb6\/x2\/1714_1733121133.4476.jpg",
+                "wide": ""
+            },
+            "icon": {
+                "discount": false,
+                "top10": false,
+                "new": false,
+                "end": false,
+                "up": false,
+                "adult": true,
+                "only": true,
+                "clear": false,
+                "novel": false
+            },
+            "comicWeekly": [
+                {
+                    "comic_weekly": 5005,
+                    "order_no": 51
+                },
+                {
+                    "comic_weekly": 1007,
+                    "order_no": 11
+                },
+                {
+                    "comic_weekly": 2004,
+                    "order_no": 347
+                },
+                {
+                    "comic_weekly": 2001,
+                    "order_no": 30
+                },
+                {
+                    "comic_weekly": 2002,
+                    "order_no": 10
+                },
+                {
+                    "comic_weekly": 2025,
+                    "order_no": 24
+                },
+                {
+                    "comic_weekly": 2006,
+                    "order_no": 62
+                }
+            ],
+            "comicLocation": "",
+            "service_date": "2024-12-03 21:00:00",
+            "expired_status": ""
+        },
+        {
+            "idx": 1727,
+            "id": "81154",
+            "contentType": "1",
+            "comicLanguage": "3",
+            "meta": {
+                "title": "下一顫，性福",
+                "title_cn": "",
+                "description": "「顫抖症不是病，而是一種才能!」皓維不只手抖，連其他身體部位也抖個不停~~他開始利用自己的長才，造福天下女子!",
+                "genre": [
+                    {
+                        "idx": 2,
+                        "name": "戲劇"
+                    },
+                    {
+                        "idx": 8,
+                        "name": "小品集"
+                    },
+                    {
+                        "idx": 32,
+                        "name": "搞笑"
+                    },
+                    {
+                        "idx": 256,
+                        "name": "大尺度"
+                    }
+                ],
+                "author": {
+                    "authorData": [
+                        {
+                            "idx": 1571,
+                            "name": "科基俊"
+                        }
+                    ],
+                    "authorString": "科基俊"
+                },
+                "adult": 1,
+                "rating": 9.8,
+                "viewCount": 188447,
+                "viewCountText": "18萬",
+                "epTotalCnt": 35,
+                "epAvailablePurchaseCnt": 35,
+                "epNonFreeTotalCnt": 34
+            },
+            "adultSearchHidden": 0,
+            "lastUpdated": {
+                "episodeIdx": "59277",
+                "episodeTitle": "第35話 最終話",
+                "episodeSubTitle": "下一站，幸福",
+                "pubDate": "2025-08-19 22:00:00"
+            },
+            "keyword": [
+                {
+                    "idx": 79,
+                    "name": "完結推薦",
+                    "orderNo": 11,
+                    "adultStatus": 1
+                }
+            ],
+            "hashTag": [
+                {
+                    "idx": 301,
+                    "name": "特殊能力",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 327,
+                    "name": "大學生",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 5,
+                    "name": "搞笑",
+                    "orderNo": 9999,
+                    "adultStatus": 0
+                },
+                {
+                    "idx": 8,
+                    "name": "學校",
+                    "orderNo": 9999,
+                    "adultStatus": 0
+                },
+                {
+                    "idx": 24,
+                    "name": "後宮",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 47,
+                    "name": "女大生",
+                    "orderNo": 9999,
+                    "adultStatus": 0
+                },
+                {
+                    "idx": 276,
+                    "name": "人妻",
+                    "orderNo": 8,
+                    "adultStatus": 1
+                }
+            ],
+            "thumbnail": {
+                "standard": "\/www_v1\/imgComic\/co_thumb13\/x2\/1727_1755738982.8257.jpg",
+                "square": "\/www_v1\/imgComic\/co_thumb10\/x2\/1727_1755593189.3409.jpg",
+                "rectangle": "\/www_v1\/imgComic\/co_thumb1\/x2\/1727_1755593189.1966.jpg",
+                "landscape": [
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1727_1740386373.8705.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1727_1739863526.5918.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1727_1739863552.1767.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1727_1739863565.9766.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1727_1739863536.1496.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1727_1739863548.1874.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1727_1739863561.1101.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1727_1739863540.6115.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1727_1739863544.8779.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1727_1739863556.5598.jpg"
+                ],
+                "wide": ""
+            },
+            "thumbnailNonAdult": {
+                "standard": "\/www_v1\/imgComic\/co_thumb14\/x2\/1727_1739863526.4017.jpg",
+                "square": "\/www_v1\/imgComic\/co_thumb12\/x2\/1727_1739863526.9952.jpg",
+                "rectangle": "\/www_v1\/imgComic\/co_thumb7\/x2\/1727_1739863525.2119.jpg",
+                "landscape": "\/www_v1\/imgComic\/co_thumb6\/x2\/1727_1739863526.5911.jpg",
+                "wide": ""
+            },
+            "icon": {
+                "discount": false,
+                "top10": false,
+                "new": false,
+                "end": true,
+                "up": false,
+                "adult": true,
+                "only": true,
+                "clear": false,
+                "novel": false
+            },
+            "comicWeekly": [
+                {
+                    "comic_weekly": 5005,
+                    "order_no": 40
+                },
+                {
+                    "comic_weekly": 1003,
+                    "order_no": 12
+                },
+                {
+                    "comic_weekly": 2004,
+                    "order_no": 356
+                },
+                {
+                    "comic_weekly": 2001,
+                    "order_no": 33
+                },
+                {
+                    "comic_weekly": 2002,
+                    "order_no": 11
+                },
+                {
+                    "comic_weekly": 2025,
+                    "order_no": 31
+                },
+                {
+                    "comic_weekly": 2006,
+                    "order_no": 94
+                },
+                {
+                    "comic_weekly": 2008,
+                    "order_no": 3
+                },
+                {
+                    "comic_weekly": 2009,
+                    "order_no": 1
+                },
+                {
+                    "comic_weekly": 2013,
+                    "order_no": 17
+                }
+            ],
+            "comicLocation": "",
+            "service_date": "2025-02-25 21:00:00",
+            "expired_status": ""
+        },
+        {
+            "idx": 1542,
+            "id": "81025",
+            "contentType": "1",
+            "comicLanguage": "3",
+            "meta": {
+                "title": "色輪眼",
+                "title_cn": "",
+                "description": "一個普通到不行的重考生-宇榮，某天意外開啟強大又神秘的超能力，不僅讓時間暫停也讓班上的混混們靜止動作。更神奇的是，宇榮還能對愛瞧不起人的小太妹為所欲為!!「竟敢動手打我?我就讓妳嘗嘗被玩弄的滋味!」",
+                "genre": [
+                    {
+                        "idx": 4,
+                        "name": "奇幻"
+                    }
+                ],
+                "author": {
+                    "authorData": [
+                        {
+                            "idx": 453,
+                            "name": "Serious"
+                        }
+                    ],
+                    "authorString": "Serious"
+                },
+                "adult": 1,
+                "rating": 9.9,
+                "viewCount": 3189193,
+                "viewCountText": "318萬",
+                "epTotalCnt": 155,
+                "epAvailablePurchaseCnt": 155,
+                "epNonFreeTotalCnt": 154
+            },
+            "adultSearchHidden": 0,
+            "lastUpdated": {
+                "episodeIdx": "59883",
+                "episodeTitle": "第2季 第82話 最終話",
+                "episodeSubTitle": "我是這個世界的主宰者",
+                "pubDate": "2025-08-16 22:00:00"
+            },
+            "keyword": [
+                {
+                    "idx": 80,
+                    "name": "暢銷作品",
+                    "orderNo": 9,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 79,
+                    "name": "完結推薦",
+                    "orderNo": 12,
+                    "adultStatus": 1
+                }
+            ],
+            "hashTag": [
+                {
+                    "idx": 3,
+                    "name": "調教",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 16,
+                    "name": "超能力",
+                    "orderNo": 9999,
+                    "adultStatus": 0
+                },
+                {
+                    "idx": 19,
+                    "name": "肉慾",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                },
+                {
+                    "idx": 63,
+                    "name": "奴隸",
+                    "orderNo": 9999,
+                    "adultStatus": 1
+                }
+            ],
+            "thumbnail": {
+                "standard": "\/www_v1\/imgComic\/co_thumb13\/x2\/1542_1755479250.4599.jpg",
+                "square": "\/www_v1\/imgComic\/co_thumb10\/x2\/1542_1754362453.1334.jpg",
+                "rectangle": "\/www_v1\/imgComic\/co_thumb1\/x2\/1542_1754362453.7537.jpg",
+                "landscape": [
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1542_1754534033.4443.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1542_1715852951.4539.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1542_1715852958.8950.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1542_1715852963.1595.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1542_1688374209.7171.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1542_1688374180.8897.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1542_1680838944.9813.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1542_1688374190.9567.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1542_1658814640.6751.jpg",
+                    "\/www_v1\/imgComic\/co_thumb3\/x2\/1542_1688374365.1924.jpg"
+                ],
+                "wide": ""
+            },
+            "thumbnailNonAdult": {
+                "standard": "\/www_v1\/imgComic\/co_thumb14\/x2\/1542_1658738665.3620.jpg",
+                "square": "\/www_v1\/imgComic\/co_thumb12\/x2\/1542_1658738665.7763.jpg",
+                "rectangle": "\/www_v1\/imgComic\/co_thumb7\/x2\/1542_1658799341.9177.jpg",
+                "landscape": "\/www_v1\/imgComic\/co_thumb6\/x2\/1542_1658738664.8888.jpg",
+                "wide": ""
+            },
+            "icon": {
+                "discount": false,
+                "top10": false,
+                "new": false,
+                "end": true,
+                "up": false,
+                "adult": true,
+                "only": true,
+                "clear": false,
+                "novel": false
+            },
+            "comicWeekly": [
+                {
+                    "comic_weekly": 5005,
+                    "order_no": 165
+                },
+                {
+                    "comic_weekly": 1007,
+                    "order_no": 10
+                },
+                {
+                    "comic_weekly": 2004,
+                    "order_no": 27
+                },
+                {
+                    "comic_weekly": 4003,
+                    "order_no": 73
+                },
+                {
+                    "comic_weekly": 4004,
+                    "order_no": 39
+                },
+                {
+                    "comic_weekly": 1008,
+                    "order_no": 73
+                },
+                {
+                    "comic_weekly": 2001,
+                    "order_no": 3
+                },
+                {
+                    "comic_weekly": 2002,
+                    "order_no": 12
+                },
+                {
+                    "comic_weekly": 2025,
+                    "order_no": 10
+                },
+                {
+                    "comic_weekly": 2007,
+                    "order_no": 4
+                }
+            ],
+            "comicLocation": "",
+            "service_date": "2022-07-31 21:00:00",
+            "expired_status": ""
+        }
+    ]
+}

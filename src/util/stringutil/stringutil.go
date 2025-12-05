@@ -3,7 +3,9 @@ package stringutil
 
 import (
 	"regexp"
+	"strconv"
 	"strings"
+	"study-spider-manhua-gin/src/util/langutil"
 )
 
 // 定义一个接口，约定所有可清理的对象都要实现这个方法
@@ -53,4 +55,45 @@ func TrimHttpPrefix(str string) string {
 	// 匹配并移除 http:// 或 https:// 前缀
 	re := regexp.MustCompile(`^https?://`)
 	return re.ReplaceAllString(str, "")
+}
+
+// 转换点击数量 字符串 比如：5.8w 5.7千 5.6亿
+/*
+可传参：
+	1. 带单位   比如：5.8w 5.7千 5.6亿
+	2. 不带单位 比如：5600
+*/
+func ParseHitsStr(hitsStr string) int {
+	// 1. 预处理：去空格，繁体转简体
+	hitsStr = strings.TrimSpace(hitsStr)
+	hitsStr, _ = langutil.TraditionalToSimplified(hitsStr)
+
+	// 2. 正则匹配：同时匹配数字和单位（支持中英文单位）
+	re := regexp.MustCompile(`(\d+(?:\.\d+)?)\s*([万千亿kw]?)`)
+	matches := re.FindStringSubmatch(hitsStr)
+
+	if len(matches) < 2 {
+		return 0 // 没有找到数字，返回0
+	}
+
+	// 3. 解析数字部分
+	num, err := strconv.ParseFloat(matches[1], 64)
+	if err != nil || num < 0 {
+		return 0
+	}
+
+	// 4. 根据单位进行乘法转换
+	multiplier := 1
+	if len(matches) >= 3 && matches[2] != "" {
+		switch matches[2] {
+		case "亿":
+			multiplier = 100000000
+		case "万", "w":
+			multiplier = 10000
+		case "千", "k":
+			multiplier = 1000
+		}
+	}
+
+	return int(num * float64(multiplier))
 }

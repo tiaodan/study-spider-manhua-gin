@@ -105,7 +105,7 @@ func BookTemSpiderCategory(context *gin.Context) {
 
 注意：
 */
-func BookTemSpiderTypeByHtml(context *gin.Context) {
+func BookTemSpiderTypeByHtmlCankao(context *gin.Context) {
 
 	// 1. 校验传参
 	// -- 打印参数
@@ -253,15 +253,15 @@ func BookTemSpiderTypeByHtml(context *gin.Context) {
 				comicBriefShort = comicBriefShortTrad // 如果转换失败，使用原名称
 			}
 
-			// 3. 数据清洗
+			// 3. 数据清洗?是否有必要？是否要建一个统一方法？是否在 sql前1此，爬取后1次
 
 			// 判断是否完结, 传参如果带标志位，就不判断了。通过字段包含 "更新至" 是否== "休刊公告"
 			switch requestBody.EndNum {
 			case 1:
-				comic.End = true // 不用设置默认值0, 因为new comic 时会有默认值0
+				comic.End = 1 // 先随便赋值，后面要改. 不用设置默认值0, 因为new comic 时会有默认值0
 			case 2: // 传参2, 程序自行判断
 				if strings.Contains(updateStr, "休刊公告") || strings.Contains(updateStr, "后记") {
-					comic.End = true // 不用设置默认值0, 因为new comic 时会有默认值0
+					comic.End = 3 // 先随便赋值，后面要改.不用设置默认值0, 因为new comic 时会有默认值0
 				}
 			}
 
@@ -355,6 +355,47 @@ func BookTemSpiderTypeByHtml(context *gin.Context) {
 	// -- 插入db
 	// 4. 返回结果
 	context.JSON(500, "OK")
+}
+
+// 爬取分类，如“热血”“恋爱”“悬疑” -》 用type
+/*
+作用简单说：
+	- 爬取网站上某一种分类。如有声书：悬疑、有声书：科幻、有声书：历史等
+
+作用详细说:
+
+核心思路:
+	1. 从请求体里，拿需要数据
+	2. 请求某个分类,第1页 html 内容
+	3. 爬取
+	4. 插入db
+	5. 循环 2-4，一直请求到尾页
+
+参考通用思路：
+	1. 校验传参
+		- 前端参数转成对象
+		- 是否需要简单清洗？
+		- 校验
+		- 分析前端参数含义
+	2. 数据清洗
+	3. 业务逻辑 需要的数据校验 +清洗
+	4. 执行核心逻辑 - 爬取 - 插入db
+		-- 拼接第一页 完整url
+		-- new 爬虫对象
+		-- 建一个爬虫对象
+		-- 设置并发数，和爬取限制
+		-- 注册 HTML 解析逻辑
+		-- 添加多个爬虫 到到队列中
+	5. 返回结果
+
+参数：
+	1. context *gin.Context 类型 // 前端传参
+
+返回：
+注意：
+*/
+func BookTemSpiderTypeByHtml(c *gin.Context) {
+
 }
 
 // 爬取分类 By Json,通过人工F12 查看的JSON返回数据，如“热血”“恋爱”“悬疑” -》
@@ -586,6 +627,222 @@ func GetTableFieldValueBySpiderMapping(jsonByteData []byte, spiderMapping map[st
 		}
 	}
 
+	return result
+}
+
+// 获取所有 model Obj,从1个html页面,  用colly, 通过mapping
+/*
+参数:
+	1. oneTypeHtmlContent 传一个obj colly结果,全称: oneBookCollyResult
+	2. mapping map[string]models.ModelMapping 爬取映射关系
+
+返回:
+作用简单说：
+*/
+func GetAllObjFromOneHtmlPageUseCollyByMapping[T any](oneTypeHtmlContent *colly.Response, mapping map[string]models.ModelHtmlMapping) {
+	// -- 建一个爬虫对象
+	c := colly.NewCollector()
+
+	// -- 设置并发数，和爬取限制
+	// 设置请求限制（每秒最多3个请求, 5秒后发）
+	c.Limit(&colly.LimitRule{
+		DomainGlob: "*",
+		// Parallelism: 3, // 和queue队列同时存在时，用queue控制并发就行。加这个有用，但没必要。默认是0，表示没限制
+		RandomDelay: time.Duration(config.Cfg.Spider.Public.SpiderType.RandomDelayTime) * time.Second, // 请求发送前触发。模仿人类，随机等待几秒，再请求。如果queue同时给了3条URL，那每条url触发请求前，都要随机延迟下
+	})
+
+	// 获取html内容,每成功匹配一次, 就执行一次逻辑。这个标签选只匹配一次的 --
+
+	// 遍历每一个book . element用forEach. colly，用Html遍历
+	c.OnHTML(".col-lg-2.col-md-3.col-sm-4.col-6", func(e *colly.HTMLElement) {
+		log.Info("-------------- 匹配col-lg-2.col-md-3.col-sm-4.col-6 = ", e.Text)
+		// 通过mapping -> 转成1个对象
+		// 创建对象comic
+		var comic T
+		comicSpiderStats := models.ComicSpiderStats{} // 子表，统计数据
+		log.Info("-------- delete comicSpiderStats = ", comicSpiderStats)
+
+		// 通过mapping 爬内容
+		result := GetOneChapObjByCollyMapping(e, mapping)
+		if result != nil {
+			// 通过 model字段 spider，把爬出来的 map[string]any，转成 model对象
+			MapByTag(result, &comic)
+			log.Infof("映射后的comic对象: %+v", comic)
+		}
+	})
+
+	// -- 添加多个页面到队列中
+	// 使用队列控制任务调度（最多并发3个Url）
+	q, _ := queue.New(config.Cfg.Spider.Public.SpiderType.QueueLimitConcMaxnum,
+		&queue.InMemoryQueueStorage{MaxSize: config.Cfg.Spider.Public.SpiderType.QueuePoolMaxnum})
+	// 添加任务到队列
+	/*
+		for i := 1; i <= requestBody.EndNum; i++ {
+			q.AddURL(fullUrl + strconv.Itoa(i))
+		}
+	*/
+
+	// 测试用 - 添加任务到队列
+	q.AddURL("http://localhost:8080/test/kxmanhua/index.html")
+
+	// 启动对垒
+	q.Run(c)
+}
+
+// 获取 1个章节对象,所有字段，通过colly 爬虫框架 mapping
+/*
+参数：
+	1. element 传一个章节obj colly结果,全称: oneChapterCollyResult
+	2. spiderMapping ModelMapping映射表
+
+返回：
+作用简单说：
+	- 获取表格字段，通过colly 爬虫框架 mapping
+
+作用详细说:
+
+核心思路:
+	1. 传一个章节obj colly结果
+	2. ModelMapping映射表, 获取对应字段
+	3. 返回一个 章节obj
+
+参考通用思路：
+	1. 校验传参
+	2. 数据清洗
+	3. 业务逻辑 需要的数据校验 +清洗
+	4. 执行核心逻辑
+	5. 返回结果
+
+注意：
+
+使用方式：
+*/
+func GetOneChapObjByCollyMapping(element *colly.HTMLElement, spiderMapping map[string]models.ModelHtmlMapping) map[string]any {
+	// 1. 校验传参
+	if element == nil {
+		log.Error("GetOneChapObjByCollyMapping: element参数不能为空")
+		return nil
+	}
+
+	// 2. 数据清洗
+	// 3. 业务逻辑 需要的数据校验 +清洗
+	// 4. 执行核心逻辑
+	// -- 根据mapping 规则，获取数据. 遍历每个mapping数据
+	result := make(map[string]any) // 存放结果
+	for key, fieldMapping := range spiderMapping {
+		// 1. 存放爬取结果
+		var v string
+
+		// 2. 区分 html标签 内容
+		switch fieldMapping.GetHtmlType {
+		case "content":
+			v = element.ChildText(fieldMapping.GetFieldPath) // colly 通过 CSS 类选择器, 进行爬取. 例如: element.ChildText(".comic__title")
+		case "attr":
+			// mapping 传的爬取规则都是用 | 隔开的，一般就是2个,拆成数组, 然后赋值
+			// 把fieldMapping.GetFieldPath 通过 | 拆分
+			fieldPathArr := strings.Split(fieldMapping.GetFieldPath, "|")
+			if len(fieldPathArr) >= 2 {
+				v = element.ChildAttr(fieldPathArr[0], fieldPathArr[1])
+			} else {
+				log.Warnf("GetOneChapObjByCollyMapping: attr类型需要用|分隔selector和attrName, field=%s, path=%s", key, fieldMapping.GetFieldPath)
+				v = ""
+			}
+		case "只能人工给":
+			continue // 跳出当前循环
+		default:
+			log.Warnf("GetOneChapObjByCollyMapping: 未知的GetHtmlType=%s, field=%s", fieldMapping.GetHtmlType, key)
+			v = ""
+		}
+		log.Debugf("-------- 爬到的字段, key = %v value= %v", key, v)
+
+		// 3. 根据结果 类型(string int ...) 赋值
+		// --- 简单处理 Transform ---
+		if fieldMapping.Transform != nil {
+			// Transform 优先执行 -> 自带的mapping 里的，爬到的value 转换方法
+			result[key] = fieldMapping.Transform(v)
+		} else {
+			switch fieldMapping.FiledType {
+			case "string":
+				result[key] = v
+			case "int":
+				result[key], _ = strconv.Atoi(v)
+				/* AI 写法，不太完善
+				if intVal, err := strconv.Atoi(v); err == nil {
+					result[key] = intVal
+				} else {
+					log.Warnf("GetOneChapObjByCollyMapping: 转换int失败, field=%s, value=%s, err=%v", key, v, err)
+					result[key] = 0
+				}
+				*/
+			case "float":
+				result[key], _ = strconv.ParseFloat(v, 64)
+				/* AI写法，不太完善
+				if floatVal, err := strconv.ParseFloat(v, 64); err == nil {
+					result[key] = floatVal
+				} else {
+					log.Warnf("GetOneChapObjByCollyMapping: 转换float失败, field=%s, value=%s, err=%v", key, v, err)
+					result[key] = 0.0
+				}
+				*/
+			case "bool":
+				result[key], _ = strconv.ParseBool(v)
+				/* AI写法，不太完善
+				if boolVal, err := strconv.ParseBool(v); err == nil {
+					result[key] = boolVal
+				} else {
+					log.Warnf("GetOneChapObjByCollyMapping: 转换bool失败, field=%s, value=%s, err=%v", key, v, err)
+					result[key] = false
+				}*/
+			case "array":
+				result[key] = []string{v}
+				/* AI 写法，不太完善
+				// 对于数组类型，这里先简单处理为字符串，后续可以扩展
+				result[key] = []string{v}
+				*/
+			case "time":
+				// -- 考虑健壮性，而且有的字段 not null ,不让时间用nil。所以设置一个 sql支持的默认值。如：1001-01-01 00:00:00
+				defaultTime := time.Date(1001, 1, 1, 0, 0, 0, 0, time.UTC)
+				if parsedTime, err := time.Parse("2006-01-02 15:04:05", v); err == nil {
+					result[key] = parsedTime
+				} else {
+					result[key] = defaultTime
+				}
+			default:
+				result[key] = v // fallback to string
+			}
+		}
+
+		// 支持嵌套字段写法，如 stats.latestChapter
+		if strings.Contains(key, ".") {
+			parts := strings.Split(key, ".")
+			current := result
+
+			for i := 0; i < len(parts)-1; i++ {
+				part := parts[i]
+				next, exists := current[part]
+				if !exists {
+					newMap := make(map[string]any)
+					current[part] = newMap
+					current = newMap
+					continue
+				}
+
+				if nestedMap, ok := next.(map[string]any); ok {
+					current = nestedMap
+					continue
+				}
+
+				newMap := make(map[string]any)
+				current[part] = newMap
+				current = newMap
+			}
+
+			current[parts[len(parts)-1]] = v
+		} else {
+			result[key] = v
+		}
+	}
+	// 5. 返回结果
 	return result
 }
 

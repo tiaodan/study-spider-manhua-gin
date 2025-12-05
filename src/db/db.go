@@ -131,31 +131,44 @@ func InsertDefaultData() {
 		CoverURLConcatRule:          "{website表-protocol}://{website表-domain}/{book表-cover_url_api_path}",
 		ChapterContentURLConcatRule: "{website表-protocol}://{website表-domain}/{book表-chapter_content_url_api_path}",
 		CoverDomain:                 "www.未知.com", ChapterContentDomain: "www.未知.com",
-		IsRefer: false, WebsiteTypeId: 1}
+		IsRefer: false, WebsiteTypeId: 1, BookCanSpiderType: "both", ChapterCanSpiderType: "both",
+		BookSpiderReqBodyEgServerFilepath:    "爬json:doc/项目/comic/toptoon-tw/book_spider_req_body_eg_byjson.json; 爬html:doc/项目/comic/toptoon-tw/book_spider_req_body_eg_byhtml.html",
+		ChapterSpiderReqBodyEgServerFilepath: "爬json:doc/项目/comic/toptoon-tw/chapter_spider_req_body_eg_byjson.json; 爬html:doc/项目/comic/toptoon-tw/chapter_spider_req_body_eg_byhtml.html",
+		StarType:                             "copy"} // 待分类
 	websiteDefaultJ88d := &models.Website{Name: "j88d", Id: 2, Domain: "www.j88d.com", NeedProxy: false, IsHttps: false,
 		CoverURLIsNeedHttps: false, ChapterContentURLIsNeedHttps: false,
 		CoverURLConcatRule:          "{website表-protocol}://{website表-domain}/{book表-cover_url_api_path}",
 		ChapterContentURLConcatRule: "{website表-protocol}://{website表-domain}/{book表-chapter_content_url_api_path}",
 		CoverDomain:                 "www.j88d.com", ChapterContentDomain: "www.j88d.com",
-		IsRefer: true, WebsiteTypeId: 8}
+		IsRefer: true, WebsiteTypeId: 8, BookCanSpiderType: "both", ChapterCanSpiderType: "both",
+		BookSpiderReqBodyEgServerFilepath:    "爬json:doc/项目/comic/toptoon-tw/book_spider_req_body_eg_byjson.json; 爬html:doc/项目/comic/toptoon-tw/book_spider_req_body_eg_byhtml.html",
+		ChapterSpiderReqBodyEgServerFilepath: "爬json:doc/项目/comic/toptoon-tw/chapter_spider_req_body_eg_byjson.json; 爬html:doc/项目/comic/toptoon-tw/chapter_spider_req_body_eg_byhtml.html",
+		StarType:                             "copy-toptoon"} // j88d
 	websiteDefaultAwsS3 := &models.Website{Name: "aws-s3", Id: 3, Domain: "ap-northeast-2.console.aws.amazon.com/s3/home?region=ap-northeast-2", NeedProxy: false,
 		IsHttps: true, CoverURLIsNeedHttps: false, ChapterContentURLIsNeedHttps: false,
 		CoverURLConcatRule:          "{website表-protocol}://{website表-domain}/{book表-cover_url_api_path}",
 		ChapterContentURLConcatRule: "{website表-protocol}://{website表-domain}/{book表-chapter_content_url_api_path}",
 		CoverDomain:                 "www.awsS3.com", ChapterContentDomain: "www.awsS3.com",
-		IsRefer: true, WebsiteTypeId: 7}
+		IsRefer: true, WebsiteTypeId: 7, BookCanSpiderType: "json", ChapterCanSpiderType: "json",
+		BookSpiderReqBodyEgServerFilepath:    "爬json:doc/项目/comic/toptoon-tw/book_spider_req_body_eg_byjson.json; 爬html:doc/项目/comic/toptoon-tw/book_spider_req_body_eg_byhtml.html",
+		ChapterSpiderReqBodyEgServerFilepath: "爬json:doc/项目/comic/toptoon-tw/chapter_spider_req_body_eg_byjson.json; 爬html:doc/项目/comic/toptoon-tw/chapter_spider_req_body_eg_byhtml.html",
+		StarType:                             "my"} // aws-s3
 	websiteDefaultYuliu := &models.Website{Name: "预留", Id: 4, Domain: "www.yuliu.com", NeedProxy: false, IsHttps: false,
 		CoverURLIsNeedHttps: false, ChapterContentURLIsNeedHttps: false,
 		CoverURLConcatRule:          "{website表-protocol}://{website表-domain}/{book表-cover_url_api_path}",
 		ChapterContentURLConcatRule: "{website表-protocol}://{website表-domain}/{book表-chapter_content_url_api_path}",
 		CoverDomain:                 "www.预留.com", ChapterContentDomain: "www.预留.com",
-		IsRefer: false, WebsiteTypeId: 1} // 预留
+		IsRefer: false, WebsiteTypeId: 1, BookCanSpiderType: "html", ChapterCanSpiderType: "html",
+		BookSpiderReqBodyEgServerFilepath:    "爬json:doc/项目/comic/toptoon-tw/book_spider_req_body_eg_byjson.json; 爬html:doc/项目/comic/toptoon-tw/book_spider_req_body_eg_byhtml.html",
+		ChapterSpiderReqBodyEgServerFilepath: "爬json:doc/项目/comic/toptoon-tw/chapter_spider_req_body_eg_byjson.json; 爬html:doc/项目/comic/toptoon-tw/chapter_spider_req_body_eg_byhtml.html",
+		StarType:                             "my"} // 预留
 	defaultDataWebsiteArr := []*models.Website{websiteDefaultNoClass, websiteDefaultJ88d, websiteDefaultAwsS3, websiteDefaultYuliu} // 要插入数据
 	websiteUniqueIndexArr := []string{"Name", "Domain"}                                                                             // 唯一索引
 	websiteUpdateDBColumnRealNameArr := []string{"need_proxy", "Is_https", "is_refer",
 		"cover_url_is_need_https", "chapter_content_url_is_need_https",
 		"cover_url_concat_rule", "chapter_content_url_concat_rule",
-		"cover_domain", "chapter_content_domain"} // 要更新的字段
+		"cover_domain", "chapter_content_domain", "book_can_spider_type", "chapter_can_spider_type",
+		"book_spider_req_body_eg_server_filepath", "chapter_spider_req_body_eg_server_filepath", "star_type"} // 要更新的字段
 
 	// 准备默认数据- pornType 色情类型 --
 	pornTypeDefaultNoCategory := &models.PornType{Name: "待分类", Id: 1}

@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+	<title>TOPTOON 漫畫 條漫-國際官方中文版-韓國最新漫畫-線上免費看</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="initial-scale=1, width=device-width, user-scalable=no">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+
+	<meta name="msapplication-TileColor" content="#FFF">
+	<meta name="msapplication-TileImage" content="//tw-assets.toptoon.net/www_v1/img/app_icon/ms-icon-144x144.png">
+	<meta name="theme-color" content="#FFF">
+
+	<!-- SEO -->
+	<meta name="keywords"
+		content="頂通, 頂通中文版, 免費漫畫, 付費漫畫, 韓國漫畫, 中文漫畫, 漫畫推薦, 戀愛, 劇情, 奇幻, 喜劇, 條漫, 漫畫, COMIC, WEBCOMICS, TOPTOON中文版, MANGA, WEBTOON" />
+	<meta name="application-name"
+		content="頂通, 頂通中文版, 免費漫畫, 付費漫畫, 韓國漫畫, 中文漫畫, 漫畫推薦, 戀愛, 劇情, 奇幻, 喜劇, 條漫, 漫畫, COMIC, WEBCOMICS, TOPTOON中文版, MANGA, WEBTOON" />
+	<meta name="misapplication-tooltip"
+		content="頂通, 頂通中文版, 免費漫畫, 付費漫畫, 韓國漫畫, 中文漫畫, 漫畫推薦, 戀愛, 劇情, 奇幻, 喜劇, 條漫, 漫畫, COMIC, WEBCOMICS, TOPTOON中文版, MANGA, WEBTOON">
+	<meta name="meta_og_title"
+		content="頂通, 頂通中文版, 免費漫畫, 付費漫畫, 韓國漫畫, 中文漫畫, 漫畫推薦, 戀愛, 劇情, 奇幻, 喜劇, 條漫, 漫畫, COMIC, WEBCOMICS, TOPTOON中文版, MANGA, WEBTOON">
+	<meta name="description"
+		content="頂通, 頂通中文版, 免費漫畫, 付費漫畫, 韓國漫畫, 中文漫畫, 漫畫推薦, 戀愛, 劇情, 奇幻, 喜劇, 條漫, 漫畫, COMIC, WEBCOMICS, TOPTOON中文版, MANGA, WEBTOON" />
+	<meta property="og:description"
+		content="頂通, 頂通中文版, 免費漫畫, 付費漫畫, 韓國漫畫, 中文漫畫, 漫畫推薦, 戀愛, 劇情, 奇幻, 喜劇, 條漫, 漫畫, COMIC, WEBCOMICS, TOPTOON中文版, MANGA, WEBTOON" />
+
+	<!-- for Facebook -->
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="toptoon.net" />
+	<meta property="og:site_name" content="TOPTOON 漫畫 條漫-國際官方中文版-韓國最新漫畫-線上免費看" />
+	<meta property="og:title" content="TOPTOON 漫畫 條漫-國際官方中文版-韓國最新漫畫-線上免費看" />
+	<meta property="og:image" content="//tw-assets.toptoon.net/www_v1/img/splash.jpg" />
+
+	<meta name="facebook-domain-verification" content="97ewo0rrhqf42wtd79ckj2l0e903l9" />
+
+	<!-- for Google -->
+	<meta name="author" content="" />
+	<meta name="copyright" content="TOPTOON 漫畫 條漫-國際官方中文版-韓國最新漫畫-線上免費看" />
+
+	<!-- for Twitter -->
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:url" content="toptoon.net" />
+	<meta name="twitter:title" content="TOPTOON 漫畫 條漫-國際官方中文版-韓國最新漫畫-線上免費看" />
+	<meta property="twitter:image" content="//tw-assets.toptoon.net/www_v1/img/splash.jpg" />
+	<meta name="twitter:description" content="TOPTOON 全球網站，極致的漫畫體驗，強檔作品每日更新! 現在登入就送免費觀看券!" />
+
+	<!-- App Favicon -->
+	<link rel="apple-touch-icon" sizes="57x57" href="//tw-assets.toptoon.net/www_v1/img/app_icon/apple-icon-57x57.png">
+	<link rel="apple-touch-icon" sizes="60x60" href="//tw-assets.toptoon.net/www_v1/img/app_icon/apple-icon-60x60.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="//tw-assets.toptoon.net/www_v1/img/app_icon/apple-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="76x76" href="//tw-assets.toptoon.net/www_v1/img/app_icon/apple-icon-76x76.png">
+	<link rel="apple-touch-icon" sizes="114x114"
+		href="//tw-assets.toptoon.net/www_v1/img/app_icon/apple-icon-114x114.png">
+	<link rel="apple-touch-icon" sizes="120x120"
+		href="//tw-assets.toptoon.net/www_v1/img/app_icon/apple-icon-120x120.png">
+	<link rel="apple-touch-icon" sizes="144x144"
+		href="//tw-assets.toptoon.net/www_v1/img/app_icon/apple-icon-144x144.png">
+	<link rel="apple-touch-icon" sizes="152x152"
+		href="//tw-assets.toptoon.net/www_v1/img/app_icon/apple-icon-152x152.png">
+	<link rel="apple-touch-icon" sizes="180x180"
+		href="//tw-assets.toptoon.net/www_v1/img/app_icon/apple-icon-180x180.png">
+	<link rel="icon" sizes="192x192" href="//tw-assets.toptoon.net/www_v1/img/app_icon/android-icon-192x192.png">
+	<link rel="icon" sizes="32x32" href="//tw-assets.toptoon.net/www_v1/img/app_icon/favicon-32x32.png">
+	<link rel="icon" sizes="96x96" href="//tw-assets.toptoon.net/www_v1/img/app_icon/favicon-96x96.png">
+	<link rel="icon" sizes="16x16" href="//tw-assets.toptoon.net/www_v1/img/app_icon/favicon-16x16.png">
+	<link rel="manifest" href="//tw-origin.toptoon.net/assets/v2/app_icon/manifest.json">
+
+	<script src="//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js"></script>
+	<script>
+		WebFont.load({
+        google: {
+          families: ['Noto Sans TC:400,500', 'sans-serif', 'Roboto:100,300,400,500,700']
+        }
+      });
+	</script>
+
+	<link rel="stylesheet" href="//tw-origin.toptoon.net/assets/v2/css/style.css?v=1761717704" />
+	<link rel="stylesheet" href="//tw-origin.toptoon.net/assets/v2/css/swiper.min.css" />
+
+	<script src="//tw-origin.toptoon.net/assets/v2/js/jquery.min.js"></script>
+	<script src="//tw-origin.toptoon.net/assets/v2/js/jquery.ui.min.js"></script>
+	<script src="//tw-origin.toptoon.net/assets/v2/js/lodash.min.js"></script>
+
+	<script src="//tw-origin.toptoon.net/assets/v2/js/swiper.min.js"></script>
+	<script src="//tw-origin.toptoon.net/assets/v2/js/handlebars.min.js"></script>
+	<script src="//tw-origin.toptoon.net/assets/v2/js/jquery.cookie.min.js"></script>
+	<script src="//tw-origin.toptoon.net/assets/v2/js/lazyload.min.js"></script>
+	<script src="//tw-origin.toptoon.net/assets/v2/js/script.min.js?v=1719888487"></script>
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-63738880-1"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+    gtag('config', 'UA-63738880-1');
+	</script>
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-CZ8J0XSEDJ"></script>
+	<script>
+		gtag('config', 'G-CZ8J0XSEDJ');
+	</script>
+	<script async src="https://www.googletagmanager.com/gtag/js?id=DC-13278419"></script>
+	<script>
+		gtag('js', new Date());
+    gtag('config', 'DC-13278419');
+    gtag('event', 'conversion', {
+      'allow_custom_scripts': true,
+      'send_to': 'DC-13278419/invmedia/pagev0+standard'
+    });
+	</script>
+	<noscript>
+		<img src="https://ad.doubleclick.net/ddm/activity/src=13278419;type=invmedia;cat=pagev0;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=;tfua=;npa=;gdpr=${GDPR};gdpr_consent=${GDPR_CONSENT_755};ord=1?" width="1" height="1" alt="" />
+  </noscript>
+		<!-- [if lt IE 9]
+    <script src="//tw-origin.toptoon.net/assets/v2/js/respond.min.js"></script>
+    <![endif]-->
+
+		<!-- LINE Tag Base Code -->
+		<!-- Do Not Modify -->
+		<script>
+			(function(g,d,o){
+g._ltq=g._ltq||[];g._lt=g._lt||function(){g._ltq.push(arguments)};
+var h=location.protocol==='https:'?'https://d.line-scdn.net':'http://d.line-cdn.net';
+var s=d.createElement('script');s.async=1;
+s.src=o||h+'/n/line_tag/public/release/v1/lt.js';
+var t=d.getElementsByTagName('script')[0];t.parentNode.insertBefore(s,t);
+    })(window, document);
+_lt('init', {
+customerType: 'lap',
+tagId: 'ecda80b2-7cdf-490c-8c7c-163ebf4af502'
+});
+_lt('send', 'pv', ['ecda80b2-7cdf-490c-8c7c-163ebf4af502']);
+		</script>
+		<noscript>
+			<img height="1" width="1" style="display:none"
+    src="https://tr.line.me/tag.gif?c_t=lap&t_id=ecda80b2-7cdf-490c-8c7c-163ebf4af502&e=pv&noscript=1" />
+</noscript>
+			<!-- End LINE Tag Base Code -->
+
+			<!-- Google ADS Code -->
+			<script>
+				gtag('config', 'AW-728950631', {'conversion_linker': false}); // Google Ads: 728950631 : TW
+gtag('config', 'AW-724134348', {'conversion_linker': false}); // Google Ads: 724134348 : MY
+gtag('config', 'AW-963421336', {'conversion_linker': false}); // Google Ads: 963421336 : TW1
+gtag('config', 'AW-946601735', {'conversion_linker': false}); // Google Ads: 946601735 : TW2
+gtag('config', 'AW-797274624', {'conversion_linker': false}); // Google Ads: 797274624 : TW3
+gtag('config', 'AW-797272956', {'conversion_linker': false}); // Google Ads: 797272956 : TW4
+gtag('config', 'AW-748448943', {'conversion_linker': false}); // Google Ads: 748448943 : TW5
+gtag('config', 'AW-395641727', {'conversion_linker': false}); // Google Ads: 395641727 : TW7
+gtag('config', 'AW-10901290615');
+			</script>
+			<!-- Google ADS Code -->
+
+			<!-- 컴퍼스 Script -->
+			<script>
+				(function () {
+ var _lgy     = document.createElement('script');
+ var _lgy_adv = 9186;
+ window._lgy_advs = window._lgy_advs || {};
+ window._lgy_advs[_lgy_adv] = false;
+ window._lgy_options = window._lgy_options || {};
+ window._lgy_options[_lgy_adv] = {};
+ _lgy.async = true;
+ _lgy.src = 'https://send.mad-infeed.jp/seg.js';
+ var _lgy0 = document.getElementsByTagName('script')[0];
+ _lgy0.parentNode.insertBefore(_lgy, _lgy0);
+ })();
+			</script>
+
+			<!-- Criteo Loader File -->
+			<script type="text/javascript" src="//dynamic.criteo.com/js/ld/ld.js?a=[85539,107008]" async="true">
+			</script>
+			<!-- END Criteo Loader File -->
+
+
+
+			<!-- Meta Pixel Code -->
+			<script>
+				!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '963777730706169');
+
+			</script>
+			<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=963777730706169&ev=PageView&noscript=1"
+/></noscript>
+				<!-- End Meta Pixel Code -->
+
+				<!-- Google tag (gtag.js) -->
+				<script async src="https://www.googletagmanager.com/gtag/js?id=AW-11061680533"></script>
+				<script>
+					window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'AW-11061680533');
+				</script>
+
+				<script>
+					(function(w,d,t,r,u){var f,n,i;w[u]=w[u]||[],f=function(){var o={ti:"343033715"};o.q=w[u],w[u]=new UET(o),w[u].push("pageLoad")},n=d.createElement(t),n.src=r,n.async=1,n.onload=n.onreadystatechange=function(){var s=this.readyState;s&&s!=="loaded"&&s!=="complete"||(f(),n.onload=n.onreadystatechange=null)},i=d.getElementsByTagName(t)[0],i.parentNode.insertBefore(n,i)})(window,document,"script","//bat.bing.com/bat.js","uetq");
+				</script>
+
+				<script>
+					!function(){
+var d=function d(a) {
+ for(var e=arguments.length,n=new Array(e>1?e-1:0),i=1;i<e;i++)
+ n[i-1]=arguments[i];
+ d.queue.push([a].concat(n))
+};
+d.queue=[],window.dadk=window.dadk||d;
+var a=document.createElement("script");
+a.src="undefined"!=typeof URLSearchParams?"https://unpkg.com/@dcard/web-ad-tracking-sdk/build/dadk.iife.js":"https://unpkg.com/@dcard/web-ad-tracking-sdk/build/outdated-dadk.iife.js",
+document.head.appendChild(a),
+window.dadk("init", "KvH0p-wXqoUWzcIsOt2Pa"), window.dadk("track", "PageView")}();
+				</script>
+
+				<script>
+					!function (w, d, t) {
+  w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js";ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=i,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};var o=document.createElement("script");o.type="text/javascript",o.async=!0,o.src=i+"?sdkid="+e+"&lib="+t;var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)};
+
+  ttq.load('CKEFHNJC77U7REM9GU10');
+  ttq.page();
+}(window, document, 'ttq');
+				</script>
+
+				<!--EQS-->
+				<script
+					src="https://my.rtmark.net/p.js?f=sync&lr=1&partner=15cf8aaba10a9ce5a0a4d717f40388a16ab25857dd315377232ccba227c958ea"
+					defer></script>
+				<noscript><img src="https://my.rtmark.net/img.gif?f=sync&lr=1&partner=15cf8aaba10a9ce5a0a4d717f40388a16ab25857dd315377232ccba227c958ea" width="1" height="1" /></noscript>
+					<script>
+						fbq('track', 'PageView', {}, {
+      eventID: 'toptoonTW.PageView.ebfd8f63f84dcb3cc32637d3cf24008a_1764753695.1764753697'
+    });
+    ttq.identify({
+      "email": "",
+      "external_id": "",
+    });
+					</script>
+					<!-- 파트너 스크립트 -->
+</head>
+
+<body data-lang="tw">
+	<!-- Twitter conversion tracking base code -->
+	<script>
+		!function(e,t,n,s,u,a){e.twq||(s=e.twq=function(){s.exe?s.exe.apply(s,arguments):s.queue.push(arguments);
+},s.version='1.1',s.queue=[],u=t.createElement(n),u.async=!0,u.src='https://static.ads-twitter.com/uwt.js',
+a=t.getElementsByTagName(n)[0],a.parentNode.insertBefore(u,a))}(window,document,'script');
+twq('config','odj6c');
+	</script>
+	<!-- End Twitter conversion tracking base code -->
+	<div class="bannerTop" style="">
+		<div class="banner" data-area="banner_2" style="display:none;"></div><!-- 배너영역 - 최상단 -->
+		<div class="banner" data-area="freeTime"></div><!-- 배너영역 - FreeTime -->
+		<div class="banner" data-area="crazyTime"></div><!-- 배너영역 - 카운트다운(미친결제) -->
+		<div class="banner" data-area="hotTimeSet"></div>
+		<!--배너영역 - HotTimeSet-->
+		<div class="banner" data-area="hotTime"></div><!-- 배너영역 - HotTime -->
+		<div class="banner" data-area="hotTimeFirst"></div><!-- 배너영역 - hotTimeFirst -->
+	</div>
+
+	<!-- Header Area -->
+	<h1 class="arTit">TOPTOON 漫畫 條漫-國際官方中文版-韓國最新漫畫-線上免費看</h1>
+	<header class="header bot fix_header pc">
+		<div class="menu">
+			<a href="/" class="logo ">
+				<h1 class="arTit">header</h1>
+			</a>
+			<div class="btn_select_mode">
+				<a class=" switch_18mode actionAdultBtn" data-alert_page="confirmAdult" data-alert_title="登入"
+					data-alert_redirect='%2F'></a>
+			</div>
+			<div class="menu_right_menu">
+				<h2 class="arTit">Navigation - Sub Menu</h2>
+				<ul class="txt_menu">
+					<li><a href="/payment" class="" title="儲值"><i class="charge"></i>
+							<div>儲值</div>
+						</a></li>
+					<li><a href="/my/comic/library" class="" title="書櫃"><i class="library"></i>
+							<div>書櫃</div>
+						</a></li>
+					<li>
+						<a href="/my/giftbox" class="" title="免費"><i class="gift"></i>
+							<div>免費</div><span class="gift_cnt_span" >1</span>
+						</a>
+						<!-- 풍선알림 -->
+						<!-- <div class="giftbox_bubble" data-link="/my/giftbox">
+            <a href="javascript:void(0);" class="actionBtnClose"></a>
+          </div> -->
+					</li>
+					<li><a href="/search" class=""><i class="search"></i>
+							<div>搜尋</div>
+						</a></li>
+				</ul>
+				<!-- 사이드 메뉴버튼 -->
+				<button class="side_menu_btn actionRightMenuBtn"><i class="dataImgMenuWhite list" data-adult="off"></i>
+        <div>全年齡</div>
+      </button>
+			</div>
+		</div>
+	</header>
+
+	<header class="header mainMenu fix_header mo">
+		<nav class="menu_list">
+			<h2 class="arTit">Navigation - Main Menu</h2>
+			<ul>
+				<li><a href='/weekly' class='' title='連載'>連載</a></li>
+				<li><a href='/complete' class='' title='完結'>完結</a></li>
+				<li><a href='/ranking' class='' title='排名'>排名</a></li>
+				<li><a href='/freesale' class='' title='特價/等免錢'>特價/等免錢</a></li>
+			</ul>
+		</nav>
+	</header>
+
+	<!-- 사이드 메뉴 레이어 -->
+	<header class="header sideMenu">
+		<div class="side_menu_bg actionRightMenuBtn"></div>
+		<div class="side_menu toggleActive ">
+			<h2 class="arTit">Navigation - Side Menu</h2>
+			<!-- 사용자 정보 -->
+			<div>
+				<!-- 메뉴닫기 -->
+				<a href="" class="dataImgArrowWhite menu_close actionRightMenuBtn"></a>
+				<div class="user_email">
+					<a href="javascript:void(0);" class="btn_login actionOpenAlertBtn" data-alert_page="formLogin/login"
+						data-alert_title="登入"><i class="power"></i>登入</a>
+					<a href="javascript:void(0);" class="btn_login actionOpenAlertBtn" data-alert_page="formLogin/join"
+						data-alert_title="會員註冊" data-alert_redirect="/my/giftbox"><i class="human"></i>會員註冊</a>
+				</div>
+				<!-- 보유자산 -->
+				<!-- 멤버십 -->
+				<!-- 쿠폰입력 -->
+				<a class="coupon" href="/theme/coupon">
+					<input type="input" value="請輸入優惠券兌換碼" readonly>
+					<button class="btn red">兌換點券</button>
+				</a>
+			</div>
+			<!-- 서비스 메뉴 -->
+			<div class="menu_list">
+				<!-- 좌측 대메뉴::고정 -->
+				<div class="category">
+					<ul>
+						<li class="menu_my active"><a href="javascript:void(0);" data-type="my"><span>MY</span></a></li>
+						<li class="menu_library"><a href="javascript:void(0);" data-type="library"><span>書櫃</span></a>
+						</li>
+						<li class="menu_charge"><a
+								href="/payment"><span style="color:#fd4243">儲值</span><span class="sale">特價</span></a>
+						</li>
+						<li class="menu_event"><a href="javascript:void(0);" data-type="event"><span>優惠活動</span></a>
+						</li>
+						<li class="menu_cs"><a href="javascript:void(0);" data-type="cs"><span>客服中心</span></a></li>
+					</ul>
+				</div>
+				<!-- 우측 소메뉴::스크롤 -->
+				<div class="sub_list">
+					<ul class="sub_list_ul">
+						<li class="title" data-type="my">
+							<p><b>全年齡</b>
+								<button class=' switch_18mode actionAdultBtn' data-alert_page='confirmAdult' data-alert_redirect='%2F' data-alert_title="登入"></button>
+							</p>
+							<p><a href="/my">我的首頁<i class="dataImgArrowRed arrow"></i></a></p>
+						</li>
+						<li class="title" data-type="library">
+							<p><a href="/my/comic/library">書櫃<i class="dataImgArrowRed arrow"></i></a></p>
+							<p><a href="/my/comic/subscription">訂閱<i class="dataImgArrowRed arrow"></i></a></p>
+							<p><a
+									href="/my/comic/favorites">我的最愛<span class="favorites_cnt_span"></span><i class="dataImgArrowRed arrow"></i></a>
+							</p>
+							<p><a href="/my/comic/recent">最近觀看紀錄<i class="dataImgArrowRed arrow"></i></a></p>
+							<p><a
+									href="/my/giftbox"><i class="gift"></i>免費<span class="gift_cnt_span">1</span><i class="dataImgArrowRed arrow"></i></a>
+							</p>
+						</li>
+						<li class="title" data-type="event">
+							<p><a href="/event">優惠活動<i class="dataImgArrowRed arrow"></i></a></p>
+							<p><a href="/freesale">特價/等免錢<i class="dataImgArrowRed arrow"></i></a></p>
+							<p><a href="/event/attendance">簽到活動<i class="dataImgArrowRed arrow"></i></a></p>
+						</li>
+						<li class="title" data-type="cs">
+							<p><a href="/support/faq">常見問題<i class="dataImgArrowRed arrow"></i></a></p>
+							<p><a href="/support/qna">1:1客服<i class="dataImgArrowRed arrow"></i></a></p>
+							<p>客服專線 02-2775-5102<i class="dataImgArrowRed arrow"></i></a></p>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</header>
+	<link rel="stylesheet" type="text/css" href="//tw-origin.toptoon.net/assets/v2/css/styleMain.css?v=1742364192" />
+	<main class="body_wrap">
+		<h1 class="arTit">body</h1>
+
+		<section class="mainTopBanner">
+			<aside class="banner swiper-container" data-area="banner_1"></aside><!-- 배너영역 - 연재 상단 (모바일용) -->
+		</section>
+
+		<!-- pc -->
+		<article class="main_area_01 pc">
+			<h2 class="arTit">熱門排行 PC</h2>
+			<div class="title_wrap show1200">
+				<div class="title">即時熱門排行</div>
+				<div class="subTitle">本日最熱門的作品</div>
+			</div>
+
+			<div class="data_wp">
+				<section class="block">
+					<h3 class="arTit">新上架</h3>
+					<div class="tit">
+						<div class="title">
+							<div class='blockSub pc'>
+								<img src="//tw-assets.toptoon.net/www_v1/img/layout/mainTit_realtime_mainTodayUpdate2.png">
+              </div>
+								<div class='blockSub mo'>
+									<div class="cursor">▷</div>
+									新上架 BEST 6
+								</div>
+							</div>
+							<div class="subTitle">手刀閱覽最新更新作品</div>
+						</div>
+						<div class="comic_area" data-area="mainTodayUpdate"></div>
+				</section>
+				<section class="block">
+					<h3 class="arTit">即時</h3>
+					<div class="tit">
+						<div class="title">
+							<div class='blockSub pc'>
+								<img src="//tw-assets.toptoon.net/www_v1/img/layout/mainTit_realtime_mainPopularity2.png">
+            </div>
+								<div class='blockSub mo'>
+									<div class="cursor">▷</div>
+									暢銷熱賣 BEST 6
+								</div>
+							</div>
+							<div class="subTitle">馬上前往即時熱門排行</div>
+						</div>
+						<div class="comic_area" data-area="mainPopularity"></div>
+				</section>
+				<section class="block">
+					<h3 class="arTit">新作</h3>
+					<div class="tit">
+						<div class="title">
+							<div class='blockSub pc'>
+								<img src="//tw-assets.toptoon.net/www_v1/img/layout/mainTit_realtime_mainNew2.png">
+            </div>
+								<div class='blockSub mo'>
+									<div class="cursor">▷</div>
+									人氣新作 BEST 6
+								</div>
+							</div>
+							<div class="subTitle">想找最新話題作?這裡點擊閱覽</div>
+						</div>
+						<div class="comic_area" data-area="mainNew"></div>
+				</section>
+				<section class="block">
+					<h3 class="arTit">特價</h3>
+					<div class="tit">
+						<div class="title">
+							<div class='blockSub pc'>
+								<img src="//tw-assets.toptoon.net/www_v1/img/layout/mainTit_realtime_mainSale2.png">
+            </div>
+								<div class='blockSub mo'>
+									<div class="cursor">▷</div>
+									特價優惠 BEST 6
+								</div>
+							</div>
+							<div class="subTitle">點券不足免煩惱~折扣價一次收藏</div>
+						</div>
+						<div class="comic_area" data-area="mainSale"></div>
+				</section>
+				<section class="block" style="display: none;">
+					<h3 class="arTit">我看過的</h3>
+					<div class="tit">
+						<div class="title">
+							<div class='blockSub pc'>
+								<img src="//tw-assets.toptoon.net/www_v1/img/layout/mainTit_realtime_comicRecent2.png">
+            </div>
+								<div class='blockSub mo'>
+									<div class="cursor">▷</div>
+									我看過的 清單
+								</div>
+							</div>
+							<div class="subTitle">看到心坎裡♡最近瀏覽清單</div>
+						</div>
+						<div class="comic_area" data-area="comicRecent"></div>
+				</section>
+			</div>
+		</article>
+
+		<!-- Mobile -->
+		<article class="main_area_01 mo">
+			<h2 class="arTit">熱門排行 Mobile</h2>
+			<div class="title_wrap">
+				<div class="title">熱門排行</div>
+				<ul class="tab">
+					<li data-area="mainTodayUpdate">新上架</li>
+					<li data-area="mainPopularity">即時</li>
+					<li data-area="mainNew">新作</li>
+					<li data-area="mainSale">特價</li>
+					<li data-area="comicRecent" style="display: none;">我看過的</li>
+				</ul>
+			</div>
+
+			<div class="swiper-container">
+				<div class="data_wp swiper-wrapper">
+					<div class="block swiper-slide">
+						<div class="comic_area" data-area="mainTodayUpdate"></div>
+					</div>
+					<div class="block swiper-slide">
+						<div class="comic_area" data-area="mainPopularity"></div>
+					</div>
+					<div class="block swiper-slide">
+						<div class="comic_area" data-area="mainNew"></div>
+					</div>
+					<div class="block swiper-slide">
+						<div class="comic_area" data-area="mainSale"></div>
+					</div>
+					<div class="block swiper-slide">
+						<div class="comic_area" data-area="comicRecent"></div>
+					</div>
+				</div>
+				<div class="sideCurtain"></div>
+			</div>
+		</article>
+
+		<aside class="banner" data-area="banner_26"></aside><!-- 배너영역 - 메인 중간 -->
+
+		<!-- 맞춤 키워드 / 추천 장르 -->
+		<section class="main_area_02" data-area="keywordGenre">
+			<h2 class="arTit">專屬關鍵字</h2>
+			<div class="title_wrap show1199">
+				<div class="tit_icon"><i class="search"></i></div>
+				<div class="title">專屬關鍵字 & 分類精選</div>
+				<div class="link_all"><a href="/search">觀看更多 <i class="dataImgArrowBlack more"></i></a></div>
+			</div>
+			<div class="title_wrap show1200">
+				<div class="title">專屬關鍵字</div>
+				<div class="subTitle">專屬關鍵字~為你量身打造</div>
+				<div class="link_all"><a href="/search">觀看更多 <i class="dataImgArrowBlack more"></i></a></div>
+			</div>
+			<div class="keyword_wp show1200" data-type="keyword" data-target_area="mainKeyword"></div>
+			<div class="keyword_wp show1199" data-type="keyword" data-target_area="mainKeyword"></div>
+			<div class="data_wp comic_area" data-area="mainKeyword"></div>
+
+			<h2 class="arTit">分類精選</h2>
+			<div class="title_wrap show1200">
+				<div class="title">分類精選</div>
+				<div class="subTitle">請選擇您喜歡的類別</div>
+				<div class="link_all"><a href="/search/genre">觀看更多 <i class="dataImgArrowBlack more"></i></a></div>
+			</div>
+			<div class="keyword_wp show1200" data-type="genre" data-target_area="mainGenre"></div>
+			<div class="keyword_wp show1199" data-type="genre" data-target_area="mainGenre"></div>
+			<div class="data_wp comic_area" data-area="mainGenre"></div>
+		</section>
+
+		<!-- 추천 무료 -->
+		<section class="main_area_02" data-area="freeToday" style="display: none;">
+			<h2 class="arTit">推薦免費</h2>
+			<div class="title_wrap">
+				<div class="tit_icon"><i class="star"></i></div>
+				<div class="title">推薦免費</div>
+				<div class="subTitle">人氣冠軍作品，期間限定免費試閱!</div>
+			</div>
+			<div class="banner" data-area="freeToday" data-show_obj=".main_area_02[data-area='freeToday']"></div>
+		</section>
+
+		<!-- 기다빵 -->
+		<section class="main_area_02 swiper-container" data-area="mainWaitFree" style="display: none;">
+			<h2 class="arTit">等免錢</h2>
+			<div class="title_wrap">
+				<div class="tit_icon"><i class="waitFree"></i></div>
+				<div class="title">等免錢</div>
+				<div class="subTitle">天天等免錢~賺好康!!</div>
+			</div>
+			<div class="arrow_wp">
+				<button class="dataImgArrowBlack arrow" data-type="left"></button>
+				<button class="dataImgArrowBlack arrow" data-type="right"></button>
+			</div>
+			<div class="data_wp comic_area" data-area="mainWaitFree"></div>
+		</section>
+
+		<!-- 1코인관 -->
+		<section class="main_area_02 swiper-container" data-area="mainOnecoin" style="display: none;">
+			<h2 class="arTit">1點券特價作品</h2>
+			<div class="title_wrap">
+				<div class="tit_icon"><i class="oneCoin"></i></div>
+				<div class="title">1點券特價作品</div>
+				<div class="subTitle">精選名作每週更新☆這樣看漫畫最划算!</div>
+			</div>
+			<div class="arrow_wp">
+				<button class="dataImgArrowBlack arrow" data-type="left"></button>
+				<button class="dataImgArrowBlack arrow" data-type="right"></button>
+			</div>
+			<div class="data_wp comic_area" data-area="mainOnecoin"></div>
+		</section>
+
+		<!-- 1+1 EVENT -->
+		<section class="main_area_02 swiper-container" data-area="mainOnePlusOne" style="display: none;">
+			<h2 class="arTit">買一送一優惠活動</h2>
+			<div class="title_wrap">
+				<div class="tit_icon"><i class="onePlusOne"></i></div>
+				<div class="title">買一送一優惠活動</div>
+				<div class="subTitle">買一話免費再送下一話</div>
+			</div>
+			<div class="arrow_wp">
+				<button class="dataImgArrowBlack arrow" data-type="left"></button>
+				<button class="dataImgArrowBlack arrow" data-type="right"></button>
+			</div>
+			<div class="data_wp comic_area" data-area="mainOnePlusOne"></div>
+		</section>
+
+		<!-- 무료 -->
+		<section class="main_area_02 swiper-container" data-area="mainFree" style="display: none;">
+			<h2 class="arTit">免費</h2>
+			<div class="title_wrap">
+				<div class="tit_icon"><i class="free"></i></div>
+				<div class="title">免費</div>
+				<div class="subTitle">免費體驗最夯人氣作品!</div>
+			</div>
+			<div class="arrow_wp">
+				<button class="dataImgArrowBlack arrow" data-type="left"></button>
+				<button class="dataImgArrowBlack arrow" data-type="right"></button>
+			</div>
+			<div class="data_wp comic_area" data-area="mainFree"></div>
+		</section>
+
+		<!-- 이벤트 -->
+		<section class="main_area_02 swiper-container" data-area="event" style="display: none;">
+			<h2 class="arTit">優惠活動</h2>
+			<div class="title_wrap">
+				<div class="tit_icon"><i class="event"></i></div>
+				<div class="title">優惠活動</div>
+				<div class="subTitle">最新優惠都在這裡~走過路過別錯過♥</div>
+			</div>
+			<div class="arrow_wp">
+				<button class="dataImgArrowBlack arrow" data-type="left"></button>
+				<button class="dataImgArrowBlack arrow" data-type="right"></button>
+			</div>
+			<div class="data_wp banner" data-show_obj=".main_area_02[data-area='event']"></div>
+			<!-- 배너영역 - event(이벤트) -->
+		</section>
+	</main>
+
+	<script>
+		$(function() {
+    // 코믹 리스트 데이터 출력 /* jsonFileUrl 따옴표로 묶으면 오류나니 묶지 마세요~ */
+    var comicConfig = {
+      jsonFileUrl: ["\/\/d1dkh1tjti8mih.cloudfront.net\/www_v1\/jsonComic\/tw\/main\/fffcb5687d05036a0ef0b41a8ba4c8ae4e4ecc86334cf3ad98d4ecdab46f7a90.json"],
+      objArr: [{"arrKey":"mainPopularity","obj":".comic_area[data-area='mainPopularity']","template":".jsTemplateComic"},{"arrKey":"mainNew","obj":".comic_area[data-area='mainNew']","template":".jsTemplateComic"},{"arrKey":"mainSale","obj":".comic_area[data-area='mainSale']","template":".jsTemplateComic"},{"arrKey":"mainTodayUpdate","obj":".comic_area[data-area='mainTodayUpdate']","template":".jsTemplateComic"},{"arrKey":"mainWaitFree","obj":".comic_area[data-area='mainWaitFree']","template":".jsTemplateComic","addScript":"\n            <script>\n              var event_cointainer = \".main_area_02.swiper-container .data_wp[data-area='mainWaitFree']\"; \n              if ($(event_cointainer).find('.list_area li').length == 0) { \n                $(event_cointainer).closest('.main_area_02').remove(); \n              } else { \n                if ($(event_cointainer).find('.list_area li').length < 3) {\n                  $(event_cointainer).siblings('.arrow_wp').remove();\n                } else {\n                  $(event_cointainer).find('ul').addClass('swiper-wrapper').find('li').addClass('swiper-slide'); \n                  new Swiper (event_cointainer, { navigation : { nextEl : \".main_area_02[data-area='mainWaitFree']>.arrow_wp>.arrow[data-type='right']\", prevEl : \".main_area_02[data-area='mainWaitFree']>.arrow_wp>.arrow[data-type='left']\", disabledClass : \"disabled\" }, slidesPerView : 'auto', loop : false}); \n                }\n              }                    \n            <\/script>\n          "},{"arrKey":"mainOnecoin","obj":".comic_area[data-area='mainOnecoin']","template":".jsTemplateComic","addScript":"\n            <script>\n              var event_cointainer = \".main_area_02.swiper-container .data_wp[data-area='mainOnecoin']\"; \n              if ($(event_cointainer).find('.list_area li').length == 0) { \n                $(event_cointainer).closest('.main_area_02').remove(); \n              } else { \n                if ($(event_cointainer).find('.list_area li').length < 3) {\n                  $(event_cointainer).siblings('.arrow_wp').remove();\n                } else {\n                  $(event_cointainer).find('ul').addClass('swiper-wrapper').find('li').addClass('swiper-slide'); \n                  new Swiper (event_cointainer, { navigation : { nextEl : \".main_area_02[data-area='mainOnecoin']>.arrow_wp>.arrow[data-type='right']\", prevEl : \".main_area_02[data-area='mainOnecoin']>.arrow_wp>.arrow[data-type='left']\", disabledClass : \"disabled\" }, slidesPerView : 'auto', loop : false}); \n                }\n              }                    \n            <\/script>\n          "},{"arrKey":"mainOnePlusOne","obj":".comic_area[data-area='mainOnePlusOne']","template":".jsTemplateComic","addScript":"\n            <script>\n              var event_cointainer = \".main_area_02.swiper-container .data_wp[data-area='mainOnePlusOne']\"; \n              if ($(event_cointainer).find('.list_area li').length == 0) { \n                $(event_cointainer).closest('.main_area_02').remove(); \n              } else { \n                if ($(event_cointainer).find('.list_area li').length < 3) {\n                  $(event_cointainer).siblings('.arrow_wp').remove();\n                } else {\n                  $(event_cointainer).find('ul').addClass('swiper-wrapper').find('li').addClass('swiper-slide'); \n                  new Swiper (event_cointainer, { navigation : { nextEl : \".main_area_02[data-area='mainOnePlusOne']>.arrow_wp>.arrow[data-type='right']\", prevEl : \".main_area_02[data-area='mainOnePlusOne']>.arrow_wp>.arrow[data-type='left']\", disabledClass : \"disabled\" }, slidesPerView : 'auto', loop : false}); \n                }\n              }                    \n            <\/script>\n          "},{"arrKey":"mainFree","obj":".comic_area[data-area='mainFree']","template":".jsTemplateComic","addScript":"\n          <script>\n            var event_cointainer = \".main_area_02.swiper-container .data_wp[data-area='mainFree']\"; \n            if ($(event_cointainer).find('.list_area li').length == 0) { \n              $(event_cointainer).closest('.main_area_02').remove(); \n            } else { \n              if ($(event_cointainer).find('.list_area li').length < 3) {\n                $(event_cointainer).siblings('.arrow_wp').remove();\n              } else {\n                $(event_cointainer).find('ul').addClass('swiper-wrapper').find('li').addClass('swiper-slide'); \n                new Swiper (event_cointainer, { navigation : { nextEl : \".main_area_02[data-area='mainFree']>.arrow_wp>.arrow[data-type='right']\", prevEl : \".main_area_02[data-area='mainFree']>.arrow_wp>.arrow[data-type='left']\", disabledClass : \"disabled\" }, slidesPerView : 'auto', loop : false}); \n              }\n            }                    \n          <\/script>\n        "}]    }
+    var comicVariable = {
+      jsonType: 'complete_adult_comicArr',
+      setAdult: 'non_adult',
+      isG: 0    }
+    // 코믹 리스트 생성 실행
+    $.jsonComicList.config = Object.assign($.jsonComicList.config, comicConfig);
+    $.jsonComicList.variable = Object.assign($.jsonComicList.variable, comicVariable);
+    $.jsonComicList.viewHtml();
+
+    // 키워드 데이터 출력
+    var intervalPrintKeyword = setInterval(function() {
+      if ($.jsonComicList.variable.jsonResult.length) {
+        keywordCreateModule.init({
+          'jsonFileUrl': ["\/\/d1dkh1tjti8mih.cloudfront.net\/www_v1\/jsonItem\/tw\/keyword.json?v=1764753002","\/\/d1dkh1tjti8mih.cloudfront.net\/www_v1\/jsonItem\/tw\/genre.json?v=1764753002"],
+          /**/
+          'objArr': [{"arrKey":"keyword","obj":".keyword_wp[data-type='keyword']","template":".jsTemplateKeyword"},{"arrKey":"genre","obj":".keyword_wp[data-type='genre']","template":".jsTemplateKeyword"}],
+          'isAdult': '0',
+          'listCount': 9,
+          'language': 'tw'
+        });
+
+        clearInterval(intervalPrintKeyword);
+      }
+    }, 100);
+
+    // 내가 보던 리스트 출력
+    if (typeof recentTop10Module.setComicRecentMainTop6Html == "function") {
+      recentTop10Module.setComicRecentMainTop6Html();
+    }
+
+    // 키워드, 장르 탭 btn Click Event(pc 화면)
+    $(document).on("click", ".keyword_wp.show1200 a", function() {
+      var idx = $(this).data('idx');
+      var keyType = $(this).closest('.keyword_wp').data('target_area');
+
+      $(this).addClass('active').closest('li').siblings().find('a').removeClass('active');
+      $(this).closest('.keyword_wp').siblings(".data_wp[data-area='" + keyType + "']").html(''); // 출력 영역 초기화
+
+      // 데이터 변수가 있으면 데이터 변수를 jsonComicListCreateDom.min.js 클래스의 variable.jsonResult 변수에 값 설정 후 viewHtml 호출
+      if (typeof $.jsonComicList == 'undefined') return false; //$.jsonComicList 선언이 안되어 있는 경우는 jsonComicListCreateDom.min.js 파일을 로드 하지 않은 경우임.
+
+      // {'keyword':{'adult':[], non_adult:[]}} 구조인 경우(main 페이지)
+      if (
+        $.jsonComicList.variable.jsonResult.length &&
+        typeof $.jsonComicList.variable.jsonResult[0][keyType] != 'undefined' && $.jsonComicList.variable.jsonResult[0][keyType] &&
+        typeof $.jsonComicList.variable.jsonResult[0][keyType][$.jsonComicList.variable.setAdult] != 'undefined' && $.jsonComicList.variable.jsonResult[0][keyType][$.jsonComicList.variable.setAdult]
+      ) {
+        comicArr = _.find($.jsonComicList.variable.jsonResult[0][keyType][$.jsonComicList.variable.setAdult], function(val) {
+          return val.idx == idx;
+        });
+
+        if (comicArr && _.isArray(comicArr.comicList)) { //{'comicList:[]} 형태
+          $.jsonComicList.variable.tmpResult[0] = comicArr.comicList; //배열 안에 입력해야 함
+        } else if (comicArr && _.isArray(comicArr)) { //{[]} 형태
+          $.jsonComicList.variable.tmpResult[0] = comicArr; //배열 안에 입력해야 함
+        }
+      }
+
+      if ($.jsonComicList.variable.tmpResult.length > 0) {
+        // 코믹 리스트 데이터
+        var comicConfig = {
+          objArr: [ // 코믹 리스트 영역
+            {
+              arrKey: keyType,
+              obj: ".data_wp[data-area='" + keyType + "']",
+              template: ".jsTemplateComic"
+            }
+          ]
+        }
+        var comicVariable = {
+          jsonType: 'comicArr',
+          tmpResultClear: true
+        }
+        // 코믹 리스트 생성 실행
+        $.jsonComicList.config = Object.assign($.jsonComicList.config, comicConfig);
+        $.jsonComicList.variable = Object.assign($.jsonComicList.variable, comicVariable);
+        $.jsonComicList.initPagingVariable();
+        $.jsonComicList.viewHtml();
+      }
+      return false;
+    });
+
+    // 키워드, 장르 탭 btn Click Event(mobile 화면)
+    $(document).on("click", ".keyword_wp.show1199 a", function() {
+      var idx = $(this).data('idx');
+      var type = $(this).closest('.keyword_wp').data('type');
+      locationLink('/search/' + type + '/' + idx);
+    });
+  });
+	</script>
+
+
+	<!-- Criteo Homepage Tag -->
+	<script type="text/javascript">
+		window.criteo_q = window.criteo_q || [];
+  var deviceType = /iPad/.test(navigator.userAgent) ? "t" : /Mobile|iP(hone|od)|Android|BlackBerry|IEMobile|Silk/.test(navigator.userAgent) ? "m" : "d";
+  window.criteo_q.push({
+    event: "setAccount",
+    account: [85539, 107008]
+  }, {
+    event: "setEmail",
+    email: ""
+  }, {
+    event: "setSiteType",
+    type: deviceType
+  }, {
+    event: "viewHome"
+  });
+	</script>
+	<!-- END Criteo Home Page Tag -->
+	<!-- 푸터 -->
+	<div class="eventRouletteWrap">
+		<div class="eventRouletteList">
+			<div class="btnClose actionCloseBtn" data-value="0"></div>
+			<ul>
+				<li class="user"></li>
+				<li class="grade"></li>
+			</ul>
+		</div>
+	</div>
+	<footer class="footer">
+		<h1 class="arTit">Footer</h1>
+
+		<section class="appDownloadBanner">
+			<h3 class="arTit">App Download banner</h3>
+
+			<a class="show639"
+				href="/tool/app"><img src="//tw-assets.toptoon.net/www_v1/img/app/tw/mobile/mainDownload.jpg"></a>
+				<img class="show640" src="//tw-assets.toptoon.net/www_v1/img/app/tw/pc/mainDownload2_1_20201026.jpg" usemap="#imgmap201921318858">
+				<map id="imgmap201921318858" name="imgmap201921318858">
+        <area shape="rect" alt="" title="" coords="34,269,270,350" href="/tool/app" target="">
+        <area shape="rect" alt="" title="" coords="280,269,515,350" href="/theme/app" target="">
+      </map>
+				<!-- <img class="show640" src="//tw-assets.toptoon.net/www_v1/img/app/tw/pc/mainDownload2_2_20201026.jpg" usemap="#imgmap201921318858">
+                <map id="imgmap201921318858" name="imgmap201921318858">
+                    <area shape="rect" alt="" title="" coords="34,269,270,350" href="/theme/app" target="">
+                </map> -->
+		</section><!-- 앱설치 -->
+
+		<section class="footer_area">
+			<div class="info">
+				<h3 class="arTit">copyright</h3>
+				<div class="logo"><a href="/"
+						class="logo"><img src="//tw-assets.toptoon.net/www_v1/img/logo/logo_footer.png" /></a></div>
+				<div class="copyright">
+					<a href="/info/policy_service">使用條款</a> &nbsp;&nbsp;|&nbsp;&nbsp;
+					<a href="/info/policy_privacy">隱私權政策</a>
+					<br>
+					<div class="show640">
+						<br>
+          頂通網站的電子著作，皆受到著作權法保護，若未受到TOPCO MEDIA Co,Ltd.的承認許可，用戶不得擅自複製、引用<br>
+          如發現違法事項請向客服中心通報        </div>
+						<br>
+        TOPCO MEDIA Co.,Ltd.<br>
+
+                  負責人 : 金成洙 / 統一編號 : 2479-7457<br>
+          地址 : 106 台北市大安區市民大道四段102號7樓<br>
+						<br>
+
+
+        客服中心 : helpdesk@toptoon.net/02-2775-5102<br>
+        服務時間 : 週一至週五 09:00~13:00、14:00~18:00<br>
+      </div>
+						<div class="socialicon">
+							<a href="https://lin.ee/gwvwukm"
+								target="_blank"><img src="//tw-assets.toptoon.net/www_v1/img/layout/icon_social_line.png" style=""></a>
+								<a href="https://www.facebook.com/ToptoonTW"
+									target="_blank"><img src="//tw-assets.toptoon.net/www_v1/img/layout/icon_social_fb.png"></a>
+									<a href="https://www.instagram.com/toptoon_tw/"
+										target="_blank"><img src="//tw-assets.toptoon.net/www_v1/img/layout/icon_social_insta.png"></a>
+										<a href="https://www.youtube.com/channel/UCMTl-0Y9sKaJe2maVDr_DcA"
+											target="_blank"><img src="//tw-assets.toptoon.net/www_v1/img/layout/icon_social_youtube.png"></a>
+						</div>
+						<div class="topBtn">
+							<button class="goTopBtn actionScrollTopBtn">△ TOP </button>
+						</div>
+					</div>
+					<div class="seo">頂通, 頂通中文版, 免費漫畫, 付費漫畫, 韓國漫畫, 中文漫畫, 漫畫推薦, 戀愛, 劇情, 奇幻, 喜劇, 條漫, 漫畫, COMIC, WEBCOMICS,
+						TOPTOON中文版, MANGA, WEBTOON</div>
+		</section>
+	</footer>
+	<!--// 푸터 -->
+
+	<div id="alert"></div><!-- alert modal -->
+	<div class="banner" data-area="toast"></div><!-- 배너영역 - 토스트 -->
+	<div class="loading-container">
+		<div class="loading"></div>
+		<div class="loading-text">loading</div>
+	</div>
+
+	<script src='//tw-origin.toptoon.net/assets/v2/js/module.keywordListCreate.min.js?v=1761717704'></script>
+	<script src='//tw-origin.toptoon.net/assets/v2/js/jsonComicListCreateDom.min.js?v=1761717704'></script>
+	<script src='/assets/v2/js/module.bannerListCreate.min.js?v=1742364192'></script>
+	<!-- 키워드 탭 탬플릿 -->
+	<script class="jsTemplateKeyword" type="text/x-handlebars-template">
+		<h3 class="arTit">Keyword</h3>
+  <ul class="list_area">
+    {{#each list}}
+      <li><a href="javascript:void(0);" class="{{{addClass}}}" data-idx="{{idx}}">#{{name}}</a></li>
+    {{/each}}
+  </ul>
+  <{{run_script}}>
+    setTimeout(function(){$("{{{targetObj}}} .list_area>li").eq(0).find("a").trigger("click");}, 100);  </{{run_script}}>
+</script>
+	<!-- 코믹 배너 기본 탬플릿 -->
+	<script class="jsTemplateComic" type="text/x-handlebars-template">
+		<ul class="list_area">
+    <h6 class="arTit">Comic List</h6>
+    {{#each list}}
+      <li>
+        <a href="/comic/epList/{{id}}" class="comicBox" data-lang="tw" data-comic_idx="{{idx}}" data-comic_id="{{id}}" data-complete_badge="{{#each completeBadgeData}} {{{this}}} {{/each}}" title="{{meta.title}}">
+          <div class="thumb_area">
+            <div class="scale">
+              <div class="thumb square">
+                <img class="thumb_img lazy" data-src="//tw-contents-image.toptoon.net{{thumbnail.square}}" src="//tw-contents-image.toptoon.net{{thumbnail.square}}">
+              </div>
+              <div class="thumb rectangle">
+                <img class="thumb_img lazy" data-src="//tw-contents-image.toptoon.net{{thumbnail.rectangle}}" src="//tw-contents-image.toptoon.net{{thumbnail.rectangle}}">
+              </div>
+              <div class="thumb standard">
+                <img class="thumb_img lazy" data-src="//tw-contents-image.toptoon.net{{thumbnail.standard}}" src="//tw-contents-image.toptoon.net{{thumbnail.standard}}">
+              </div>
+            </div>
+            <i class="rank"></i>
+            {{{badgeAdultTag}}}
+            <div class="leftSideIcon">
+              {{#each leftSideTag}}
+                {{{this}}}
+              {{/each}}
+            </div>
+            <div class='opacity'></div>
+            <div class="maskIcon"></div>
+          </div>
+          <div class="thumb_info">
+            <div class="line_tit">
+              <i class="rank"></i>
+              <span class="title">{{meta.title}}</span>
+              <span class="badgeUp">{{{badgeUpTag}}}</span>
+            </div>
+            <div class="ep_title">{{lastUpdated.episodeTitle}} {{#if lastUpdated.episodeSubTitle}}<span class="ep_subTitle">{{lastUpdated.episodeSubTitle}}</span>{{/if}}</div>
+            <div class="ep_point">
+              <img class="epicon_starpoint">
+              <span class="epicon_starpoint_txt">{{meta.viewCountText}}</span>
+            </div>
+            <div class="ep_title_viewed">{{viewedInfo.episodeTitle}}</div>
+            <div class="author">{{meta.author.authorString}}</div>
+
+            <div class="freeCnt">{{meta.epFreeTotalCnt}}回免費</div>
+
+            <div class="badge">
+              <div class="badgeList">
+                {{#each badgeTag}}
+                  {{{this}}}
+                {{/each}}
+              </div>
+            </div>
+            <div class="hashTag">
+              {{#each hashTag}}
+                <span class="tag {{addClass}}">#{{name}}</span>
+              {{/each}}
+            </div>
+            <div class="viewedCntInfo">
+              <span class="viewedDateDiff" data-date_diff="{{viewedDateDiff}}">{{viewedDateDiff}}天前</span>
+              <span class="viewedDateDiff today" data-date_diff="{{viewedDateDiff}}">今日</span>
+              {{#if hasNextEpisode}}
+                <span class="nextEpisodeLink actionGoNextEpisodeBtn" data-viewed_last_epsode_idx="{{viewedInfo.episodeIdx}}">下一話 &gt;</span>
+              {{/if}}
+              <span class="percentage">持有{{viewedInfo.cnt}}話 ({{viewedPercent}})</span>
+            </div>
+            <div class="waitFreeInfo"></div>
+          </div>
+        </a>
+      </li>
+    {{/each}}
+  </ul>
+  {{{addScript}}}
+  <{{run_script}}>
+    $("{{{targetObj}}} .lazy").not(".lazy[data-src='']").lazyload().removeClass("lazy");
+  </{{run_script}}>
+</script>
+
+	<!-- 코믹 배너 None 탬플릿 -->
+	<script class="jsTemplateComic_none" type="text/x-handlebars-template">
+		<div class="list_area_none pc">
+    <span class="noneTxt" data-type="default">無登錄之內容。</span>
+    <span class="noneTxt" data-type="library">尚未收藏作品。</span>
+    <span class="noneTxt" data-type="favorites">尚未添加作品。</span>
+    <span class="noneTxt" data-type="recent">無最近觀看紀錄。</span>
+    <span class="noneTxt" data-type="subscription">無訂閱之作品。</span>
+    <span class="noneTxt" data-type="search">查無此作品。</span>
+  </div>
+</script>
+	<!-- 배너1 메인 탬플릿 -->
+	<script class="jsTemplateBanner_main" type="text/x-handlebars-template">
+		<h3 class="arTit">Banner - 1</h3>
+  <ul class="list_area swiper-wrapper">
+    {{#each list}}
+    <li class="swiper-slide">
+      <a href="{{link}}" class="main-bannerlink" data-banidx="{{idx}}">
+        <picture style="background-color: {{theme_color}}">
+          <img src="//tw-contents-image.toptoon.net/www_v1/imgComic/banner/{{mo_banner}}">
+        </picture>
+      </a>
+    </li>
+    {{/each}}
+  </ul>
+  <div class="swiper-pagination"></div>
+  <{{run_script}}>
+    // 특정 배너만 새창으로 열리도록 설정
+    $('.mainTopBanner .swiper-slide').each(function(item) {
+      const aLink = $(this).find('a');
+      const banIdx = aLink.attr('data-banidx');
+      
+      // 새창으로 열어야 할 배너 ID 목록
+      const newWindowBannerIds = ['9112','9113']; // 새창으로 열어야 할 배너 ID들
+      
+      // 배너 ID가 목록에 포함된 경우 새창으로 열기
+      if (newWindowBannerIds.includes(banIdx)) {
+        aLink.attr('target', '_blank');
+      }
+    });
+    // 메인 상단 배너 swipe 생성
+    $('.mainTopBanner').prepend('<div class="arrow_button"><a class="weekly_arrow_right"></a><a class="weekly_arrow_left"></a></div>');
+    const event_cointainer = "{{{targetObj}}}";
+    const event_slider = new Swiper (event_cointainer, {
+      loop: true,
+      slidesPerView: 'auto',
+      loopAdditionalSlides: 8,
+      centeredSlides: true,
+      spaceBetween: 21.72,
+      // centeredSlides: true, // active item 정중안 배치, 단 뷰 개수 홀수로 바뀜.
+      centerInsufficientSlides: true,
+      autoplay : {  // 자동 슬라이드 설정 , 비 활성화 시 false
+        delay : 3000,   // 시간 설정
+        disableOnInteraction : false,  // false로 설정하면 스와이프 후 자동 재생이 비활성화 되지 않음
+      },
+      breakpoints: {
+        0: {
+          slidesPerView: 1,
+          spaceBetween: 10,
+        },
+        767: {
+          slidesPerView: 3,
+          CSS: ''
+        },
+        1024: {
+          loopAdditionalSlides: 4,
+          spaceBetween:16,
+          slidesPerView: 'auto', //auto로 하면 배너 사이즈 그대로
+        },
+      },
+      navigation: {
+        nextEl: ".mainTopBanner .weekly_arrow_right",
+        prevEl: ".mainTopBanner .weekly_arrow_left",
+      },
+      pagination: {
+        el: ".mainTopBanner .swiper-pagination",
+        clickable: true,
+        type: 'bullets',
+      },
+    });
+      </{{run_script}}>
+</script>
+	<!-- 배너4 탭 탬플릿 -->
+	<script class="jsTemplateBanner_4" type="text/x-handlebars-template">
+		<h3 class="arTit">Banner - 4</h3>
+  {{#each list}}
+    {{#if link}}
+      <a href="{{link}}">
+    {{else}}
+      <a href="javascript: void(0);">
+    {{/if}}
+    <picture style="background-color: {{theme_color}}">
+      <source srcset="//tw-contents-image.toptoon.net/www_v1/imgComic/banner/{{mo_banner}}" media="(max-width:639px)">
+      <img src="//tw-contents-image.toptoon.net/www_v1/imgComic/banner/{{pc_banner}}">
+    </picture>
+    </a>
+  {{/each}}
+</script>
+	<!-- 추천무료 탭 탬플릿 -->
+	<script class="jsTemplateFreeToday" type="text/x-handlebars-template">
+		<h3 class="arTit">FreeToday List</h3>
+  {{#each list}}
+    <a href="/comic/epList/{{comic_id}}">
+      <div class="free_thumb">
+        <picture>
+          <source srcset="//tw-contents-image.toptoon.net{{file_path}}{{shadow_name}}" media="(max-width:639px)">
+          <source srcset="//tw-contents-image.toptoon.net{{file_path}}{{shadow_name_pc}}" media="(min-width:640px) and (max-width:1199px)">
+          <img src="//tw-contents-image.toptoon.net{{file_path}}{{shadow_name_pc_main}}">
+        </picture>
+      </div>
+      <div class="free_info">
+        <p class="title">{{comic_name}}</p>
+        <p class="content">{{comic_desc}}</p>
+        <button>免費觀看</button>
+      </div>
+      <div class="bg" style="background:{{theme_color}}"></div>
+    </a>
+  {{/each}}
+  {{{addScript}}}
+</script>
+	<!-- 이벤트 메인배너 탭 탬플릿 -->
+	<script class="jsTemplateEvent" type="text/x-handlebars-template">
+		<h3 class="arTit">Event List</h3>
+<ul class="list_area swiper-wrapper">
+  {{#each list}}
+    <li class="swiper-slide" data-eventidx="{{idx}}"><a href="{{link}}"><img src="//tw-contents-image.toptoon.net/www_v1/imgComic/banner/{{banner}}"></a></li>
+  {{/each}}
+</ul>
+<{{run_script}}>
+  // 특정 이벤트만 새창으로 열리도록 설정
+  $('.main_area_02[data-area="event"] .swiper-slide').each(function(item) {
+    const aLink = $(this).find('a');
+    const eventIdx = aLink.closest('li').attr('data-eventidx'); // 이벤트 ID를 가져오기 위해 data 속성 추가 필요
+    
+    // 새창으로 열어야 할 이벤트 ID 목록
+    const newWindowEventIds = ['618']; // 새창으로 열어야 할 이벤트 ID들
+    
+    // 이벤트 ID가 목록에 포함된 경우 새창으로 열기
+    if (eventIdx && newWindowEventIds.includes(eventIdx)) {
+      aLink.attr('target', '_blank');
+    }
+  });
+  var objLength = $("{{{targetObj}}}").find('.list_area li').length;
+  if (objLength > 3) objLength = 3; // 한 화면 최대 노출 갯수
+  $(".main_area_04 .data_wp").css('width', (objLength * 382) + ((objLength  - 1) * 26) + 20); // object 갯수에 따른 너비 조정
+
+  if (objLength >= 2) { // 갯수가 2개 이상일때만 노출시킴
+    var event_cointainer = "{{{targetObj}}}";
+    var event_slider = new Swiper (event_cointainer, {
+      navigation : {
+        nextEl : ".main_area_02[data-area='event']>.arrow_wp>.arrow[data-type='right']",
+        prevEl : ".main_area_02[data-area='event']>.arrow_wp>.arrow[data-type='left']",
+        disabledClass : 'disabled'
+      },
+      slidesPerView : 'auto',
+      loop : true
+    });
+  } else {
+    if ($("{{{targetObj}}}").data('show_obj')) $($("{{{targetObj}}}").data('show_obj')).remove();
+    $("{{{targetObj}}}").remove();
+  }
+</{{run_script}}>
+</script>
+	<!-- 배너2 탭 탬플릿 -->
+	<script class="jsTemplateBanner_2" type="text/x-handlebars-template">
+		<h3 class="arTit">Banner - 2</h3>
+  {{#each list}}
+    <a href="{{link}}">
+      <div style="height:100%;background-color:{{theme_color}};text-align:center;box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.2);">
+        <picture>
+          <source srcset="//tw-contents-image.toptoon.net/www_v1/imgComic/banner/{{mo_banner}}" media="(max-width:430px)">
+          <img src="//tw-contents-image.toptoon.net/www_v1/imgComic/banner/{{pc_banner}}">
+        </picture>
+      </div>
+    </a>
+  {{/each}}
+</script>
+	<!-- FreeTime 탬플릿 -->
+	<!-- 카운트다운 -->
+	<script class="jsTemplateFreeTime" type="text/x-handlebars-template">
+		<h3 class="arTit">FreeTime List</h3>
+  {{#each list}}
+    {{#if link}}
+      <a href="{{link}}">
+    {{else}}
+      <a href="javascript: void(0);">
+    {{/if}}
+    <div class="timerBanner" data-type="{{../bannerType}}" style="background-color:{{theme_color}};">
+      <div class="bannerBox">
+        <span class="bannerImg">
+          <picture>
+            <source srcset="//tw-contents-image.toptoon.net/www_v1/imgComic/banner/{{mo_banner}}" media="(max-width:767px)">
+            <img src="//tw-contents-image.toptoon.net/www_v1/imgComic/banner/{{pc_banner}}">
+          </picture>
+        </span>
+        <span class="timer">
+          <!-- 시 -->
+          <div class="bloc-time hour">
+            <div class="figure hour-1"></div>
+            <div class="figure mr00 hour-2"></div>
+          </div>
+          <!--//시 -->
+          <span class="clon hour"></span>
+          <!-- 분 -->
+          <div class="bloc-time min">
+            <div class="figure min-1"></div>
+            <div class="figure mr00 min-2"></div>
+          </div>
+          <!--//분 -->
+          <span class="clon min"></span>
+          <!-- 초 -->
+          <div class="bloc-time sec">
+            <div class="figure sec-1"></div>
+            <div class="figure mr00 sec-2"></div>
+          </div>
+          <!--// 초 -->
+        </span>
+        <span class="addBannerImg">
+          <img src="//tw-assets.toptoon.net/www_v1/img/banner/pc/freeTimeAddImg_jp.png">
+        </span>
+      </div>
+    </div>
+    </a>
+
+    <{{../run_script}}>
+      if ($(".banner[data-area='banner_2']").css('display') != 'none') $(".banner[data-area='banner_2']").remove();
+      if ($(".banner[data-area='banner_3']").css('display') != 'none') $(".banner[data-area='banner_3']").remove();
+      if ($(".banner[data-area='banner_14']").css('display') != 'none') $(".banner[data-area='banner_14']").remove();
+      if ($(".banner[data-area='crazyTime']").css('display') != 'none') $(".banner[data-area='crazyTime']").remove();
+      if ($(".banner[data-area='hotTime']").css('display') != 'none') $(".banner[data-area='hotTime']").remove();
+      if ($(".banner[data-area='hotTimeSet']").css('display') != 'none') $(".banner[data-area='hotTimeSet']").remove();
+      if ($(".banner[data-area='banner_26']").css('display') != 'none') $(".banner[data-area='banner_26']").remove();
+
+      timerBannerTools.init({
+        'startDate': "{{start_date}}",
+        'endDate': "{{end_date}}",
+        'closestObj': ".timerBanner[data-type='{{../bannerType}}']",
+        'serverDate': "2025-12-03 17:21:37"
+      });
+    </{{../run_script}}>
+  {{/each}}
+  <!--// 카운트다운 -->
+</script>
+	<!-- 카운트다운(미친결제) 탬플릿 -->
+	<!-- 카운트다운 -->
+	<script class="jsTemplateCrazyTime" type="text/x-handlebars-template">
+		<h3 class="arTit">crazyTime List</h3>
+  {{#each list}}
+    {{#if link}}
+      <a href="{{link}}">
+    {{else}}
+      <a href="javascript: void(0);">
+    {{/if}}
+    <div class="timerBanner" data-type="{{../bannerType}}" style="background-color:{{theme_color}};">
+      <div class="bannerImg showType paymentBanner" data-type="top"><!-- Payment 페이지 배너용(2단 배너) -->
+        <img src="//tw-contents-image.toptoon.net/www_v1/imgComic/banner/{{pc_banner}}">
+      </div>
+      <div class="bannerBox">
+        <span class="bannerImg showType topBanner"><!-- 최상단 배너용 -->
+          <picture>
+            <source srcset="//tw-contents-image.toptoon.net/www_v1/imgComic/banner/{{mo_banner}}" media="(max-width:767px)">
+            <img src="//tw-contents-image.toptoon.net/www_v1/imgComic/banner/{{pc_banner}}">
+          </picture>
+        </span>
+        <span class="bannerImg showType paymentBanner" data-type="bottom"><!-- Payment 페이지 배너용(2단 배너) -->
+          <img src="//tw-contents-image.toptoon.net/www_v1/imgComic/banner/{{mo_banner}}">
+        </span>
+
+        <span class="timer">
+          <!-- 시 -->
+          <div class="bloc-time hour">
+            <div class="figure hour-1"></div>
+            <div class="figure mr00 hour-2"></div>
+          </div>
+          <!--//시 -->
+          <span class="clon hour"></span>
+          <!-- 분 -->
+          <div class="bloc-time min">
+            <div class="figure min-1"></div>
+            <div class="figure mr00 min-2"></div>
+          </div>
+          <!--//분 -->
+          <span class="clon min"></span>
+          <!-- 초 -->
+          <div class="bloc-time sec">
+            <div class="figure sec-1"></div>
+            <div class="figure mr00 sec-2"></div>
+          </div>
+          <!--// 초 -->
+        </span>
+        <span class="addBannerImg">
+          <img src="//tw-assets.toptoon.net/www_v1/img/banner/pc/crazyTimeAddImg_jp.png">
+        </span>
+      </div>
+    </div>
+    </a>
+
+    <{{../run_script}}>
+      if ($(".banner[data-area='banner_2']").css('display') != 'none') $(".banner[data-area='banner_2']").remove();
+      if ($(".banner[data-area='banner_3']").css('display') != 'none') $(".banner[data-area='banner_3']").remove();
+      if ($(".banner[data-area='banner_14']").css('display') != 'none') $(".banner[data-area='banner_14']").remove();
+      if ($(".banner[data-area='freeTime']").css('display') != 'none') $(".banner[data-area='freeTime']").remove();
+      if ($(".banner[data-area='hotTime']").css('display') != 'none') $(".banner[data-area='hotTime']").remove();
+      if ($(".banner[data-area='hotTimeSet']").css('display') != 'none') $(".banner[data-area='hotTimeSet']").remove();
+      if ($(".banner[data-area='banner_26']").css('display') != 'none') $(".banner[data-area='banner_26']").remove();
+
+      timerBannerTools.init({
+        'startDate': "{{start_date}}",
+        'endDate': "{{end_date}}",
+        'maxHour' : 24,
+        'closestObj': ".timerBanner[data-type='{{../bannerType}}']",
+        'serverDate': "2025-12-03 17:21:37"
+      });
+    </{{../run_script}}>
+  {{/each}}
+  <!--// 카운트다운 -->
+</script>
+	<!-- HotTimeSet 탬플릿 -->
+	<!-- 카운트다운 -->
+	<script class="jsTemplateHotTimeSet" type="text/x-handlebars-template">
+		<h3 class="arTit">HotTimeSet List</h3>
+  {{#each list}}
+    {{#if link}}
+      <a href="{{link}}">
+    {{else}}
+      <a href="javascript: void(0);">
+    {{/if}}
+    <div class="timerBanner" data-type="{{../bannerType}}" style="background-color:{{theme_color}};">
+      <div class="bannerImg showType paymentBanner" data-type="top"><!-- Payment 페이지 배너용(2단 배너) -->
+        <img src="//tw-contents-image.toptoon.net/www_v1/imgComic/banner/{{pc_banner}}">
+      </div>
+      <div class="bannerBox">
+        <span class="bannerImg showType topBanner"><!-- 최상단 배너용 -->
+          <picture>
+            <source srcset="//tw-contents-image.toptoon.net/www_v1/imgComic/banner/{{mo_banner}}" media="(max-width:767px)">
+            <img src="//tw-contents-image.toptoon.net/www_v1/imgComic/banner/{{pc_banner}}">
+          </picture>
+        </span>
+        <span class="bannerImg showType paymentBanner" data-type="bottom"><!-- Payment 페이지 배너용(2단 배너) -->
+          <img src="//tw-contents-image.toptoon.net/www_v1/imgComic/banner/{{mo_banner}}">
+        </span>
+
+        <span class="timer">
+          <!-- 시 -->
+          <div class="bloc-time hour">
+            <div class="figure hour-1"></div>
+            <div class="figure mr00 hour-2"></div>
+          </div>
+          <!--//시 -->
+          <span class="clon hour"></span>
+          <!-- 분 -->
+          <div class="bloc-time min">
+            <div class="figure min-1"></div>
+            <div class="figure mr00 min-2"></div>
+          </div>
+          <!--//분 -->
+          <span class="clon min"></span>
+          <!-- 초 -->
+          <div class="bloc-time sec">
+            <div class="figure sec-1"></div>
+            <div class="figure mr00 sec-2"></div>
+          </div>
+          <!--// 초 -->
+        </span>
+        <span class="addBannerImg">
+          <img class="showType topBanner" src="//tw-assets.toptoon.net/www_v1/img/banner/pc/hotTimeSetAddImg_jp.png">
+          <img class="showType paymentBanner" src="//tw-assets.toptoon.net/www_v1/img/banner/pc/hotTimeSetPaymentAddImg_jp.png">
+        </span>
+      </div>
+    </div>
+    </a>
+
+    <{{../run_script}}>
+      if ($(".banner[data-area='banner_2']").css('display') != 'none') $(".banner[data-area='banner_2']").remove();
+      if ($(".banner[data-area='banner_3']").css('display') != 'none') $(".banner[data-area='banner_3']").remove();
+      if ($(".banner[data-area='banner_14']").css('display') != 'none') $(".banner[data-area='banner_14']").remove();
+      if ($(".banner[data-area='banner_26']").css('display') != 'none') $(".banner[data-area='banner_26']").remove();
+
+      timerBannerTools.init({
+        'startDate': "{{start_date}}",
+        'endDate': "{{end_date}}",
+        'closestObj': ".timerBanner[data-type='{{../bannerType}}']",
+        'serverDate': "2025-12-03 17:21:37"
+      });
+    </{{../run_script}}>
+  {{/each}}
+  <!--// 카운트다운 -->
+</script>
+	<!-- HotTime 탬플릿 -->
+	<!-- 카운트다운 -->
+	<script class="jsTemplateHotTime" type="text/x-handlebars-template">
+		<h3 class="arTit">HotTime List</h3>
+  {{#each list}}
+    {{#if link}}
+      <a href="{{link}}">
+    {{else}}
+      <a href="javascript: void(0);">
+    {{/if}}
+    <div class="timerBanner" data-type="{{../bannerType}}" style="background-color:{{theme_color}};">
+      <div class="bannerImg showType paymentBanner" data-type="top"><!-- Payment 페이지 배너용(2단 배너) -->
+        <img src="//tw-contents-image.toptoon.net/www_v1/imgComic/banner/{{pc_banner}}">
+      </div>
+      <div class="bannerBox">
+        <span class="bannerImg showType topBanner"><!-- 최상단 배너용 -->
+          <picture>
+            <source srcset="//tw-contents-image.toptoon.net/www_v1/imgComic/banner/{{mo_banner}}" media="(max-width:767px)">
+            <img src="//tw-contents-image.toptoon.net/www_v1/imgComic/banner/{{pc_banner}}">
+          </picture>
+        </span>
+        <span class="bannerImg showType paymentBanner" data-type="bottom"><!-- Payment 페이지 배너용(2단 배너) -->
+          <img src="//tw-contents-image.toptoon.net/www_v1/imgComic/banner/{{mo_banner}}">
+        </span>
+
+        <span class="timer">
+          <!-- 시 -->
+          <div class="bloc-time hour">
+            <div class="figure hour-1"></div>
+            <div class="figure mr00 hour-2"></div>
+          </div>
+          <!--//시 -->
+          <span class="clon hour"></span>
+          <!-- 분 -->
+          <div class="bloc-time min">
+            <div class="figure min-1"></div>
+            <div class="figure mr00 min-2"></div>
+          </div>
+          <!--//분 -->
+          <span class="clon min"></span>
+          <!-- 초 -->
+          <div class="bloc-time sec">
+            <div class="figure sec-1"></div>
+            <div class="figure mr00 sec-2"></div>
+          </div>
+          <!--// 초 -->
+        </span>
+        <span class="addBannerImg">
+          <img class="showType topBanner" src="//tw-assets.toptoon.net/www_v1/img/banner/pc/hotTimeAddImg_jp.png">
+          <img class="showType paymentBanner" src="//tw-assets.toptoon.net/www_v1/img/banner/pc/hotTimePaymentAddImg_jp.png?v=1">
+        </span>
+      </div>
+    </div>
+    </a>
+
+    <{{../run_script}}>
+      if ($(".banner[data-area='banner_2']").css('display') != 'none') $(".banner[data-area='banner_2']").remove();
+      if ($(".banner[data-area='banner_3']").css('display') != 'none') $(".banner[data-area='banner_3']").remove();
+      if ($(".banner[data-area='banner_14']").css('display') != 'none') $(".banner[data-area='banner_14']").remove();
+      if ($(".banner[data-area='hotTimeSet']").css('display') != 'none') $(".banner[data-area='hotTimeSet']").remove();
+      if ($(".banner[data-area='banner_26']").css('display') != 'none') $(".banner[data-area='banner_26']").remove();
+
+      timerBannerTools.init({
+        'startDate': "{{start_date}}",
+        'endDate': "{{end_date}}",
+        'closestObj': ".timerBanner[data-type='{{../bannerType}}']",
+        'serverDate': "2025-12-03 17:21:37"
+      });
+    </{{../run_script}}>
+  {{/each}}
+  <!--// 카운트다운 -->
+</script>
+	<!-- 토스트 배너 탬플릿 -->
+	<script class="jsTemplateToast" type="text/x-handlebars-template">
+		<h3 class="arTit">Baanner - Toast</h3>
+  {{#each list}}
+    <div class="toastBanner" data-idx="{{idx}}" data-time_start="{{time_start}}" data-end_date="{{end_date}}" data-time_limit="{{time_limit}}" data-stay_time="{{stay_time}}" data-link="{{link}}">
+      <div class="actionBtnBanner"><img src="//tw-contents-image.toptoon.net/www_v1/imgComic/banner/{{img}}" width="100%"></div>
+      <div class="actionBtnClose"><img src="//tw-contents-image.toptoon.net/www_v1/imgComic/banner/{{img_close}}" width="35"></div>
+    </div>
+  {{/each}}
+  <{{run_script}}>
+    var toastLoading = false; //토스트 배너 실행여부 체크에 필요한 변수
+    setTimeout(function(){ createBannerToastAnimation(); }, 2000);
+  </{{run_script}}>
+</script>
+
+	<script src="//tw-origin.toptoon.net/assets/v2/js/module.loginToken.min.js?v=1719888487"></script>
+	<script src="//tw-origin.toptoon.net/assets/v2/js/module.gift.min.js?v=1742364192"></script>
+	<script src="//tw-origin.toptoon.net/assets/v2/js/module.favorites.min.js?v=1721893027"></script>
+	<script src="//tw-origin.toptoon.net/assets/v2/js/module.recent.min.js?v=1719888487"></script>
+	<script src="//tw-origin.toptoon.net/assets/v2/js/module.recentTop10.min.js?v=1719888487"></script>
+	<script src="//tw-origin.toptoon.net/assets/v2/js/module.purchase.min.js?v=1719888487"></script>
+	<script src="//tw-origin.toptoon.net/assets/v2/js/module.onePlusOne.min.js?v=1719888487"></script>
+	<script src="//tw-origin.toptoon.net/assets/v2/js/module.waitFree.min.js?v=1719888487"></script>
+	<script src="//tw-origin.toptoon.net/assets/v2/js/module.oneCoin.min.js?v=1719888487"></script>
+	<script src="//tw-origin.toptoon.net/assets/v2/js/module.package.min.js?v=1719888487"></script>
+	<script src="//tw-origin.toptoon.net/assets/v2/js/module.freeToday.min.js?v=1719888487"></script>
+	<script src="//tw-origin.toptoon.net/assets/v2/js/module.partner.min.js?v=1719888487"></script>
+	<script src="//tw-origin.toptoon.net/assets/v2/js/module.giftpackage.min.js?v=1719888487"></script>
+	<script src="//tw-origin.toptoon.net/assets/v2/js/module.completeNew.min.js?v=1719888487"></script>
+	<script src="//tw-origin.toptoon.net/assets/v2/js/module.surprisePromotion.min.js?v=1724043787"></script>
+	<script src="//tw-origin.toptoon.net/assets/v2/js/module.subscription.min.js?v=1733734386"></script>
+	<script src="//tw-origin.toptoon.net/assets/v2/js/module.eventRoulette.min.js?v=1719888487"></script>
+	<script>
+		$(function() {
+    // /#contents_80202 와 같이 호출되는 주소에 대해 redirect 및 Data 저장 처리
+    if ($(location).attr('hash')) {
+      locationLinkFromHash($(location).attr('hash'));
+    }
+    $(window).bind('hashchange', function() {
+      locationLinkFromHash($(location).attr('hash'));
+    });
+
+    // 배너 데이터 출력
+    bannerCreateModule.init({
+      'sessId': 'a2be8a5b4d0cc08b07cb85c778dcb0f4',
+      'userIdx': 0,
+      'language': 'tw',
+      'showAdult': '0',
+      'jsonFileUrl': '/event/getBannerEventAll/main', //배너 데이터 호출 URL
+      'objArr': [{"ArrKeyType":"banner","arrKey":"banner_1","obj":".banner[data-area='banner_1']","template":".jsTemplateBanner_main"},{"ArrKeyType":"banner","arrKey":"banner_26","obj":".banner[data-area='banner_26']","template":".jsTemplateBanner_4"},{"ArrKeyType":"freeToday","arrKey":"freeToday","obj":".banner[data-area='freeToday']","template":".jsTemplateFreeToday","addScript":"\n            <script>\n              var bannerFreeTodayArr = $(\".banner[data-area='freeToday']\").find('a'); \n              if (bannerFreeTodayArr.length > 1) { \/\/ \ubc30\ub108 \uac2f\uc218\uac00 \ub450\uac1c \uc774\uc0c1\uc774\uba74 \ub79c\ub364\ud558\uac8c \ud558\ub098\ub9cc \ub0a8\uae40\n                var bannerFreeTodayRnd = Math.floor(Math.random() * bannerFreeTodayArr.length);\n\n                _.each(bannerFreeTodayArr, function (val, key) {\n                  if (key != bannerFreeTodayRnd) {\n                    val.remove();\n                  }\n                });\n              }\n            <\/script>\n          "},{"ArrKeyType":"event","arrKey":"event","obj":".main_area_02[data-area='event'] .banner","template":".jsTemplateEvent"},{"ArrKeyType":"banner","arrKey":"banner_2","obj":".banner[data-area='banner_2']","template":".jsTemplateBanner_2"},{"ArrKeyType":"freeTime","arrKey":"freeTime","obj":".banner[data-area='freeTime']","template":".jsTemplateFreeTime"},{"ArrKeyType":"crazyTime","arrKey":"crazyTime","obj":".banner[data-area='crazyTime']","template":".jsTemplateCrazyTime"},{"ArrKeyType":"hotTimeSet","arrKey":"hotTimeSet","obj":".banner[data-area='hotTimeSet']","template":".jsTemplateHotTimeSet"},{"ArrKeyType":"hotTime","arrKey":"hotTime","obj":".banner[data-area='hotTime']","template":".jsTemplateHotTime"},{"ArrKeyType":"hotTimeFirst","arrKey":"hotTimeFirst","obj":".banner[data-area='hotTimeFirst']","template":".jsTemplateHotTime"},{"ArrKeyType":"toast","arrKey":"toast","obj":".banner[data-area='toast']","template":".jsTemplateToast"}],
+      'serverDate': "2025-12-03 17:21:37"
+    });
+
+    /**
+     * Local Storage 관련 함수 호출
+     *
+     * @author     Nuri
+     * @since      2019-06-18
+     */
+
+    // LocalStorage 데이터 생성 관련 함수 주기적 실행
+    function initScriptModuleIntervalRun() {
+      // LocalStorage 데이터 생성 관련 함수 주기적 실행되는 함수 묶음(유저 토큰 처리 및 자동 로그인 처리, 선물함 등)
+      var initScriptModuleIntervalFunc = function() {
+        loginTokenModule.refreashLoginToken();
+        giftModule.setCountHtml();
+      }
+
+      var intervalCommonCnt = 1; // 인터벌 횟수
+      var intervalCommon = setInterval(function() {
+        initScriptModuleIntervalFunc();
+
+        if (intervalCommonCnt++ >= 10) {
+          clearInterval(intervalCommon);
+
+          var intervalCommon2 = setInterval(function() {
+            initScriptModuleIntervalFunc();
+
+            if (intervalCommonCnt++ >= 110) {
+              clearInterval(intervalCommon2);
+            }
+          }, 5 * 60 * 1000); // 5분에 한번 100번 실행
+        }
+      }, 60 * 1000); // 60초에 한번 10회만 실행
+    }
+    initScriptModuleIntervalRun(); // Interval로 실행 될 함수 초기 호출
+
+    // 유저 토큰 처리 및 자동 로그인 처리
+    loginTokenModule.init({
+      'userIdx': 0    });
+
+    // 선물함
+    giftModule.init({
+      'sessId': 'a2be8a5b4d0cc08b07cb85c778dcb0f4',
+      'userIdx': 0,
+      'language': 'tw'
+    });
+
+    // 관심작품
+    favoritesModule.init({
+      'sessId': 'a2be8a5b4d0cc08b07cb85c778dcb0f4',
+      'userIdx': 0    });
+
+    // 내가 본 작품
+    recentModule.init({
+      'sessId': 'a2be8a5b4d0cc08b07cb85c778dcb0f4',
+      'userIdx': 0    });
+
+    // 내가 본 작품(메인 페이지 내가 본 작품 리스트 출력에 사용)
+    recentTop10Module.init({
+      'sessId': 'a2be8a5b4d0cc08b07cb85c778dcb0f4',
+      'userIdx': 0,
+      'showAdult': '0',
+      'swipeLoop': true
+    });
+
+    // 구매한 작품
+    purchaseModule.init({
+      'sessId': 'a2be8a5b4d0cc08b07cb85c778dcb0f4',
+      'userIdx': 0,
+      'page': ''
+    });
+
+    // 1+1 무료 코믹 리스트
+    onePlusOneModule.init({
+      'sessId': 'a2be8a5b4d0cc08b07cb85c778dcb0f4',
+      'userIdx': 0,
+      'showAdult': '0'
+    });
+
+    // 기다빵 코믹 리스트
+    waitFreeModule.init({
+      'sessId': 'a2be8a5b4d0cc08b07cb85c778dcb0f4',
+      'userIdx': 0,
+      'showAdult': '0',
+      'language': 'tw'
+    });
+
+    // 1코인관 코믹 리스트
+    oneCoinModule.init({
+      'sessId': 'a2be8a5b4d0cc08b07cb85c778dcb0f4',
+      'userIdx': 0,
+      'showAdult': '0'
+    });
+
+    // 묶음할인 코믹 리스트
+    packageModule.init({
+      'sessId': 'a2be8a5b4d0cc08b07cb85c778dcb0f4',
+      'language': 'tw',
+    });
+
+    // 전체소장할인 코믹 리스트
+    giftpackageModule.init({
+      'sessId': 'a2be8a5b4d0cc08b07cb85c778dcb0f4',
+      'language': 'tw',
+    });
+
+    // 파트너 스크립트 모듈
+    partnerModule.init({
+      'requestUri': '/',
+      'userPId': ''
+    });
+
+    // 최근완결 작품
+    completeNewModule.init({
+      'sessId': 'a2be8a5b4d0cc08b07cb85c778dcb0f4',
+      'showAdult': '0'
+    });
+          });
+	</script>
+
+	<!-- 푸시 Script -->
+	<script src="https://www.gstatic.com/firebasejs/3.6.2/firebase-app.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/3.6.2/firebase-auth.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/3.6.2/firebase-database.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/3.6.2/firebase-messaging.js"></script>
+	<script src="//tw-origin.toptoon.net/assets/v2/js/module.pushScript.min.js?v=1719888487"></script>
+	<script>
+		$(function() {
+      // 푸시
+      pushScriptModule.init({
+        'userIdx': 0      });
+    });
+	</script>
+
+	<!-- Log Count -->
+	<img id="counter_img" src="/counter/check.php?key=MC8vMTMzL1VTRVJfR1JBREUvLw%3D%3D&url=aHR0cHM6Ly93d3cudG9wdG9vbi5uZXQv&ref=aHR0cHM6Ly93d3cudG9wdG9vbi5uZXQvY29taWMvZXBMaXN0LzgxMTAz&temp=1764753697" width='1' height='1' onerror="document.getElementById(this.id).style.display='none';" onload="document.getElementById(this.id).style.display='none';">
+	<!-- Criteo Visit Tag -->
+	<script type="text/javascript">
+		window.criteo_q = window.criteo_q || [];
+  var deviceType = /iPad/.test(navigator.userAgent) ? "t" : /Mobile|iP(hone|od)|Android|BlackBerry|IEMobile|Silk/.test(navigator.userAgent) ? "m" : "d";
+  window.criteo_q.push({
+    event: "setAccount",
+    account: [85539, 107008]
+  }, {
+    event: "setEmail",
+    email: ""
+  }, {
+    event: "setSiteType",
+    type: deviceType
+  }, {
+    event: "viewPage"
+  });
+	</script>
+	<!-- END Criteo Visit Tag -->
+</body>
+
+</html>
