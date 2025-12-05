@@ -753,94 +753,45 @@ func GetOneChapObjByCollyMapping(element *colly.HTMLElement, spiderMapping map[s
 			log.Warnf("GetOneChapObjByCollyMapping: 未知的GetHtmlType=%s, field=%s", fieldMapping.GetHtmlType, key)
 			v = ""
 		}
-		log.Debugf("-------- 爬到的字段, key = %v value= %v", key, v)
+		log.Debugf("-------- 爬到的字段,数据清洗前, key = %v value= %v", key, v)
 
 		// 3. 根据结果 类型(string int ...) 赋值
 		// --- 简单处理 Transform ---
+		// 4. 根据类型处理值，得到最终值
+		var finalValue any
+
 		if fieldMapping.Transform != nil {
 			// Transform 优先执行 -> 自带的mapping 里的，爬到的value 转换方法
-			result[key] = fieldMapping.Transform(v)
+			finalValue = fieldMapping.Transform(v)
 		} else {
 			switch fieldMapping.FiledType {
 			case "string":
-				result[key] = v
+				finalValue = v
 			case "int":
-				result[key], _ = strconv.Atoi(v)
-				/* AI 写法，不太完善
-				if intVal, err := strconv.Atoi(v); err == nil {
-					result[key] = intVal
-				} else {
-					log.Warnf("GetOneChapObjByCollyMapping: 转换int失败, field=%s, value=%s, err=%v", key, v, err)
-					result[key] = 0
-				}
-				*/
+				finalValue, _ = strconv.Atoi(v)
 			case "float":
-				result[key], _ = strconv.ParseFloat(v, 64)
-				/* AI写法，不太完善
-				if floatVal, err := strconv.ParseFloat(v, 64); err == nil {
-					result[key] = floatVal
-				} else {
-					log.Warnf("GetOneChapObjByCollyMapping: 转换float失败, field=%s, value=%s, err=%v", key, v, err)
-					result[key] = 0.0
-				}
-				*/
+				finalValue, _ = strconv.ParseFloat(v, 64)
 			case "bool":
-				result[key], _ = strconv.ParseBool(v)
-				/* AI写法，不太完善
-				if boolVal, err := strconv.ParseBool(v); err == nil {
-					result[key] = boolVal
-				} else {
-					log.Warnf("GetOneChapObjByCollyMapping: 转换bool失败, field=%s, value=%s, err=%v", key, v, err)
-					result[key] = false
-				}*/
+				finalValue, _ = strconv.ParseBool(v)
 			case "array":
-				result[key] = []string{v}
-				/* AI 写法，不太完善
-				// 对于数组类型，这里先简单处理为字符串，后续可以扩展
-				result[key] = []string{v}
-				*/
+				finalValue = []string{v}
 			case "time":
 				// -- 考虑健壮性，而且有的字段 not null ,不让时间用nil。所以设置一个 sql支持的默认值。如：1001-01-01 00:00:00
 				defaultTime := time.Date(1001, 1, 1, 0, 0, 0, 0, time.UTC)
 				if parsedTime, err := time.Parse("2006-01-02 15:04:05", v); err == nil {
-					result[key] = parsedTime
+					finalValue = parsedTime
 				} else {
-					result[key] = defaultTime
+					finalValue = defaultTime
 				}
 			default:
-				result[key] = v // fallback to string
+				finalValue = v // fallback to string
 			}
 		}
 
-		// 支持嵌套字段写法，如 stats.latestChapter
-		if strings.Contains(key, ".") {
-			parts := strings.Split(key, ".")
-			current := result
+		// 5. 设置结果值
+		result[key] = finalValue
 
-			for i := 0; i < len(parts)-1; i++ {
-				part := parts[i]
-				next, exists := current[part]
-				if !exists {
-					newMap := make(map[string]any)
-					current[part] = newMap
-					current = newMap
-					continue
-				}
-
-				if nestedMap, ok := next.(map[string]any); ok {
-					current = nestedMap
-					continue
-				}
-
-				newMap := make(map[string]any)
-				current[part] = newMap
-				current = newMap
-			}
-
-			current[parts[len(parts)-1]] = v
-		} else {
-			result[key] = v
-		}
+		log.Debugf("-------- 爬到的字段,数据清洗后, key = %v value= %v", key, result[key])
 	}
 	// 5. 返回结果
 	return result
@@ -937,7 +888,30 @@ func GetOneTypeFirstPageFullURL(needTcp, needHttps bool, websitePrefix, apiPath 
 }
 
 // 通用函数 根据 model 模型里的tag, 爬取到的json结果 result -> 转成成 模型对象. AI给的真的好用，仔细了解下这个方法！！
+// setNestedFields 处理嵌套结构体字段的设置
+func setNestedFields(result map[string]any, out any) {
+	v := reflect.ValueOf(out).Elem()
+
+	// 特殊处理 Stats.Hits
+	if hitsVal, ok := result["hits"]; ok {
+		statsField := v.FieldByName("Stats")
+		if statsField.IsValid() && statsField.CanSet() {
+			hitsField := statsField.FieldByName("Hits")
+			if hitsField.IsValid() && hitsField.CanSet() {
+				err := convertAndSet(hitsVal, hitsField)
+				if err != nil {
+					log.Errorf("设置嵌套字段 Stats.Hits 失败: %v", err)
+				} else {
+					log.Debugf("成功设置嵌套字段 Stats.Hits = %v", hitsVal)
+				}
+			}
+		}
+	}
+}
+
 func MapByTag(result map[string]any, out any) {
+	// 处理嵌套字段
+	setNestedFields(result, out)
 
 	// v0.2 的写法。支持切片类型和结构体类型的转换
 	t := reflect.TypeOf(out).Elem()
@@ -962,7 +936,7 @@ func MapByTag(result map[string]any, out any) {
 						field.Set(reflect.ValueOf(val).Convert(field.Type()))
 					} else {
 						// 记录错误但继续处理其他字段
-						fmt.Printf("字段转换失败: %v\n", err)
+						log.Errorf("字段转换失败: value = %v, err = %v\n", val, err)
 					}
 				}
 			}
@@ -1104,6 +1078,31 @@ func handleBasicTypeConversion(sourceValue reflect.Value, targetField reflect.Va
 	if sourceValue.Type().ConvertibleTo(targetField.Type()) {
 		targetField.Set(sourceValue.Convert(targetField.Type()))
 		return nil
+	}
+
+	// 特殊处理：字符串到基本类型的转换
+	if sourceValue.Kind() == reflect.String {
+		strValue := sourceValue.String()
+		switch targetField.Kind() {
+		case reflect.String:
+			targetField.SetString(strValue)
+			return nil
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			if intValue, err := strconv.ParseInt(strValue, 10, 64); err == nil {
+				targetField.SetInt(intValue)
+				return nil
+			}
+		case reflect.Float32, reflect.Float64:
+			if floatValue, err := strconv.ParseFloat(strValue, 64); err == nil {
+				targetField.SetFloat(floatValue)
+				return nil
+			}
+		case reflect.Bool:
+			if boolValue, err := strconv.ParseBool(strValue); err == nil {
+				targetField.SetBool(boolValue)
+				return nil
+			}
+		}
 	}
 
 	// 特殊处理：gjson.Result到基本类型的转换

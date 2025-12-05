@@ -88,9 +88,9 @@ func ParseHitsStr(hitsStr string) int {
 		switch matches[2] {
 		case "亿":
 			multiplier = 100000000
-		case "万", "w":
+		case "万", "w", "W":
 			multiplier = 10000
-		case "千", "k":
+		case "千", "k", "K":
 			multiplier = 1000
 		}
 	}

@@ -423,6 +423,7 @@ func DispatchApi_OneBookAllChapterByHtml(c *gin.Context) {
 返回：
 
 注意：
+	- processId，如果用户传 1 - 》程序自己判断 如果是2/3 ，就之间替换赋值
 
 使用方式：
 */
@@ -443,8 +444,32 @@ func DispatchApi_OneTypeAllBookByHtml(c *gin.Context) {
 	}
 
 	// gjson 读取 前端 JSON 里 spiderTag -> website字段 --
-	website := gjson.Get(string(data), "spiderTag.website").String()
-	adultArrGjsonResult := gjson.GetBytes(data, "adult").Array()
+	website := gjson.Get(string(data), "spiderTag.website").String() // websiteTag - website
+	table := gjson.Get(string(data), "spiderTag.table").String()     // websiteTag - table
+
+	websiteId := gjson.Get(string(data), "websiteId").Int()               // 网站id
+	pronTypeId := gjson.Get(string(data), "pronTypeId").Int()             // 色情类型id
+	countryId := gjson.Get(string(data), "countryId").Int()               // 国家id
+	typeId := gjson.Get(string(data), "typeId").Int()                     // 类型id
+	processId := gjson.Get(string(data), "processId").Int()               // 进程：完结状态 id
+	authorConcatType := gjson.Get(string(data), "authorConcatType").Int() // 作者拼接方式 id
+	needTcp := gjson.Get(string(data), "needTcp").Bool()                  // 是否需要tcp 头
+	coverNeedTcp := gjson.Get(string(data), "coverNeedTcp").Bool()        // 封面链接是否需要tcp 头
+	endNum := gjson.Get(string(data), "endNum").Int()                     // 结束页 号码
+	adultArrGjsonResult := gjson.GetBytes(data, "adult").Array()          // 数组 - adult 内容
+
+	log.Info("爬取html,前端传参= ", string(data))
+	log.Debug("爬取html,前端传参. piderTag.website = ", website)
+	log.Debug("爬取html,前端传参. piderTag.table = ", table)
+	log.Debug("爬取html,前端传参. websiteId = ", websiteId)
+	log.Debug("爬取html,前端传参. pronTypeId = ", pronTypeId)
+	log.Debug("爬取html,前端传参. countryId = ", countryId)
+	log.Debug("爬取html,前端传参. typeId = ", typeId)
+	log.Debug("爬取html,前端传参. processId = ", processId)
+	log.Debug("爬取html,前端传参. authorConcatType = ", authorConcatType)
+	log.Debug("爬取html,前端传参. needTcp = ", needTcp)
+	log.Debug("爬取html,前端传参. coverNeedTcp = ", coverNeedTcp)
+	log.Debug("爬取html,前端传参. endNum = ", endNum)
 
 	// -- 根据该字段，使用不同的爬虫 ModelMapping映射表
 	switch website {
@@ -545,6 +570,7 @@ func DispatchApi_OneTypeAllBookByHtml(c *gin.Context) {
 		// oneBookCollyString := "kxmanhua"
 		var oneBookCollyString *colly.Response
 		GetAllObjFromOneHtmlPageUseCollyByMapping[models.ComicSpider](oneBookCollyString, ComicMappingForSpiderToptoonByHtml)
+		log.Info("------------------ 这个逻辑没判断: processId, 如果用户传 1 - 》程序自己判断 如果是2/3 ，就之间替换赋值 ")
 
 	default:
 		c.JSON(400, gin.H{"error": "func=DispatchApi_OneCategoryByJSON(分发api- /spider/oneTypeByJson), 没找到到应爬哪个网站. 建议: 排查json参数 apiderTag-website"}) // 返回错误

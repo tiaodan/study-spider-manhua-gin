@@ -83,10 +83,17 @@ var ComicMappingForSpiderToptoonByHtml = map[string]models.ModelHtmlMapping{
 			// 思路： 爬出来都是string类型，必须先清洗: 去空格，繁体转简体; 再做其他转换
 			// 1. 去空格
 			name := strings.TrimSpace(v.(string))
-			// 2. 繁体转简体
-			name, _ = langutil.TraditionalToSimplified(name)
 
-			// 3. 返回
+			// 2. 繁体转简体
+			name, err := langutil.TraditionalToSimplified(name)
+			if err != nil {
+				log.Errorf("繁体转简体失败: %v", err)
+			}
+
+			// 3. 手动替换一些特殊字符（作为 opencc 的补充）
+			name = strings.ReplaceAll(name, "姊", "姐")
+
+			// 4. 返回
 			return name
 		}},
 
@@ -126,7 +133,7 @@ var ComicMappingForSpiderToptoonByHtml = map[string]models.ModelHtmlMapping{
 			value, _ = langutil.TraditionalToSimplified(value)
 
 			// 3. 去除协议头+域名，https://img.imh99.to,只留后面内容,re 正则获取
-			re := regexp.MustCompile(`https://img.imh99.to`)
+			re := regexp.MustCompile(`https://img.imh99.top`)
 			value = re.ReplaceAllString(value, "")
 
 			// 4. 返回
@@ -141,21 +148,18 @@ var ComicMappingForSpiderToptoonByHtml = map[string]models.ModelHtmlMapping{
 			// 思路： 爬出来都是string类型，必须先清洗: 去空格，繁体转简体; 再做其他转换
 			// 1. 去空格
 			value := strings.TrimSpace(v.(string))
-			// 2. 繁体转简体
+			// 2. 繁体转简体 (暂时注释掉，可能有问题)
 			value, _ = langutil.TraditionalToSimplified(value)
 
 			// 3. 把 中文的结束状态 转成 数字-》对应数据库中  未知1 连载2 完结3
 			switch value {
 			case "完结":
-				value = "3"
+				return "3"
 			case "连载":
-				value = "2"
+				return "2"
 			default:
-				value = "1"
+				return "1"
 			}
-
-			// 4. 返回
-			return value
 		}},
 	// "spiderEndStatus":      {GetFieldPath: "adult.%d.meta.epTotalCnt", FiledType: "int"},             // 爬不到
 	// "downloadEndStatus":    {GetFieldPath: "adult.%d.meta.epTotalCnt", FiledType: "int"},             // 爬不到
@@ -167,20 +171,17 @@ var ComicMappingForSpiderToptoonByHtml = map[string]models.ModelHtmlMapping{
 
 	// 子表相关
 	// "stats.latestChapterName":         {GetFieldPath: "adult.%d.lastUpdated.episodeTitle", FiledType: "string"}, // 爬不到-----------
-	"stats.hits": {GetFieldPath: ".view", GetHtmlType: "content", FiledType: "int",
+	"hits": {GetFieldPath: ".view", GetHtmlType: "content", FiledType: "int",
 		Transform: func(v any) string {
 			// 爬出来 = 5.3w
 			// 思路： 爬出来都是string类型，必须先清洗: 去空格，繁体转简体; 再做其他转换
 			// 1. 去空格
 			value := strings.TrimSpace(v.(string))
-			// 2. 繁体转简体
-			value, _ = langutil.TraditionalToSimplified(value)
+			// 2. 繁体转简体 (暂时注释掉，可能有问题)
+			// value, _ = langutil.TraditionalToSimplified(value)
 
-			// 3. 把 带字母/中文的 “访问量” 转成 数字, 判断逻辑: 看字符末尾是由有 k/千w/万, 正则实现
-			value = strconv.Itoa(stringutil.ParseHitsStr(value)) // stringutil.ParseHitsStr(value) 返回的是int
-
-			// 4. 返回
-			return value
+			// 3. 把 带字母/中文的 "访问量" 转成 数字, 判断逻辑: 看字符末尾是由有 k/千w/万, 正则实现
+			return strconv.Itoa(stringutil.ParseHitsStr(value)) // 直接返回字符串形式的数字
 		}},
 	// "stats.star":                      {GetFieldPath: "adult.%d.meta.rating", FiledType: "float"},        // 爬不到-----------
 	// "stats.totalChapter":              {GetFieldPath: "adult.%d.meta.epTotalCnt", FiledType: "int"},      // 爬不到-----------
