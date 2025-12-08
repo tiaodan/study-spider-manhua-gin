@@ -1,5 +1,5 @@
 log:                           # 日志相关配置
-  level: debug                   # 日志等级。分 debug info warn error 4种，默认是info。程序写了默认值：info
+  level: info                   # 日志等级。分 debug info warn error 4种，默认是info。程序写了默认值：info
   path: log/app.log              # 日志文件路径, 基于main.go文件所在目录 程序写了默认值：log/app.log
 network:                       # 网络相关配置
   ximalaya_ip: www.ximalaya.com  # 喜马拉雅的ip。程序写了默认值：www.ximalaya.com

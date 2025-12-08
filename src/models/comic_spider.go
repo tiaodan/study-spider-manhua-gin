@@ -155,6 +155,11 @@ func (c *ComicSpider) BusinessDataClean() {
 		c.CoverUrlApiPath = stringutil.TrimHttpPrefix(c.CoverUrlApiPath)
 	}
 
+	// author concat 拼接 --
+	if c.AuthorConcat == "" {
+		c.AuthorConcat = "佚名"
+	}
+
 	// -- int 类型
 	// end 完结状态 --
 	/* 判断逻辑
@@ -174,6 +179,12 @@ func (c *ComicSpider) BusinessDataClean() {
 	} else {
 		c.End = c.ProcessId
 	}
+
+	// -- 日期类型，不让有0000-00-00 00:00:00 / 0001-01-01 00:00:00
+	if c.ReleaseDate.IsZero() {
+		// -- 考虑健壮性，而且有的字段 not null ,不让时间用nil。所以设置一个 sql支持的默认值。如：1001-01-01 00:00:00
+		c.ReleaseDate = time.Date(1001, 1, 1, 0, 0, 0, 0, time.UTC) // 默认 1001-01-01 00:00:00
+	}
 }
 
 // 实现 业务数据清理接口 - comicSpiderStats 表
@@ -186,6 +197,12 @@ func (c *ComicSpiderStats) BusinessDataClean() {
 		c.Star = 0
 	}
 
+	// -- 日期类型，不让有0000-00-00 00:00:00 / 0001-01-01 00:00:00
+	if c.LastestChapterReleaseDate.IsZero() {
+		// -- 考虑健壮性，而且有的字段 not null ,不让时间用nil。所以设置一个 sql支持的默认值。如：1001-01-01 00:00:00
+		c.LastestChapterReleaseDate = time.Date(1001, 1, 1, 0, 0, 0, 0, time.UTC) // 默认 1001-01-01 00:00:00
+	}
+
 }
 
 // 实现 数据清理统一入口 - comicSpider 表
@@ -193,6 +210,9 @@ func (c *ComicSpider) DataClean() {
 	c.TrimSpaces()
 	c.Trad2Simple()
 	c.BusinessDataClean()
+
+	// 子表也清理
+	c.Stats.DataClean()
 }
 
 // 实现 数据清理统一入口 - comicSpiderStats 表

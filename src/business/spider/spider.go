@@ -202,15 +202,8 @@ var ComicChapterMappingForSpiderToptoonByJSON = map[string]models.ModelMapping{
 	"chapterRealSortNum": {GetFieldPath: "pornTypeId", FiledType: "int"},
 	"name":               {GetFieldPath: ".comic__title", FiledType: "content"}, // content 表示内容，不转换
 	"urlApiPath":         {GetFieldPath: "typeId", FiledType: "string"},
-	"releaseDate":        {GetFieldPath: "processId", FiledType: "time"},
+	"releaseDate":        {GetFieldPath: "releaseDate", FiledType: "time"},
 	"SpiderStatus":       {GetFieldPath: "adult.%d.thumbnail.standard", FiledType: "int"},
-
-	// 下面是参考 - 一会删
-	"不知道": {GetFieldPath: "adult.%d.id", FiledType: "string",
-		Transform: func(v any) any {
-			id := v.(string)
-			return "/comic/epList/" + id
-		}}, // Template 表示模板：能实现拼接"/comic/epList/" + id
 }
 
 func init() {

@@ -513,7 +513,8 @@
 
 非核心改动:
     -
-
+# v0.0.0.20.2 临时提交
+- 简单实现 comic_spider 通过html方式爬取1个页面,多页面无法实现，所以先提交。要改 GetAllObjFromOneHtmlPageUseCollyByMapping() 方法结构 
 
 
 # v0.0.0.21
@@ -553,10 +554,13 @@
 
         
     - - 实现 comic_spider 通过html方式爬取 ？？？？？？？？？？
+        - 问题：
+        - 1. 通过html插入，第一次插入 comic + 子表都成功了，第二次更新就不行？
 
 
     - website 加几列数据
         - 这个网站 图片 能存多久/多久就会失效，因为有的网站，1天之后链接就会变，防爬机制
+        - chapter_content 是否有水印
     
     - 2 再实现爬chappter 逻辑 - 没有F12 json,只能爬html
     - 3 再实现插入sql逻辑

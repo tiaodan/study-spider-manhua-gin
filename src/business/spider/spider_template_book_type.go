@@ -633,13 +633,44 @@ func GetTableFieldValueBySpiderMapping(jsonByteData []byte, spiderMapping map[st
 // 获取所有 model Obj,从1个html页面,  用colly, 通过mapping
 /*
 参数:
+	1. ginContextByte []byte 传一个gin.Context -> 转成的 []Byte，因为gin.Context 只能传递1次，因此方法间传参用 []byte
 	1. oneTypeHtmlContent 传一个obj colly结果,全称: oneBookCollyResult
 	2. mapping map[string]models.ModelMapping 爬取映射关系
 
 返回:
+主表数组
 作用简单说：
 */
-func GetAllObjFromOneHtmlPageUseCollyByMapping[T any](oneTypeHtmlContent *colly.Response, mapping map[string]models.ModelHtmlMapping) {
+// func GetAllObjFromOneHtmlPageUseCollyByMapping[T any](ginContextByte []byte, oneTypeHtmlContent *colly.Response, mapping map[string]models.ModelHtmlMapping) []T {
+func GetAllObjFromOneHtmlPageUseCollyByMapping[T any](ginContextByte []byte, mapping map[string]models.ModelHtmlMapping) []T {
+	// 1. gjson 读取 前端 JSON 里 spiderTag -> website字段 --
+	website := gjson.Get(string(ginContextByte), "spiderTag.website").String() // websiteTag - website
+	table := gjson.Get(string(ginContextByte), "spiderTag.table").String()     // websiteTag - table
+
+	websiteId := gjson.Get(string(ginContextByte), "websiteId").Int()               // 网站id
+	pornTypeId := gjson.Get(string(ginContextByte), "pornTypeId").Int()             // 色情类型id
+	countryId := gjson.Get(string(ginContextByte), "countryId").Int()               // 国家id
+	typeId := gjson.Get(string(ginContextByte), "typeId").Int()                     // 类型id
+	processId := gjson.Get(string(ginContextByte), "processId").Int()               // 进程：完结状态 id
+	authorConcatType := gjson.Get(string(ginContextByte), "authorConcatType").Int() // 作者拼接方式 id
+	needTcp := gjson.Get(string(ginContextByte), "needTcp").Bool()                  // 是否需要tcp 头
+	coverNeedTcp := gjson.Get(string(ginContextByte), "coverNeedTcp").Bool()        // 封面链接是否需要tcp 头
+	endNum := gjson.Get(string(ginContextByte), "endNum").Int()                     // 结束页 号码
+	// adultArrGjsonResult := gjson.GetBytes(daginContextByteta, "adult").Array()      // 数组 - adult 内容 - html 用不到, 一会删
+
+	log.Info("爬取html,前端传参= ", string(ginContextByte))
+	log.Debug("爬取html,前端传参. piderTag.website = ", website)
+	log.Debug("爬取html,前端传参. piderTag.table = ", table)
+	log.Debug("爬取html,前端传参. websiteId = ", websiteId)
+	log.Debug("爬取html,前端传参. pronTypeId = ", pornTypeId)
+	log.Debug("爬取html,前端传参. countryId = ", countryId)
+	log.Debug("爬取html,前端传参. typeId = ", typeId)
+	log.Debug("爬取html,前端传参. processId = ", processId)
+	log.Debug("爬取html,前端传参. authorConcatType = ", authorConcatType)
+	log.Debug("爬取html,前端传参. needTcp = ", needTcp)
+	log.Debug("爬取html,前端传参. coverNeedTcp = ", coverNeedTcp)
+	log.Debug("爬取html,前端传参. endNum = ", endNum)
+
 	// -- 建一个爬虫对象
 	c := colly.NewCollector()
 
@@ -653,12 +684,14 @@ func GetAllObjFromOneHtmlPageUseCollyByMapping[T any](oneTypeHtmlContent *colly.
 
 	// 获取html内容,每成功匹配一次, 就执行一次逻辑。这个标签选只匹配一次的 --
 
+	var comicArr []T // 存放爬好的 obj，因为要返回泛型，所以用T ,以前写法：comicArr := []models.ComicSpider{}
 	// 遍历每一个book . element用forEach. colly，用Html遍历
 	c.OnHTML(".col-lg-2.col-md-3.col-sm-4.col-6", func(e *colly.HTMLElement) {
-		log.Info("-------------- 匹配col-lg-2.col-md-3.col-sm-4.col-6 = ", e.Text)
+		// 1. 获取能获取到的
+		log.Debug("-------------- 匹配col-lg-2.col-md-3.col-sm-4.col-6 = ", e.Text)
 		// 通过mapping -> 转成1个对象
 		// 创建对象comic
-		var comic T
+		var comicT T
 		comicSpiderStats := models.ComicSpiderStats{} // 子表，统计数据
 		log.Info("-------- delete comicSpiderStats = ", comicSpiderStats)
 
@@ -666,9 +699,35 @@ func GetAllObjFromOneHtmlPageUseCollyByMapping[T any](oneTypeHtmlContent *colly.
 		result := GetOneChapObjByCollyMapping(e, mapping)
 		if result != nil {
 			// 通过 model字段 spider，把爬出来的 map[string]any，转成 model对象
-			MapByTag(result, &comic)
-			log.Infof("映射后的comic对象: %+v", comic)
+			MapByTag(result, &comicT)
+			log.Infof("映射后的comic对象: %+v", comicT)
 		}
+
+		// 2. 设置对象值
+		// -- T 类型 -》 具体struct 类型
+		comic := any(comicT).(models.ComicSpider)
+
+		// -- 进度id逻辑
+		if processId == 1 {
+			// 如果用户传 1 - 》程序自己判断
+			comic.ProcessId = comic.End
+		} else {
+			// 如果是2/3, 就直接替换赋值
+			comic.ProcessId = int(processId)
+		}
+		// -- 其它直接赋值
+		comic.WebsiteId = int(websiteId)               // 网站id
+		comic.PornTypeId = int(pornTypeId)             // 色情类型id
+		comic.CountryId = int(countryId)               // 国家id
+		comic.TypeId = int(typeId)                     // 类型id
+		comic.AuthorConcatType = int(authorConcatType) // 作者拼接方式 id
+
+		// 3 数据清洗
+		comic.DataClean()
+
+		// 4 把爬好的单个数据，放到数组里，准备插入数据库
+		comicArr = append(comicArr, any(comic).(T))
+
 	})
 
 	// -- 添加多个页面到队列中
@@ -684,9 +743,14 @@ func GetAllObjFromOneHtmlPageUseCollyByMapping[T any](oneTypeHtmlContent *colly.
 
 	// 测试用 - 添加任务到队列
 	q.AddURL("http://localhost:8080/test/kxmanhua/index.html")
+	// q.AddURL("https://kxmanhua.com/manga/library?type=2&complete=2&page=48&orderby=1") // 尾页
+	// q.AddURL("https://kxmanhua.com/manga/library?type=2&complete=2&page=1&orderby=1") // 首页
 
 	// 启动对垒
 	q.Run(c)
+
+	// -- 爬取结束，返回结果
+	return comicArr
 }
 
 // 获取 1个章节对象,所有字段，通过colly 爬虫框架 mapping
