@@ -641,7 +641,6 @@ func GetTableFieldValueBySpiderMapping(jsonByteData []byte, spiderMapping map[st
 主表数组
 作用简单说：
 */
-// func GetAllObjFromOneHtmlPageUseCollyByMapping[T any](ginContextByte []byte, oneTypeHtmlContent *colly.Response, mapping map[string]models.ModelHtmlMapping) []T {
 func GetAllObjFromOneHtmlPageUseCollyByMapping[T any](ginContextByte []byte, mapping map[string]models.ModelHtmlMapping) []T {
 	// 1. gjson 读取 前端 JSON 里 spiderTag -> website字段 --
 	website := gjson.Get(string(ginContextByte), "spiderTag.website").String() // websiteTag - website
@@ -742,7 +741,7 @@ func GetAllObjFromOneHtmlPageUseCollyByMapping[T any](ginContextByte []byte, map
 	*/
 
 	// 测试用 - 添加任务到队列
-	q.AddURL("http://localhost:8080/test/kxmanhua/index.html")
+	q.AddURL("http://localhost:8080/test/kxmanhua/spiderBook/index.html")
 	// q.AddURL("https://kxmanhua.com/manga/library?type=2&complete=2&page=48&orderby=1") // 尾页
 	// q.AddURL("https://kxmanhua.com/manga/library?type=2&complete=2&page=1&orderby=1") // 首页
 
@@ -751,6 +750,79 @@ func GetAllObjFromOneHtmlPageUseCollyByMapping[T any](ginContextByte []byte, map
 
 	// -- 爬取结束，返回结果
 	return comicArr
+}
+
+// 获取1个book所有chapter, 用colly, 通过mapping
+/*
+参数:
+	1. ginContextByte []byte 传一个gin.Context -> 转成的 []Byte，因为gin.Context 只能传递1次，因此方法间传参用 []byte
+	1. oneTypeHtmlContent 传一个obj colly结果,全称: oneBookCollyResult
+	2. mapping map[string]models.ModelMapping 爬取映射关系
+
+返回:
+主表数组
+作用简单说：
+*/
+func GetOneBookAllChapterByCollyMapping[T any](ginContextByte []byte, mapping map[string]models.ModelHtmlMapping) []T {
+	// 1. gjson 读取 前端 JSON 里 有用内容
+
+	// 2. 爬虫相关
+	// -- 建一个爬虫对象
+	c := colly.NewCollector()
+
+	// -- 设置并发数，和爬取限制
+	// 设置请求限制（每秒最多3个请求, 5秒后发）
+	c.Limit(&colly.LimitRule{
+		DomainGlob: "*",
+		// Parallelism: 3, // 和queue队列同时存在时，用queue控制并发就行。加这个有用，但没必要。默认是0，表示没限制
+		RandomDelay: time.Duration(config.Cfg.Spider.Public.SpiderType.RandomDelayTime) * time.Second, // 请求发送前触发。模仿人类，随机等待几秒，再请求。如果queue同时给了3条URL，那每条url触发请求前，都要随机延迟下
+	})
+
+	// 获取html内容,每成功匹配一次, 就执行一次逻辑。这个标签选只匹配一次的 --
+	var chapterArr []T // 存放爬好的 obj，因为要返回泛型，所以用T ,以前写法：comicArr := []models.ComicSpider{}
+	// 遍历一个book, 每个chapter
+	c.OnHTML(".chapter_list a", func(e *colly.HTMLElement) {
+		// 0. 处理异常内容
+		// -- 处理 ”休刊公告“
+		oneChapterStr, _ := langutil.TraditionalToSimplified(e.Text)
+		if strings.Contains(oneChapterStr, "休刊") {
+			return // ✅ 这个 return 只从匿名函数返回，不会影响 GetOneBookObjByCollyMapping 函数
+		}
+
+		// 1. 获取能获取到的
+		log.Debug("-------------- 匹配 .chapter_list a = ", e.Text)
+		// -- 创建对象comic
+		var chapterT T
+
+		// -- 通过mapping 爬内容
+		result := GetOneChapObjByCollyMapping(e, mapping)
+		log.Info("------------ delete , result = ", result)
+		if result != nil {
+			// 通过 model字段 spider，把爬出来的 map[string]any，转成 model对象
+			MapByTag(result, &chapterT)
+			log.Debugf("映射后的 chapter 对象, 还未清洗: %+v", chapterT)
+		}
+		// 2. 放到chapterArr里
+		chapterArr = append(chapterArr, any(chapterT).(T))
+	})
+
+	// -- 添加多个页面到队列中
+	// 使用队列控制任务调度（最多并发3个Url）
+	q, _ := queue.New(config.Cfg.Spider.Public.SpiderType.QueueLimitConcMaxnum,
+		&queue.InMemoryQueueStorage{MaxSize: config.Cfg.Spider.Public.SpiderType.QueuePoolMaxnum})
+	// 添加任务到队列
+	/*
+		for i := 1; i <= requestBody.EndNum; i++ {
+			q.AddURL(fullUrl + strconv.Itoa(i))
+		}
+	*/
+
+	// 测试用 - 添加任务到队列
+	q.AddURL("http://localhost:8080/test/kxmanhua/spiderChapter/社团学姐.html") // 章节url
+
+	// 启动对垒
+	q.Run(c)
+	return chapterArr
 }
 
 // 获取 1个章节对象,所有字段，通过colly 爬虫框架 mapping
@@ -800,13 +872,23 @@ func GetOneChapObjByCollyMapping(element *colly.HTMLElement, spiderMapping map[s
 		// 2. 区分 html标签 内容
 		switch fieldMapping.GetHtmlType {
 		case "content":
-			v = element.ChildText(fieldMapping.GetFieldPath) // colly 通过 CSS 类选择器, 进行爬取. 例如: element.ChildText(".comic__title")
+			if fieldMapping.GetFieldPath == "" || fieldMapping.GetFieldPath == "." {
+				// 获取当前元素的内容
+				v = element.Text
+			} else {
+				v = element.ChildText(fieldMapping.GetFieldPath) // colly 通过 CSS 类选择器, 进行爬取. 例如: element.ChildText(".comic__title")
+			}
 		case "attr":
 			// mapping 传的爬取规则都是用 | 隔开的，一般就是2个,拆成数组, 然后赋值
 			// 把fieldMapping.GetFieldPath 通过 | 拆分
 			fieldPathArr := strings.Split(fieldMapping.GetFieldPath, "|")
 			if len(fieldPathArr) >= 2 {
-				v = element.ChildAttr(fieldPathArr[0], fieldPathArr[1])
+				if fieldPathArr[0] == "" || fieldPathArr[0] == "." {
+					// 获取当前元素的属性
+					v = element.Attr(fieldPathArr[1])
+				} else {
+					v = element.ChildAttr(fieldPathArr[0], fieldPathArr[1])
+				}
 			} else {
 				log.Warnf("GetOneChapObjByCollyMapping: attr类型需要用|分隔selector和attrName, field=%s, path=%s", key, fieldMapping.GetFieldPath)
 				v = ""
@@ -1256,14 +1338,14 @@ func upsertSpiderTableData(tableName string, gjsonResultArr []map[string]any) er
 		}
 
 		// -- 主表插入 / 更新完成后，回填真实的主键 Id
-		if err := fillComicIDs(comicArr); err != nil {
+		if err := fillComicIds(comicArr); err != nil {
 			return err
 		}
 
 		// -- 批量插入 / 更新 子表 Stats 数据（ComicSpiderStats）
 		// 说明：
 		// 1. 上面循环里已经对 comic.Stats 做了 TrimSpaces / Trad2Simple 清洗
-		// 2. 这里把所有 Stats 抽出来，按 ComicID 作为唯一索引做 upsert
+		// 2. 这里把所有 Stats 抽出来，按 ComicId 作为唯一索引做 upsert
 		var statsArr []*models.ComicSpiderStats
 		for _, comic := range comicArr {
 			if comic == nil || comic.Id == 0 {
@@ -1272,7 +1354,7 @@ func upsertSpiderTableData(tableName string, gjsonResultArr []map[string]any) er
 			}
 
 			stats := &models.ComicSpiderStats{
-				ComicID:                   comic.Id,
+				ComicId:                   comic.Id,
 				Star:                      comic.Stats.Star,
 				LatestChapterName:         comic.Stats.LatestChapterName, // 最新章节名字
 				Hits:                      comic.Stats.Hits,
@@ -1288,11 +1370,11 @@ func upsertSpiderTableData(tableName string, gjsonResultArr []map[string]any) er
 		}
 
 		if len(statsArr) > 0 {
-			// ComicSpiderStats 模型里唯一索引是 ComicID
+			// ComicSpiderStats 模型里唯一索引是 ComicId
 			// 需要更新的列：latest_chapter / star / hits
 			log.Infof("--- 打印不太对-打不出值。插入子表comic_spider_stats, 用的comic数据= %+v \n", statsArr)
 			err = db.DBUpsertBatch(db.DBComic, statsArr,
-				[]string{"ComicID"},
+				[]string{"ComicId"},
 				[]string{"latest_chapter_id", "star", "latest_chapter_name", "hits", "total_chapter",
 					"lastest_chapter_release_date"}, // 用数据库真实小写的
 			)
@@ -1412,8 +1494,8 @@ func attachAuthorIDs(comicArr []*models.ComicSpider) error {
 	return nil
 }
 
-// fillComicIDs 根据唯一索引回填漫画的真实主键 Id，确保子表能引用正确的外键
-func fillComicIDs(comicArr []*models.ComicSpider) error {
+// fillComicIds 根据唯一索引回填漫画的真实主键 Id，确保子表能引用正确的外键
+func fillComicIds(comicArr []*models.ComicSpider) error {
 	if len(comicArr) == 0 {
 		return nil
 	}
@@ -1462,7 +1544,7 @@ func fillComicIDs(comicArr []*models.ComicSpider) error {
 	}
 
 	if len(missingKeys) > 0 {
-		return fmt.Errorf("fillComicIDs 未获取到主键, keys=%v", missingKeys)
+		return fmt.Errorf("fillComicIds 未获取到主键, keys=%v", missingKeys)
 	}
 
 	return nil

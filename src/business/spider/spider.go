@@ -73,12 +73,32 @@ var ComicMappingForSpiderToptoonByJSON = map[string]models.ModelMapping{
 	"stats.lastestChapterReleaseDate": {GetFieldPath: "adult.%d.lastUpdated.pubDate", FiledType: "time"},
 }
 
-// 表映射，爬 https:/www.toptoon.net (台湾服务器) 用，爬的 Html 数据 - 只能爬1个
-var ComicMappingForSpiderToptoonByHtml = map[string]models.ModelHtmlMapping{
+// 表映射，爬 https:/www.toptoon.net (台湾服务器)  - 作者相关 用，爬的JSON数据
+var AuthorMappingForSpiderToptoonByJSON = map[string]models.ModelMapping{
+	"name": {GetFieldPath: "adult.%d.meta.author.authorData.%d.name", FiledType: "string"}, // 参考 /doc/F12找到的JSON/comic项目/类别/任一json
+}
+
+// -- 爬漫画章节用 mapping
+var ComicChapterMappingForSpiderToptoonByJSON = map[string]models.ModelMapping{
+	// ---- 下面都是copy 的 comic的，还要改 ！！！！！！！！！！！！！！
+	// content 表示内容, 爬的时候用 element.ChildText(".comic__title")
+	"chapterNum":         {GetFieldPath: "adult.%d.meta.title", FiledType: "content"},
+	"chapterSubNum":      {GetFieldPath: "websiteId", FiledType: "int"},
+	"chapterRealSortNum": {GetFieldPath: "pornTypeId", FiledType: "int"},
+	"name":               {GetFieldPath: ".comic__title", FiledType: "content"}, // content 表示内容，不转换
+	"urlApiPath":         {GetFieldPath: "typeId", FiledType: "string"},
+	"releaseDate":        {GetFieldPath: "releaseDate", FiledType: "time"},
+	"SpiderStatus":       {GetFieldPath: "adult.%d.thumbnail.standard", FiledType: "int"},
+}
+
+// ------ kxmanhua
+// -- book 相关
+// 表映射，爬 https:/www.kxmanhua.xyz 开心漫画 用，爬的 Html 数据 - 只能爬1个
+var ComicMappingForSpiderKxmanhuaByHtml = map[string]models.ModelHtmlMapping{
 	// 注意: GetFieldPath 假如要传2个值，就用|分隔. 比如: GetFieldPath: ".product__item__pic set-bg|onclick"
 	// 表都有哪些数据
 	"name": {GetFieldPath: ".product__item__text", GetHtmlType: "content", FiledType: "string",
-		Transform: func(v any) string {
+		Transform: func(v any) any {
 			// 爬出来 = 舞蹈系学姊们
 			// 思路： 爬出来都是string类型，必须先清洗: 去空格，繁体转简体; 再做其他转换
 			// 1. 去空格
@@ -108,7 +128,7 @@ var ComicMappingForSpiderToptoonByHtml = map[string]models.ModelHtmlMapping{
 
 	// 其他
 	"comicUrlApiPath": {GetFieldPath: ".product__item__pic.set-bg|onclick", GetHtmlType: "attr", FiledType: "string",
-		Transform: func(v any) string {
+		Transform: func(v any) any {
 			// 爬出来 = location.href='/manga/2722';
 			// 思路： 爬出来都是string类型，必须先清洗: 去空格，繁体转简体; 再做其他转换
 			// 1. 去空格
@@ -124,7 +144,7 @@ var ComicMappingForSpiderToptoonByHtml = map[string]models.ModelHtmlMapping{
 			return value
 		}}, // Template 表示模板：能实现拼接"/comic/epList/" + id ->>>>>>>>>>>>>>>>>>>>> 好像不对，还需要 location.href='/manga/4015'; 去除些内容
 	"coverUrlApiPath": {GetFieldPath: ".product__item__pic.set-bg|data-setbg", GetHtmlType: "attr", FiledType: "string",
-		Transform: func(v any) string {
+		Transform: func(v any) any {
 			// 爬出来 = https://img.imh99.top/webtoon/cover-image/618_1748423944636.webp
 			// 思路： 爬出来都是string类型，必须先清洗: 去空格，繁体转简体; 再做其他转换
 			// 1. 去空格
@@ -143,7 +163,7 @@ var ComicMappingForSpiderToptoonByHtml = map[string]models.ModelHtmlMapping{
 	// "briefShort":           {GetFieldPath: "adult.%d.meta.description", FiledType: "string"}, // 爬不到-----------
 	// "briefLong":            {GetFieldPath: "adult.%d.meta.description", FiledType: "string"}, // 爬不到-----------
 	"end": {GetFieldPath: ".epgreen", GetHtmlType: "content", FiledType: "int",
-		Transform: func(v any) string {
+		Transform: func(v any) any {
 			// 爬出来 = 完结 / 连载
 			// 思路： 爬出来都是string类型，必须先清洗: 去空格，繁体转简体; 再做其他转换
 			// 1. 去空格
@@ -172,7 +192,7 @@ var ComicMappingForSpiderToptoonByHtml = map[string]models.ModelHtmlMapping{
 	// 子表相关
 	// "stats.latestChapterName":         {GetFieldPath: "adult.%d.lastUpdated.episodeTitle", FiledType: "string"}, // 爬不到-----------
 	"hits": {GetFieldPath: ".view", GetHtmlType: "content", FiledType: "int",
-		Transform: func(v any) string {
+		Transform: func(v any) any {
 			// 爬出来 = 5.3w
 			// 思路： 爬出来都是string类型，必须先清洗: 去空格，繁体转简体; 再做其他转换
 			// 1. 去空格
@@ -188,22 +208,122 @@ var ComicMappingForSpiderToptoonByHtml = map[string]models.ModelHtmlMapping{
 	// "stats.lastestChapterReleaseDate": {GetFieldPath: "adult.%d.lastUpdated.pubDate", FiledType: "time"}, // 爬不到-----------
 }
 
-// 表映射，爬 https:/www.toptoon.net (台湾服务器)  - 作者相关 用，爬的JSON数据
-var AuthorMappingForSpiderToptoonByJSON = map[string]models.ModelMapping{
-	"name": {GetFieldPath: "adult.%d.meta.author.authorData.%d.name", FiledType: "string"}, // 参考 /doc/F12找到的JSON/comic项目/类别/任一json
+// 表映射，爬 https:/www.kxmanhua.xyz 开心漫画, 爬章节的时候，顺便更新book数据用，爬的 Html 数据 - 只能爬1个book
+var UpdateBookMappingForSpiderKxmanhuaByHTML = map[string]models.ModelHtmlMapping{
+	/*
+		- 评分 爬不到，不管。全站所有评分都是9
+		- 作者 √ 用 / 分开 能爬。
+		- 最后一章id √ 但需要插入完 chapters 之后，才能获取到，并且更新 book ----
+		- 最后一章name 不能爬，不管
+		- 简介-短 x 不能爬，不管
+		- 简介-长 √ 能爬
+		- 作者拼接 √ 自己判断
+		- 作者拼接类型 √ 自己判断
+	*/
+	"authorConcat": {GetFieldPath: ".anime__details__title  span:nth-child(2)", GetHtmlType: "content", FiledType: "string",
+		Transform: func(v any) any {
+			// 爬取结果：作者：QRQ  /  Shrinell
+			// 思路： 爬出来都是string类型，必须先清洗: 去空格，繁体转简体; 再做其他转换
+			// 1. 去空格
+			value := strings.TrimSpace(v.(string))
+
+			// 2. 繁体转简体
+			value, err := langutil.TraditionalToSimplified(value)
+			if err != nil {
+				log.Errorf("繁体转简体失败: %v", err)
+			}
+
+			// 3. 手动去除 无用内容 - 作者：  (用 strings.ReplaceAll)
+			value = strings.ReplaceAll(value, "作者：", "")
+
+			// 4. 返回
+			return value
+		}},
 }
 
-// -- 爬漫画章节用 mapping
-var ComicChapterMappingForSpiderToptoonByJSON = map[string]models.ModelMapping{
-	// ---- 下面都是copy 的 comic的，还要改 ！！！！！！！！！！！！！！
-	// content 表示内容, 爬的时候用 element.ChildText(".comic__title")
-	"chapterNum":         {GetFieldPath: "adult.%d.meta.title", FiledType: "content"},
-	"chapterSubNum":      {GetFieldPath: "websiteId", FiledType: "int"},
-	"chapterRealSortNum": {GetFieldPath: "pornTypeId", FiledType: "int"},
-	"name":               {GetFieldPath: ".comic__title", FiledType: "content"}, // content 表示内容，不转换
-	"urlApiPath":         {GetFieldPath: "typeId", FiledType: "string"},
-	"releaseDate":        {GetFieldPath: "releaseDate", FiledType: "time"},
-	"SpiderStatus":       {GetFieldPath: "adult.%d.thumbnail.standard", FiledType: "int"},
+// -- chapter相关
+// 表映射，爬 https:/www.kxmanhua.xyz 开心漫画, 爬章节用，爬的 Html 数据 - 只能爬1个book
+var ChapterMappingForSpiderKxmanhuaByHTML = map[string]models.ModelHtmlMapping{
+	/*
+		- 可获取章节信息：(我的思路，能爬到哪些，就set哪些，爬不到的就默认处理。最后通过DataClean()清洗下)，用的时候用大写，不要用数据字段-小写格式
+			- ！！！ 要用大写格式，不要用数据字段-小写格式
+			- id x 不用爬，不用管。自行生成
+			- chapterNum √ 能爬，需要截取，需要判单没有 第x话，怎么处理？,比如最终话，或者根本就没有第X话，写出负数累加？
+			- chapterSubNum x 爬不到。不管，按默认来
+			- chapterRealSortNum x 爬不到。要管，爬到之后，先程序生成一些，先= chapter_num
+			- name √ 能爬。不用截取，如果里面有nbsp字段，需要处理
+			- urlApiPath √ 能爬。需要考虑截取http头+域名
+			- releaseDate x 爬不到。就按默认
+			- parentId。爬不到。但是需要，用的时候，其它函数传个id就行
+	*/
+	"chapterNum": {GetFieldPath: ".", GetHtmlType: "content", FiledType: "string",
+		Transform: func(v any) any {
+			// 爬出来 = 最终话-白佳贞&amp;陈钰琳要不要和我共组家庭?♥
+			// 思路： 爬出来都是string类型，必须先清洗: 去空格，繁体转简体; 再做其他转换
+			// 1. 去空格
+			value := strings.TrimSpace(v.(string))
+
+			// 2. 繁体转简体
+			value, err := langutil.TraditionalToSimplified(value)
+			if err != nil {
+				log.Errorf("繁体转简体失败: %v", err)
+			}
+
+			// 3. 从 第X话中,提取数字,作为章节号码. 用正则re实现
+			// -- 如果包含"最终话" | "完结"，就给一个很大的号码。比如: 9999
+			if strings.Contains(value, "最终话") || strings.Contains(value, "完结") {
+				return 9999
+			}
+
+			// -- 从“第X话”中提取 数字
+			re := regexp.MustCompile(`(?:第)?(\d+)(?:话|章|集|回)?`)
+			matches := re.FindStringSubmatch(value)
+			if num, err := strconv.Atoi(matches[1]); err == nil { // matches[0]是匹配内容,如"第1话", matches[1] 是提取的第一个内容，如果有第2个，就matches[2]
+				return num
+			}
+
+			// 4. 返回
+			log.Info("------- delete 前面都失败了，要返回value = ", value)
+			return value // 前面都失败了，应该返回int,只能返回一个string(提取不出来的), 让程序报错
+
+		}},
+	"name": {GetFieldPath: ".", GetHtmlType: "content", FiledType: "string",
+		Transform: func(v any) any {
+			// 爬出来 = 最终话-白佳贞&amp;陈钰琳要不要和我共组家庭?♥
+			// 思路： 爬出来都是string类型，必须先清洗: 去空格，繁体转简体; 再做其他转换
+			// 1. 去空格
+			value := strings.TrimSpace(v.(string))
+
+			// 2. 繁体转简体
+			value, err := langutil.TraditionalToSimplified(value)
+			if err != nil {
+				log.Errorf("繁体转简体失败: %v", err)
+			}
+
+			// 4. 返回
+			return value
+		}},
+	"urlApiPath": {GetFieldPath: ".|href", GetHtmlType: "attr", FiledType: "string",
+		Transform: func(v any) any {
+			// 爬出来 = 最终话-白佳贞&amp;陈钰琳要不要和我共组家庭?♥
+			// 思路： 爬出来都是string类型，必须先清洗: 去空格，繁体转简体; 再做其他转换
+			// 1. 去空格
+			value := strings.TrimSpace(v.(string))
+
+			// 2. 繁体转简体
+			value, err := langutil.TraditionalToSimplified(value)
+			if err != nil {
+				log.Errorf("繁体转简体失败: %v", err)
+			}
+
+			// 3. 去除 http头+域名，只保留路径
+
+			value = strings.TrimPrefix(value, "https://") // 会自动判断 http头
+			value = strings.TrimPrefix(value, "http://")  // 会自动判断 http头
+
+			// 4. 返回
+			return value
+		}},
 }
 
 func init() {

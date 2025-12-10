@@ -85,10 +85,10 @@ type ModelMapping struct {
 	   "name": {GetFieldPath: ".product__item__text", FiledType: "content"},
 */
 type ModelHtmlMapping struct {
-	GetFieldPath string                 // gjson 提取字段路径。获取这个字段, gjson path。提取的是json数据里的字段
-	GetHtmlType  string                 // 获取html 字段类型。如 "content","attr" ..
-	FiledType    string                 // 字段类型。如 "string","int“,”float“,”array“ ..
-	Transform    func(value any) string // 转换函数。提取到字段后，转换成数据库字段类型
+	GetFieldPath string              // gjson 提取字段路径。获取这个字段, gjson path。提取的是json数据里的字段
+	GetHtmlType  string              // 获取html 字段类型。如 "content","attr" ..
+	FiledType    string              // 字段类型。如 "string","int“,”float“,”array“ ..
+	Transform    func(value any) any // 转换函数。提取到字段后，转换成数据库字段类型. 一定要用any any ,为了保证灵活
 }
 
 // 定义一个泛型接口

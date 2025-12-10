@@ -59,7 +59,7 @@ type ComicMy struct {
 	PornType      PornType     `gorm:"foreignKey:PornTypeId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 	Type          Type         `gorm:"foreignKey:TypeId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 	Process       Process      `gorm:"foreignKey:ProcessId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
-	Stats         ComicMyStats `gorm:"foreignKey:ComicID;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;" spider:"stats"` // 漫画 统计
+	Stats         ComicMyStats `gorm:"foreignKey:ComicId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;" spider:"stats"` // 漫画 统计
 	LatestChapter ChapterMy    `gorm:"foreignKey:LatestChapterId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;" spider:"latestChapter"`
 
 	// 写column写法
@@ -99,7 +99,7 @@ type ComicMy struct {
 // 统计状态。频繁更新的字段放这个表里，相当于 comic 子表，通过外键关联上
 type ComicMyStats struct {
 	ID              int  `json:"id" gorm:"primaryKey;autoIncrement"`
-	ComicID         int  `gorm:"uniqueIndex"`                               // 外键，唯一索引保证一对一
+	ComicId         int  `gorm:"uniqueIndex"`                               // 外键，唯一索引保证一对一
 	LatestChapterId *int `json:"latestChapterId" spider:"latestChapterId" ` // 最新章节id。可为空，因为爬书的时候，章节表还没有内容。冗余1个，为了查询方便，不join影响性能
 
 	// 频繁更新字段
@@ -143,6 +143,22 @@ func (c *ComicMy) Trad2Simple() {
 // 实现stringutils 里 繁体转简体 接口 - 处理子表 -统计数据
 func (c *ComicMyStats) Trad2Simple() {
 	c.LatestChapterName, _ = langutil.TraditionalToSimplified(c.LatestChapterName)
+}
+
+// 实现stringutils 里 中文字符转英文 接口 - 处理主表
+func (c *ComicMy) ChChar2En() {
+	// 只要是string类型，都处理
+	c.Name = langutil.ChineseCharToEnglish(c.Name)
+	c.ComicUrlApiPath = langutil.ChineseCharToEnglish(c.ComicUrlApiPath)
+	c.CoverUrlApiPath = langutil.ChineseCharToEnglish(c.CoverUrlApiPath)
+	c.BriefShort = langutil.ChineseCharToEnglish(c.BriefShort)
+	c.BriefLong = langutil.ChineseCharToEnglish(c.BriefLong)
+	c.AuthorConcat = langutil.ChineseCharToEnglish(c.AuthorConcat)
+}
+
+// 实现stringutils 里 中文字符转英文 接口 - 处理子表 -统计数据
+func (c *ComicMyStats) ChChar2En() {
+	c.LatestChapterName = langutil.ChineseCharToEnglish(c.LatestChapterName)
 }
 
 // 实现 业务数据清理接口 - comicMy 表
@@ -195,12 +211,17 @@ func (c *ComicMyStats) BusinessDataClean() {
 func (c *ComicMy) DataClean() {
 	c.TrimSpaces()
 	c.Trad2Simple()
+	c.ChChar2En()
 	c.BusinessDataClean()
+
+	// 子表也清理
+	c.Stats.DataClean()
 }
 
 // 实现 数据清理统一入口 - comicMyStats 表
 func (c *ComicMyStats) DataClean() {
 	c.TrimSpaces()
 	c.Trad2Simple()
+	c.ChChar2En()
 	c.BusinessDataClean()
 }

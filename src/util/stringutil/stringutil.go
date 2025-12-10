@@ -18,6 +18,11 @@ type SimpleAble interface {
 	Trad2Simple()
 }
 
+// 定义一个接口，约定所有 需要中文字符转英文 对象都要实现这个方法 。 如如小括号，中括号，逗号等，转成英文. 全称：ChineseChar2EnglishAble
+type ChChar2EnAble interface {
+	ChChar2En()
+}
+
 // 处理model对象, 前后空格。通用入口：调用实现了接口的对象的 TrimSpaces 方法
 /*
 核心逻辑：
@@ -38,6 +43,11 @@ func TrimSpaceObj(obj TrimAble) {
 // 处理model对象，繁体转简体
 func SimpleObj(obj SimpleAble) {
 	obj.Trad2Simple()
+}
+
+// 处理model对象，中文字符转英文
+func ChChar2EnObj(obj ChChar2EnAble) {
+	obj.ChChar2En()
 }
 
 // 处理 map[string]interface{} 这种键值对 对象。obj原始对象数据，会被修改

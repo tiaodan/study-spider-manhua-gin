@@ -172,10 +172,9 @@ func main() {
 
 	// 流程：爬完漫画（spider_end）-》爬章节-》修改漫画-》 存章节-》下载漫画(download_end)-》下载章节-》下载完，上传aws章节(upload_aws_end)-》传完，更新漫画标志位
 	// r.POST("/spider/oneCategory", spider.Spider) // v0.1 写法，没用通用爬虫模板，弃用
-	r.POST("/spider/oneTypeByHtml", spider.BookTemSpiderTypeByHtml)                 // v0.2 写法，用通用爬虫模板,推荐。爬html页面
-	r.POST("/spider/oneTypeByJson", spider.DispatchApi_OneCategoryByJSON)           // v0.2 写法，用通用爬虫模板,推荐。爬F12 目标网站返回的json数据
-	r.POST("/spider/oneTypeAllBookByHtml", spider.DispatchApi_OneTypeAllBookByHtml) // v0.2 写法，用通用爬虫模板,推荐。爬html页面 - 爬一类所有书
-
+	r.POST("/spider/oneTypeByHtml", spider.BookTemSpiderTypeByHtml)                       // v0.2 写法，用通用爬虫模板,推荐。爬html页面
+	r.POST("/spider/oneTypeByJson", spider.DispatchApi_OneCategoryByJSON)                 // v0.2 写法，用通用爬虫模板,推荐。爬F12 目标网站返回的json数据
+	r.POST("/spider/oneTypeAllBookByHtml", spider.DispatchApi_OneTypeAllBookByHtml)       // v0.2 写法，用通用爬虫模板,推荐。爬html页面 - 爬一类所有书
 	r.POST("/spider/oneBookAllChapterByHtml", spider.DispatchApi_OneBookAllChapterByHtml) // v0.2 写法，用通用爬虫模板,推荐。爬html页面 - 爬一本书所有章节 - 没实现
 
 	r.Run(":8888") // 启动服务

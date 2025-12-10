@@ -10,7 +10,9 @@ package db
 import (
 	"errors"
 	"reflect"
+	"strings"
 	"study-spider-manhua-gin/src/models"
+	"unicode"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -52,7 +54,7 @@ import (
 		- 一种方式是：直接传 数据库真实列名，不是model里定义的列名 !!!!!!!!!!! -》 推荐 !!!!!!
 */
 // func DBUpsert(modelObj any, uniqueIndexArr []string, updateColumnsMap map[string]any) error {  // 写法1 : 更新内容用map - 弃用
-func DBUpsert(modelObj any, uniqueIndexArr []string, updateDBColumnRealNameArr []string) error { // 写法2 : 更新内容用 数据库真实字段名
+func DBUpsert(DBConnObj *gorm.DB, modelObj any, uniqueIndexArr []string, updateDBColumnRealNameArr []string) error { // 写法2 : 更新内容用 数据库真实字段名
 	// 1. 校验传参
 	// 2. 数据清洗
 	// 3. 准备数据库执行，需要的参数
@@ -86,7 +88,7 @@ func DBUpsert(modelObj any, uniqueIndexArr []string, updateDBColumnRealNameArr [
 	// }).Create(model)
 
 	// 准备唯一索引数据，写法2-推荐: 传参[]string{"Name", "Id"}, 然后调用方法toGormColumns() 转成gorm写法。
-	result := DBComic.Clauses(clause.OnConflict{
+	result := DBConnObj.Clauses(clause.OnConflict{
 		Columns: toGormColumns(uniqueIndexArr), // 判断唯一索引: 如：Name + Id。 解释：如果唯一索引冲突
 		// DoUpdates: clause.Assignments(updateColumnsMap),  // 写法1 弃用
 		DoUpdates: clause.AssignmentColumns(updateDBColumnRealNameArr), // 写法2 推荐，只传数据库 真实列名。解释：就更新这些列。AssignmentColumns 直接从对象里取数据
@@ -581,4 +583,119 @@ func DBPageQueryReturnTypeT[T any](pageNum, pageSize int) ([]T, error) {
 			fmt.Println(comic.Title)
 		}
 	*/
+}
+
+// 根据指定字段查询 - 通用，使用于任何数据表
+/*
+作用简单说：
+	- 查询 1条数据
+
+作用详细说:
+	-
+
+核心思路:
+	1.
+
+参考通用思路：
+	1. 校验传参
+	2. 数据清洗
+	3. 准备数据库执行，需要的参数
+	4. 数据库执行
+	5. 返回结果
+
+参数：
+	1 field string 用数据库小写列名，如 "chapter_num"
+*/
+func DBFindOneByField[T any](field string, value any) (*T, error) {
+	// 1. 校验传参
+	// 2. 数据清洗
+	// 3. 准备数据库执行，需要的参数
+	// 4. 数据库执行
+	var result T
+	db := DBComic.Where(field+" = ?", value).First(&result)
+	if db.Error != nil {
+		// log.Error("查询失败: ", db.Error)  // 此文件不打日志，错误已经返回给上级
+		return nil, db.Error
+	}
+	// log.Infof("查询成功, 查询到 %d 条记录", 1)  // 此文件不打日志，错误已经返回给上级
+
+	// 5. 返回结果
+	return &result, nil
+}
+
+// update - 通用方法
+/*
+uniqueIndexUpperCaseArr 大写写法- strct 里的 字段
+*/
+func DBUpdate(DBConnObj *gorm.DB, modelObj any, uniqueIndexUpperCaseArr []string, updateDBColumnRealNameArr []string) error {
+	// 1. 校验传参
+	if len(uniqueIndexUpperCaseArr) == 0 {
+		return errors.New("DB更新失败: uniqueIndexUpperCaseArr 不能为空")
+	}
+	if len(updateDBColumnRealNameArr) == 0 {
+		return errors.New("DB更新失败: updateDBColumnRealNameArr 不能为空")
+	}
+
+	// 2. 使用反射从 modelObj 中提取 uniqueIndexUpperCaseArr 对应字段的值作为查询条件
+	modelValue := reflect.ValueOf(modelObj)
+	modelType := reflect.TypeOf(modelObj)
+
+	// 处理指针类型
+	if modelValue.Kind() == reflect.Ptr {
+		modelValue = modelValue.Elem()
+		modelType = modelType.Elem()
+	}
+
+	// 构建查询条件 map（只包含 uniqueIndexArr 指定的字段）
+	whereConditions := make(map[string]interface{})
+	for _, fieldName := range uniqueIndexUpperCaseArr {
+		// 查找结构体字段（不区分大小写）
+		field, found := modelType.FieldByNameFunc(func(name string) bool {
+			return strings.EqualFold(name, fieldName)
+		})
+		if !found {
+			return errors.New("DB更新失败: 在模型中找不到字段 " + fieldName)
+		}
+
+		fieldValue := modelValue.FieldByIndex(field.Index)
+
+		// 获取数据库列名
+		columnName := getColumnName(field)
+		whereConditions[columnName] = fieldValue.Interface()
+	}
+
+	// 3. 执行更新
+	result := DBConnObj.Model(modelObj).Where(whereConditions).Select(updateDBColumnRealNameArr).Updates(modelObj)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+// getColumnName 获取结构体字段对应的数据库列名
+func getColumnName(field reflect.StructField) string {
+	// 检查gorm标签中的column
+	gormTag := field.Tag.Get("gorm")
+	if gormTag != "" {
+		// 解析gorm标签，查找column
+		parts := strings.Split(gormTag, ";")
+		for _, part := range parts {
+			if strings.HasPrefix(part, "column:") {
+				return strings.TrimPrefix(part, "column:")
+			}
+		}
+	}
+
+	// 如果没有指定column，使用默认的snake_case转换
+	fieldName := field.Name
+	var result []rune
+	for i, r := range fieldName {
+		if i > 0 && unicode.IsUpper(r) {
+			result = append(result, '_')
+		}
+		result = append(result, unicode.ToLower(r))
+	}
+	return string(result)
 }

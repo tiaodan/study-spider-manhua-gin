@@ -516,6 +516,8 @@
 # v0.0.0.20.2 临时提交
 - 简单实现 comic_spider 通过html方式爬取1个页面,多页面无法实现，所以先提交。要改 GetAllObjFromOneHtmlPageUseCollyByMapping() 方法结构 
 
+# v0.0.0.20.3 临时提交
+    - 实现chapter_spider 逻辑
 
 # v0.0.0.21
 版本总结:
@@ -529,12 +531,54 @@
 核心改动:
     1. 搭框架相关：
     先弄简单的：
-    - 1 xx
+    - 先用kxmanhua，实现爬章节 √
+        - 可获取book信息：考虑想更新哪列，就实现更新哪列。比如（cover_url_api_path 已经有了, 能爬到，但是不需要更新，走的是update方法）√
+            - 评分 不能爬，不管
+            - 作者 √ 用 / 分开 能爬。
+            - 最后一章id √ 但需要插入完 chapters 之后，才能获取到，并且更新 book
+            - 最后一章name 不能爬，不管
+            - 简介-短 x 不能爬，不管
+            - 简介-长 √ 能爬
+            - 作者拼接 √ 自己判断
+            - 作者拼接类型 √ 自己判断
+
+        - 可获取章节信息：(除了id，所有内容都要生成？我的思路，能爬到哪些，就set哪些，爬不到的就默认处理。最后通过DataClean()清洗下) √
+            - id x 不用，自行生成
+            - chapter_num x 没有，自行生成。必须要，唯一索引 √
+            - chapter_sub_num x 没有，自行生成。有没有都行。必须要唯一索引 √
+            - chapter_real_sort_num x 没有，自行生成。有没有都行 ？？
+            - name 能爬。可能需要截取。必须要 √
+            - url_api_path。能爬。需要考虑截取http头+域名。必须要 √
+            - release_date。不能爬。就按默认
+            - parent_id。不能爬。但是需要，因为是唯一索引    √
+        - 休刊公告应该怎么着？要是有多个休刊公告咋办？ - 不要了 √
+    - 实现 chapter_spider 通过html方式爬取 √
+        - kxmanhua 
+            - spider_chapter 需要修改内容：√
+                - ChapterRealSortNum: = chapterNum -> 数据清洗的时候弄 √
+                - chapterSpider，加上中文字符转英文的 func √ 
+                - chapterSpider，mapping 去掉字符串 的 不需要的内容： ♥  ---- 考虑应该在数据清洗弄，还是mappping弄？因为解耦考虑：一个方法就干一个事，mapping就管爬，你让它干那么复杂的事干什么！ √
+                - parentId 啥时候加？爬完之后，根据方法上下文传参改，在数据清洗之前 √
+                - chapter_spider/ chapter_my 加上字段： √
+                    - spiderEndStatus
+                    - downloadEndStatus
+                    - uploadAwsEndStatus
+                    - uploadBaiduEndStatus
+    - 问题：
+    - 1. 通过html插入，第一次插入 comic + 子表都成功了，第二次更新就不行 √，需要先查，再插入子表 √
+
+    - 实现chapter_content 爬取逻辑
+    - book page1 测试完整逻辑，爬取book，爬取chapter，爬取chapter_content，下载chapter_content，上传chapter_content到aws，上传chapter_content到baidu
+    - 整个网站，测试完整逻辑，爬取book，爬取chapter，爬取chapter_content，下载chapter_content，上传chapter_content到aws，上传chapter_content到baidu
+    - 找一个网站：不带水印，比较好爬 √
+        - 鸟鸟韩漫 nnhanman.xyz
 
     再弄复杂的
 
     2. 校验相关:
     3. 爬取相关:
+    通用性相关：
+        - 中文符号 如小括号，中括号，逗号等，转成英文 comic_spider comic_my都要改 √
     4. 其他相关
 
 非核心改动:
@@ -550,20 +594,10 @@
 
     1. 搭框架相关：
     先弄简单的：
-    ------------------------------- 请求传参 websiteId 等外键id,赋值给comic 对象
-
-        
-    - - 实现 comic_spider 通过html方式爬取 ？？？？？？？？？？
-        - 问题：
-        - 1. 通过html插入，第一次插入 comic + 子表都成功了，第二次更新就不行？
-
-
+    ------------------------------- 请求传参 websiteId 等外键id,赋值给comic 对
     - website 加几列数据
         - 这个网站 图片 能存多久/多久就会失效，因为有的网站，1天之后链接就会变，防爬机制
         - chapter_content 是否有水印
-    
-    - 2 再实现爬chappter 逻辑 - 没有F12 json,只能爬html
-    - 3 再实现插入sql逻辑
 
     - 加了某些东西之后，插入默认数据，插入默认数据-更新的列，爬取映射mapping, 更新的列，/ 数据迁移。这几个参考点，需要同步修改
 
@@ -586,6 +620,10 @@
         - 考虑cover_save_path_api_path字段,如果已经有了，要是不小心，传空咋办，就会替换成空了.已解决，comic_spider表，不带该字段
         - cover_save_path)api 是最关键的字段，没有它，所有业务都不行
         - !!!重要：comic_spider不带 cover_save_path 字段，comic_my带 cover_save_path 字段，这样comic_spider不管传啥，都不会影响该字段。并且测试，comic_my的 upsert方法，cover_save_path有值，如果传参不带 cover_save_path字段，且update 需要更新此字段，会发生什么琴科给
+    - 爬取状态：
+        - spider_end_status int 有几种 0 1 2 ，爬取完chapter后，并且爬完chapter_content后，end-》才能变为1
+        - download_end_status int 有几种 0 1 2 ，需要spider_end_status=1才能用，把chapterContent下载完后，才能 = 1
+        - upload_aws_end_status int 有几种 0 1 2 ，需要download_end_status=1才能用，把chapterContent 所有上传到aws后，才能 = 1
 
     4. 其他相关
     - 单元测试用例
@@ -643,3 +681,4 @@
 - 测试清空函数
 - 写测试用例的时候，每一个功能点弄一组测试用例。日志打印，打每组有多少用例
 - 写测试用例的时候，每个用例对应一个level，方便以后只测试指定level用例
+- 考虑，程序里，批量插入，尽量用指针，比如comicArr chapterArr里尽量存指针，因为可能回涉及很多，要修改内容。如果不用指针，就修改不了原数据了
