@@ -137,6 +137,8 @@ updateDBColumnRealNameArr 必须传数据库真实字段，全小写带_ 的那�
 		- model 是一条数据对象，而不是 表名
 		- model 可以是对象指针，也可以是对象。一般是直接传指针
 	3 uniqueIndexArr []string 类型 // 用Model里定义的字段，不用数据库真实列名。 唯一索引字段,可以是多个 如 []string{"Name", "Id"}
+		注意：
+		- 首字母用大写，小写均可以。建议用首字母大写，因为 大写更适合 struct 结构定义，显得更规范
 	4 updateColumnsMap map[string]any 类型 // 更新的字段，可以是多个 如 map[string]any{"Name": "comic.Name", "Id": comic.Id}
 	updateColumnsMap []string  类型 // 数据库真实列名，可以是多个 如 [""Name", "Id"]
 		- 一种方式是传map,弃用了，这种还得手动往里面塞值
@@ -359,7 +361,7 @@ func DBDeleteById(model any, id int) error {
 
 // id 可以int,可以string。go默认定义的 any = interface{},忘了写这个注释啥意思
 */
-func DBUpdateByIdOmitIndex(model any, id int, updateDataMap map[string]any) error {
+func DBUpdateByIdOmitIndex_nouse_bymap(model any, id int, updateDataMap map[string]any) error {
 	// 1. 校验传参
 	if id <= 0 {
 		// log.Error("DB修改失败: id不合法, id <= 0")  // 此文件不打日志，错误已经返回给上级
@@ -666,6 +668,34 @@ func DBUpdate(DBConnObj *gorm.DB, modelObj any, uniqueIndexUpperCaseArr []string
 
 	// 3. 执行更新
 	result := DBConnObj.Model(modelObj).Where(whereConditions).Select(updateDBColumnRealNameArr).Updates(modelObj)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+// DBUpdateById 通过主键id更新记录
+/*
+基于DBUpdate()函数实现，专门用于通过主键id更新
+DBConnObj 数据库连接对象
+modelObj 模型对象指针
+id 主键id值
+updateDBColumnRealNameArr 要更新的数据库字段名数组（小写蛇形命名）
+*/
+func DBUpdateById(DBConnObj *gorm.DB, modelObj any, id int, updateDBColumnRealNameArr []string) error {
+	// 1. 校验传参
+	if id <= 0 {
+		return errors.New("DB更新失败: id必须大于0")
+	}
+	if len(updateDBColumnRealNameArr) == 0 {
+		return errors.New("DB更新失败: updateDBColumnRealNameArr 不能为空")
+	}
+
+	// 2. 执行更新
+	// WHERE id = ? AND 只更新指定字段
+	result := DBConnObj.Model(modelObj).Where("id = ?", id).Select(updateDBColumnRealNameArr).Updates(modelObj)
 
 	if result.Error != nil {
 		return result.Error

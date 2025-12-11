@@ -519,14 +519,23 @@
 # v0.0.0.20.3 临时提交
     - 实现chapter_spider 逻辑
 
+# v0.0.0.20.4 临时提交
+    - 实现爬取 chapter_content_spider 逻辑
+
 # v0.0.0.21
 版本总结:
-    - 实现 comic_spider 通过html方式爬取 ？？
+    - 实现 chapter_spider 通过html方式爬取 √
+    - 爬chapter,并完善chapter表, 完善chapter处理逻辑 。√
+    - chapter也分 chapter_spider chapter_my 2个表。√
     - 考虑爬取，插入逻辑。思考：并发爬，插入sql时，只能执行1个。并发爬取结果，存到一个数组里。插入时,从插入库中取，保证数据完整，连续，美观，不混乱
         - 总结就是：爬取并发爬，插入串行插入。没实现？？？
         - 因为我想的gorm 批量插入也是很快的
-    - 爬chapter,并完善chapter表, 完善chapter处理逻辑 。没实现？？？？ 
-    - chapter也分 chapter_spider chapter_my 2个表。没实现？？？？？
+    - 爬取目标
+        - 考虑能否逻辑通用，每个网站，只要改配置文件，或者某个文件就行了，不用加一个网站，改1次代码呀
+        - 把一些未完成的都完成，再开始爬
+        - kxmanhua 都爬完
+        - nnhanman.xyz 程序写完，并爬完
+        - 其余9个网站都爬完
 
 核心改动:
     1. 搭框架相关：
@@ -594,7 +603,6 @@
 
     1. 搭框架相关：
     先弄简单的：
-    ------------------------------- 请求传参 websiteId 等外键id,赋值给comic 对
     - website 加几列数据
         - 这个网站 图片 能存多久/多久就会失效，因为有的网站，1天之后链接就会变，防爬机制
         - chapter_content 是否有水印
@@ -610,7 +618,7 @@
     3. 爬取相关:
 
     通用性相关:
-    - 把mapping映射关系，写出json文件，类似配置文件的方式，通用，以后不用改代码，直接改json文件即可 -》 参考 spider.go -> ComicMappingForSpiderToptoonByJSON 这个变量
+    - 把mapping映射关系，写成json文件，类似配置文件的方式，通用，以后不用改代码，直接改json文件即可 -》 参考 spider.go -> ComicMappingForSpiderToptoonByJSON 这个变量
     - 实现：通过配置文件，或者键值对变量，控制：爬书的时候处理哪些字段，爬章节的时候，更新哪些父表-book表哪些字段。做成通用的框架
     - 考虑把某个网站的爬取算法，放到一起，比如一个文件，里。方便归类，我喜欢归类清楚的东西
     - 多个项目放到一个项目里，数据库，表、命名，文件结构都容易冲突，考虑如何实现

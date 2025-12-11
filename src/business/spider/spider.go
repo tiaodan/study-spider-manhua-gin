@@ -326,6 +326,34 @@ var ChapterMappingForSpiderKxmanhuaByHTML = map[string]models.ModelHtmlMapping{
 		}},
 }
 
+// 表映射，爬 https:/www.kxmanhua.xyz 开心漫画, 爬章节Content 用，爬的 Html 数据 - 只能爬1个 chapter
+var ChapterContentMappingForSpiderKxmanhuaByHTML = map[string]models.ModelHtmlMapping{
+	/*
+		- 可获取章节信息：(我的思路，能爬到哪些，就set哪些，爬不到的就默认处理。最后通过DataClean()清洗下)，用的时候用大写，不要用数据字段-小写格式
+			- ！！！ 要用大写格式，不要用数据字段-小写格式
+			- urlApiPath √ 能爬
+	*/
+	"urlApiPath": {GetFieldPath: ".|src", GetHtmlType: "attr", FiledType: "string",
+		Transform: func(v any) any {
+			// 爬出来 = https://img.imh99.top/webtoon/content/2398/71649/000_1750911016909.webp
+			// 思路： 爬出来都是string类型，必须先清洗: 去空格，繁体转简体; 再做其他转换
+			// 1. 去空格
+			value := strings.TrimSpace(v.(string))
+
+			// 2. 繁体转简体
+			value, err := langutil.TraditionalToSimplified(value)
+			if err != nil {
+				log.Errorf("繁体转简体失败: %v", err)
+			}
+
+			// 3. 去除http+域名头
+			value = strings.TrimPrefix(value, "https://img.imh99.top")
+
+			// 4. 返回
+			return value
+		}},
+}
+
 func init() {
 	// 为防止控制台警告，看着烦，临时写点日志打印。后续可以删除
 	fmt.Println("-------------------- func=init() . 为防止控制台警告，看着烦，临时打印", tableAuthorUniqueIndexArr)

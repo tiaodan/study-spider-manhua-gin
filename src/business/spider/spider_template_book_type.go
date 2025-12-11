@@ -825,6 +825,73 @@ func GetOneBookAllChapterByCollyMapping[T any](ginContextByte []byte, mapping ma
 	return chapterArr
 }
 
+// 获取1个 chapter 所有chapterContent, 用colly, 通过mapping
+/*
+参数:
+	1. ginContextByte []byte 传一个gin.Context -> 转成的 []Byte，因为gin.Context 只能传递1次，因此方法间传参用 []byte
+	1. oneTypeHtmlContent 传一个obj colly结果,全称: oneBookCollyResult
+	2. mapping map[string]models.ModelMapping 爬取映射关系
+
+返回:
+主表数组
+作用简单说：
+*/
+func GetOneChapterAllContentByCollyMapping[T any](ginContextByte []byte, mapping map[string]models.ModelHtmlMapping) []T {
+	// 1. gjson 读取 前端 JSON 里 有用内容
+
+	// 2. 爬虫相关
+	// -- 建一个爬虫对象
+	c := colly.NewCollector()
+
+	// -- 设置并发数，和爬取限制
+	// 设置请求限制（每秒最多3个请求, 5秒后发）
+	c.Limit(&colly.LimitRule{
+		DomainGlob: "*",
+		// Parallelism: 3, // 和queue队列同时存在时，用queue控制并发就行。加这个有用，但没必要。默认是0，表示没限制
+		RandomDelay: time.Duration(config.Cfg.Spider.Public.SpiderType.RandomDelayTime) * time.Second, // 请求发送前触发。模仿人类，随机等待几秒，再请求。如果queue同时给了3条URL，那每条url触发请求前，都要随机延迟下
+	})
+
+	// 获取html内容,每成功匹配一次, 就执行一次逻辑。这个标签选只匹配一次的 --
+	var chapterContentArr []T // 存放爬好的 obj，因为要返回泛型，所以用T
+	// 遍历一个book, 每个chapter
+	c.OnHTML(".blog__details__content img", func(e *colly.HTMLElement) {
+		// 0. 处理异常内容
+
+		// 1. 获取能获取到的
+		log.Debug("-------------- 匹配 .blog__details__content img = ", e)
+		// -- 创建对象comic
+		var chapterContentT T
+
+		// -- 通过mapping 爬内容
+		result := GetOneChapObjByCollyMapping(e, mapping)
+		if result != nil {
+			// 通过 model字段 spider，把爬出来的 map[string]any，转成 model对象
+			MapByTag(result, &chapterContentT)
+			log.Debugf("映射后的 chapterContent 对象, 还未清洗: %+v", chapterContentT)
+		}
+		// 2. 放到chapterArr里
+		chapterContentArr = append(chapterContentArr, any(chapterContentT).(T))
+	})
+
+	// -- 添加多个页面到队列中
+	// 使用队列控制任务调度（最多并发3个Url）
+	q, _ := queue.New(config.Cfg.Spider.Public.SpiderType.QueueLimitConcMaxnum,
+		&queue.InMemoryQueueStorage{MaxSize: config.Cfg.Spider.Public.SpiderType.QueuePoolMaxnum})
+	// 添加任务到队列
+	/*
+		for i := 1; i <= requestBody.EndNum; i++ {
+			q.AddURL(fullUrl + strconv.Itoa(i))
+		}
+	*/
+
+	// 测试用 - 添加任务到队列
+	q.AddURL("http://localhost:8080/test/kxmanhua/spiderChapterContent/1.html") // 传 某个章节url
+
+	// 启动对垒
+	q.Run(c)
+	return chapterContentArr
+}
+
 // 获取 1个章节对象,所有字段，通过colly 爬虫框架 mapping
 /*
 参数：

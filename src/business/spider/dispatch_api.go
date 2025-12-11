@@ -238,7 +238,7 @@ func DispatchApi_OneCategoryByJSON(c *gin.Context) {
 			log.Infof("func=DispatchApi_OneCategoryByJSON(分发api: /spider/oneTypeByJson), 爬取成功, 插入%d条数据", okTotal)
 		*/
 	default:
-		c.JSON(400, gin.H{"error": "func=DispatchApi_OneCategoryByJSON(分发api- /spider/oneTypeByJson), 没找到到应爬哪个网站. 建议: 排查json参数 apiderTag-website"}) // 返回错误
+		c.JSON(400, gin.H{"error": "func=DispatchApi_OneCategoryByJSON(分发api- /spider/oneTypeByJson), 没找到到应爬哪个网站. 建议: 排查json参数 spiderTag-website"}) // 返回错误
 	}
 
 	// 4. 执行核心逻辑
@@ -316,7 +316,7 @@ func DispatchApi_OneBookAllChapterByHtml(c *gin.Context) {
 			chapterArr[i].ParentId = int(bookId) // 父id
 			// -数据清洗
 			chapterArr[i].DataClean() // 数据清洗
-			log.Info("-------- delete 清洗完数据 chapter = ", chapterArr[i])
+			log.Debug("清洗完数据 chapter = ", chapterArr[i])
 		}
 
 		// 3. upsert chapter
@@ -357,7 +357,7 @@ func DispatchApi_OneBookAllChapterByHtml(c *gin.Context) {
 			return
 		}
 	default:
-		c.JSON(500, gin.H{"error": "func= DispatchApi_OneBookAllChapterByHtml(分发api- /spider/oneBookAllChapterByHtml)), 没找到到应爬哪个网站. 建议: 排查json参数 apiderTag-website"}) // 返回错误
+		c.JSON(500, gin.H{"error": "func= DispatchApi_OneBookAllChapterByHtml(分发api- /spider/oneBookAllChapterByHtml)), 没找到到应爬哪个网站. 建议: 排查json参数 spiderTag-website"}) // 返回错误
 	}
 
 	// 4. 执行核心逻辑
@@ -574,12 +574,115 @@ func DispatchApi_OneTypeAllBookByHtml(c *gin.Context) {
 		log.Infof("-- kxmanhua,page=?, 爬取成功, 插入%d条comic数据", okTotal)
 
 	default:
-		c.JSON(400, gin.H{"error": "func=DispatchApi_OneCategoryByJSON(分发api- /spider/oneTypeByJson), 没找到到应爬哪个网站. 建议: 排查json参数 apiderTag-website"}) // 返回错误
+		c.JSON(400, gin.H{"error": "func=DispatchApi_OneCategoryByJSON(分发api- /spider/oneTypeByJson), 没找到到应爬哪个网站. 建议: 排查json参数 spiderTag-website"}) // 返回错误
 	}
 
 	// 4. 执行核心逻辑
 	// 5. 返回结果
 	c.JSON(200, "爬取成功,插入"+strconv.Itoa(okTotal)+"条数据")
+}
+
+// 分发请求 /spider/oneChapterAllContentByHtml . 自行判断，该用哪个 表的 ModelMapping。不应该用 _命名方式，但是能看清
+/*
+作用简单说：
+  - 分发请求 /spider/oneChapterAllContentByHtml . 自行判断，该用哪个 表的 ModelMapping
+
+作用详细说:
+
+核心思路:
+ 1. 读取 前端 html内容
+ 2. 根据该字段，使用不同的爬虫 ModelMapping映射表
+ 3. 调用通用 爬取方法
+
+参考通用思路：
+ 1. 校验传参
+ 2. 数据清洗
+ 3. 业务逻辑 需要的数据校验 +清洗
+ 4. 执行核心逻辑
+ 5. 返回结果
+
+参数：
+ 1. context *gin.Context  // 读取 前端JSON里 spiderTag -> website字段，根据该字段，使用不同的爬虫 ModelMapping映射表
+ 2. xx
+
+返回：
+
+注意：
+
+使用方式：
+*/
+func DispatchApi_OneChapterAllContentByHtml(c *gin.Context) {
+	// 0. 初始化
+	okTotal := 0 // 成功条数
+
+	// 1. 校验传参
+	// 2. 数据清洗
+
+	// 3. 业务逻辑 需要的数据校验 +清洗
+	// -- 找到应该爬哪个网站
+	// 读取 JSON Body --
+	data, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		c.JSON(400, gin.H{"error": "func: 通过json爬分类。读取 前端传参 Body 失败"})
+		return
+	}
+
+	// gjson 读取 前端 JSON 里 spiderTag -> website字段 --
+	website := gjson.Get(string(data), "spiderTag.website").String()
+	chapterId := gjson.Get(string(data), "chapterId").Int() // bookId字段
+	log.Info("------ chapterId = ", chapterId)
+
+	// -- 根据该字段，使用不同的爬虫 ModelMapping映射表
+	switch website {
+	case "toptoon-tw":
+		log.Info("----- 还没实现")
+	case "kxmanhua":
+		// 2. 爬取 chapterContent
+		// -- 请求html页面
+		chapterContentArr := GetOneChapterAllContentByCollyMapping[models.ChapterContentSpider](data, ChapterContentMappingForSpiderKxmanhuaByHTML)
+
+		// -- 赋值上下文参数 + 数据清洗。（赋值上下文参数：是吧方法传参，给对象赋值。数据清洗：设置-爬取字段，或者默认数据）
+		for i := range chapterContentArr {
+			// -赋值 上下文传参。如parentId (非数据清洗业务，放在这里)
+			chapterContentArr[i].ParentId = int(chapterId)              // 父id
+			chapterContentArr[i].Num = i + 1                            // 排序
+			chapterContentArr[i].RealSortNum = chapterContentArr[i].Num // 真实排序
+			// -数据清洗
+			chapterContentArr[i].DataClean() // 数据清洗
+			log.Debug("清洗完数据 chapter = ", chapterContentArr[i])
+		}
+		// 3. upsert chapterContent
+		err = db.DBUpsertBatch(db.DBComic, chapterContentArr, []string{"ParentId", "Num", "SubNum"},
+			[]string{"real_sort_num", "url_api_path"}) // 只更新 爬到的字段
+		if err != nil {
+			log.Error("func= DispatchApi_OneChapterAllContentByHtml(分发api- /spider/oneChapterAllContentByHtml), 批量插入db chapterContnet 失败, err: ", err)
+			c.JSON(500, gin.H{"error": "批量插入db chapter 失败"}) // 返回错误
+		}
+		okTotal = len(chapterContentArr)
+
+		// 5. 更新父表数据
+		// -- 需要更新：  spider_end_status
+		// -- 创建 chapter_spider 对象
+		var chapterSpider models.ChapterSpider
+		chapterSpider.Id = int(chapterId)
+		chapterSpider.SpiderEndStatus = 1 // 更新完
+
+		// -- 更新 chapter_spider 表
+		err = db.DBUpdateById(db.DBComic, &chapterSpider, chapterSpider.Id, []string{"spider_end_status"})
+		if err != nil {
+			log.Error("func= DispatchApi_OneChapterAllContentByHtml, 更新 chapter 失败, err: ", err)
+			c.JSON(500, gin.H{"error": "更新 chapter 失败"}) // 返回错误
+			return
+		}
+	default:
+		log.Error("没找到到应爬哪个网站. 建议: 排查json参数 spiderTag-website")
+		c.JSON(500, gin.H{"error": "没找到到应爬哪个网站. 建议: 排查json参数 spiderTag-website"}) // 返回错误
+	}
+
+	// 4. 执行核心逻辑
+	// 5. 返回结果
+	c.JSON(200, "爬取成功,插入"+strconv.Itoa(okTotal)+"条chapterContent数据")
+
 }
 
 // -- 方法 ------------------------------------------- end -----------------------------------

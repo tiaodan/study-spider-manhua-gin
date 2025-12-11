@@ -271,7 +271,7 @@ func ComicUpdateByIdOmitIndex(c *gin.Context) {
 	}
 
 	// err := db.ComicUpdateByIdOmitIndex(comic.Id, &comic) // 弃用. v0.1 没用 DB通用方法之前，设置 id类型是 unit，所以要进行转换处理
-	err := db.DBUpdateByIdOmitIndex(&comic, comic.Id, updateDataMap) // v0.2 用DB通用方法写法
+	err := db.DBUpdateByIdOmitIndex_nouse_bymap(&comic, comic.Id, updateDataMap) // v0.2 用DB通用方法写法
 	if err != nil {
 		log.Error("修改漫画失败, err: ", err)
 		c.JSON(500, gin.H{"error": err.Error()})
