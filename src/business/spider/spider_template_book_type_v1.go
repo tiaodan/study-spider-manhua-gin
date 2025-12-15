@@ -1,4 +1,5 @@
 /**
+V1 版本：都是自己摸索的方法。实现：就是逐步调用方法，传参。不能通用，不能一劳永逸
 功能：封装 通用的爬虫 模板 (所有跟书类型相关的)
 	什么是书类型？
 	- 有书名、章节、章节里具体的内容(图片、视频、音频、文字等)
@@ -634,14 +635,20 @@ func GetTableFieldValueBySpiderMapping(jsonByteData []byte, spiderMapping map[st
 /*
 参数:
 	1. ginContextByte []byte 传一个gin.Context -> 转成的 []Byte，因为gin.Context 只能传递1次，因此方法间传参用 []byte
+		里面要必传2参数：
+		- bookArrCssSelector string     // 爬某页所有书 用的选择器。 爬取的css选择器写法。如：class="a b c", 要写出 ".a.b.c" -> 连着写
+		- bookArrItemCssSelector string // 爬某本书 用的选择器。爬取的css选择器写法。如：class="a b c", 要写出 ".a.b.c" -> 连着写
 	1. oneTypeHtmlContent 传一个obj colly结果,全称: oneBookCollyResult
 	2. mapping map[string]models.ModelMapping 爬取映射关系
+	3. spiderUrlArr []string 爬取的url数组
 
 返回:
+	-  存放爬好的 obj 二维数组，里面存放 onePageBookArr = []models.T
 主表数组
 作用简单说：
 */
-func GetAllObjFromOneHtmlPageUseCollyByMapping[T any](ginContextByte []byte, mapping map[string]models.ModelHtmlMapping) []T {
+func GetAllObjFromOneHtmlPageUseCollyByMapping[T any](ginContextByte []byte, mapping map[string]models.ModelHtmlMapping, spiderUrlArr []string) [][]T {
+	// v0.2 通用写法, 能适配每个网站
 	// 1. gjson 读取 前端 JSON 里 spiderTag -> website字段 --
 	website := gjson.Get(string(ginContextByte), "spiderTag.website").String() // websiteTag - website
 	table := gjson.Get(string(ginContextByte), "spiderTag.table").String()     // websiteTag - table
@@ -656,6 +663,8 @@ func GetAllObjFromOneHtmlPageUseCollyByMapping[T any](ginContextByte []byte, map
 	coverNeedTcp := gjson.Get(string(ginContextByte), "coverNeedTcp").Bool()        // 封面链接是否需要tcp 头
 	endNum := gjson.Get(string(ginContextByte), "endNum").Int()                     // 结束页 号码
 	// adultArrGjsonResult := gjson.GetBytes(daginContextByteta, "adult").Array()      // 数组 - adult 内容 - html 用不到, 一会删
+	bookArrCssSelector := gjson.Get(string(ginContextByte), "bookArrCssSelector").String()         // 获取某页所有书 用的CSS选择器
+	bookArrItemCssSelector := gjson.Get(string(ginContextByte), "bookArrItemCssSelector").String() // 获取某本书 用的CSS选择器
 
 	log.Info("爬取html,前端传参= ", string(ginContextByte))
 	log.Debug("爬取html,前端传参. piderTag.website = ", website)
@@ -669,6 +678,8 @@ func GetAllObjFromOneHtmlPageUseCollyByMapping[T any](ginContextByte []byte, map
 	log.Debug("爬取html,前端传参. needTcp = ", needTcp)
 	log.Debug("爬取html,前端传参. coverNeedTcp = ", coverNeedTcp)
 	log.Debug("爬取html,前端传参. endNum = ", endNum)
+	log.Debug("爬取html,前端传参. bookArrCssSelector = ", bookArrCssSelector)
+	log.Debug("爬取html,前端传参. bookArrItemCssSelector = ", bookArrItemCssSelector)
 
 	// -- 建一个爬虫对象
 	c := colly.NewCollector()
@@ -683,73 +694,191 @@ func GetAllObjFromOneHtmlPageUseCollyByMapping[T any](ginContextByte []byte, map
 
 	// 获取html内容,每成功匹配一次, 就执行一次逻辑。这个标签选只匹配一次的 --
 
-	var comicArr []T // 存放爬好的 obj，因为要返回泛型，所以用T ,以前写法：comicArr := []models.ComicSpider{}
-	// 遍历每一个book . element用forEach. colly，用Html遍历
-	c.OnHTML(".col-lg-2.col-md-3.col-sm-4.col-6", func(e *colly.HTMLElement) {
-		// 1. 获取能获取到的
-		log.Debug("-------------- 匹配col-lg-2.col-md-3.col-sm-4.col-6 = ", e.Text)
-		// 通过mapping -> 转成1个对象
-		// 创建对象comic
-		var comicT T
-		comicSpiderStats := models.ComicSpiderStats{} // 子表，统计数据
-		log.Info("-------- delete comicSpiderStats = ", comicSpiderStats)
+	var allPageBookArr [][]T // 存放爬好的 obj，因为要返回泛型，所以用T ,以前写法：comicArr := []models.ComicSpider{}. 二维数组，里面存放 onePageBookArr = []models.T
+	var mu sync.Mutex        // 添加互斥锁
+	// 遍历每一个 bookArr .c.OnHTML() 根据 CSS选择器, 就让触发1次
+	c.OnHTML(bookArrCssSelector, func(eBookArr *colly.HTMLElement) {
+		log.Debug("-------------- 匹配 bookArr = ", eBookArr.Text)
 
-		// 通过mapping 爬内容
-		result := GetOneChapObjByCollyMapping(e, mapping)
-		if result != nil {
-			// 通过 model字段 spider，把爬出来的 map[string]any，转成 model对象
-			MapByTag(result, &comicT)
-			log.Infof("映射后的comic对象: %+v", comicT)
-		}
+		// 遍历每一个 bookArrItem, 用forEach. colly，用Html遍历
+		var onePageBookArr []T
+		eBookArr.ForEach(bookArrItemCssSelector, func(i int, e *colly.HTMLElement) {
+			// 1. 获取能获取到的
+			// 通过mapping -> 转成1个对象
+			// 创建对象comic
+			var comicT T
+			comicSpiderStats := models.ComicSpiderStats{} // 子表，统计数据
+			log.Info("-------- delete comicSpiderStats = ", comicSpiderStats)
 
-		// 2. 设置对象值
-		// -- T 类型 -》 具体struct 类型
-		comic := any(comicT).(models.ComicSpider)
+			// 通过mapping 爬内容
+			result := GetOneChapObjByCollyMapping(e, mapping)
+			if result != nil {
+				// 通过 model字段 spider，把爬出来的 map[string]any，转成 model对象
+				MapByTag(result, &comicT)
+				log.Infof("映射后的comic对象: %+v", comicT)
+			}
 
-		// -- 进度id逻辑
-		if processId == 1 {
-			// 如果用户传 1 - 》程序自己判断
-			comic.ProcessId = comic.End
-		} else {
-			// 如果是2/3, 就直接替换赋值
-			comic.ProcessId = int(processId)
-		}
-		// -- 其它直接赋值
-		comic.WebsiteId = int(websiteId)               // 网站id
-		comic.PornTypeId = int(pornTypeId)             // 色情类型id
-		comic.CountryId = int(countryId)               // 国家id
-		comic.TypeId = int(typeId)                     // 类型id
-		comic.AuthorConcatType = int(authorConcatType) // 作者拼接方式 id
+			// 2. 设置对象值
+			// -- T 类型 -》 具体struct 类型
+			comic := any(comicT).(models.ComicSpider)
 
-		// 3 数据清洗
-		comic.DataClean()
+			// -- 进度id逻辑
+			if processId == 1 {
+				// 如果用户传 1 - 》程序自己判断
+				comic.ProcessId = comic.End
+			} else {
+				// 如果是2/3, 就直接替换赋值
+				comic.ProcessId = int(processId)
+			}
+			// -- 其它直接赋值
+			comic.WebsiteId = int(websiteId)               // 网站id
+			comic.PornTypeId = int(pornTypeId)             // 色情类型id
+			comic.CountryId = int(countryId)               // 国家id
+			comic.TypeId = int(typeId)                     // 类型id
+			comic.AuthorConcatType = int(authorConcatType) // 作者拼接方式 id
 
-		// 4 把爬好的单个数据，放到数组里，准备插入数据库
-		comicArr = append(comicArr, any(comic).(T))
+			// 3 数据清洗
+			comic.DataClean()
 
+			// 4 把爬好的单个数据，放到数组里，准备插入数据库
+			onePageBookArr = append(onePageBookArr, any(comic).(T))
+		})
+
+		// 3. 遍历完之后，加到 allPageBookArr 里 - 使用互斥锁保护 (因为要操作多个线程 用的共享对象 -》 allPageBookArr)
+		mu.Lock()
+		allPageBookArr = append(allPageBookArr, onePageBookArr)
+		mu.Unlock()
 	})
 
 	// -- 添加多个页面到队列中
 	// 使用队列控制任务调度（最多并发3个Url）
 	q, _ := queue.New(config.Cfg.Spider.Public.SpiderType.QueueLimitConcMaxnum,
 		&queue.InMemoryQueueStorage{MaxSize: config.Cfg.Spider.Public.SpiderType.QueuePoolMaxnum})
-	// 添加任务到队列
-	/*
-		for i := 1; i <= requestBody.EndNum; i++ {
-			q.AddURL(fullUrl + strconv.Itoa(i))
-		}
-	*/
 
-	// 测试用 - 添加任务到队列
-	q.AddURL("http://localhost:8080/test/kxmanhua/spiderBook/index.html")
-	// q.AddURL("https://kxmanhua.com/manga/library?type=2&complete=2&page=48&orderby=1") // 尾页
-	// q.AddURL("https://kxmanhua.com/manga/library?type=2&complete=2&page=1&orderby=1") // 首页
+	// -- 添加任务到队列
+	for _, spiderUrl := range spiderUrlArr {
+		q.AddURL(spiderUrl)
+	}
+	// 测试用 - 添加任务到队列 - delete
+	// q.AddURL("http://localhost:8080/test/kxmanhua/spiderBook/index.html") // 本地测试 - delete
+	// q.AddURL("https://kxmanhua.com/manga/library?type=2&complete=2&page=48&orderby=1") // 尾页 - 真实网站 - delete
+	// q.AddURL("https://kxmanhua.com/manga/library?type=2&complete=2&page=1&orderby=1") // 首页 - 真实网站 - delete
 
 	// 启动对垒
 	q.Run(c)
 
 	// -- 爬取结束，返回结果
-	return comicArr
+	return allPageBookArr
+
+	// v0.1 不通用写法, 不能适配每个网站
+	/*
+		// 1. gjson 读取 前端 JSON 里 spiderTag -> website字段 --
+		website := gjson.Get(string(ginContextByte), "spiderTag.website").String() // websiteTag - website
+		table := gjson.Get(string(ginContextByte), "spiderTag.table").String()     // websiteTag - table
+
+		websiteId := gjson.Get(string(ginContextByte), "websiteId").Int()               // 网站id
+		pornTypeId := gjson.Get(string(ginContextByte), "pornTypeId").Int()             // 色情类型id
+		countryId := gjson.Get(string(ginContextByte), "countryId").Int()               // 国家id
+		typeId := gjson.Get(string(ginContextByte), "typeId").Int()                     // 类型id
+		processId := gjson.Get(string(ginContextByte), "processId").Int()               // 进程：完结状态 id
+		authorConcatType := gjson.Get(string(ginContextByte), "authorConcatType").Int() // 作者拼接方式 id
+		needTcp := gjson.Get(string(ginContextByte), "needTcp").Bool()                  // 是否需要tcp 头
+		coverNeedTcp := gjson.Get(string(ginContextByte), "coverNeedTcp").Bool()        // 封面链接是否需要tcp 头
+		endNum := gjson.Get(string(ginContextByte), "endNum").Int()                     // 结束页 号码
+		// adultArrGjsonResult := gjson.GetBytes(daginContextByteta, "adult").Array()      // 数组 - adult 内容 - html 用不到, 一会删
+
+		log.Info("爬取html,前端传参= ", string(ginContextByte))
+		log.Debug("爬取html,前端传参. piderTag.website = ", website)
+		log.Debug("爬取html,前端传参. piderTag.table = ", table)
+		log.Debug("爬取html,前端传参. websiteId = ", websiteId)
+		log.Debug("爬取html,前端传参. pronTypeId = ", pornTypeId)
+		log.Debug("爬取html,前端传参. countryId = ", countryId)
+		log.Debug("爬取html,前端传参. typeId = ", typeId)
+		log.Debug("爬取html,前端传参. processId = ", processId)
+		log.Debug("爬取html,前端传参. authorConcatType = ", authorConcatType)
+		log.Debug("爬取html,前端传参. needTcp = ", needTcp)
+		log.Debug("爬取html,前端传参. coverNeedTcp = ", coverNeedTcp)
+		log.Debug("爬取html,前端传参. endNum = ", endNum)
+
+		// -- 建一个爬虫对象
+		c := colly.NewCollector()
+
+		// -- 设置并发数，和爬取限制
+		// 设置请求限制（每秒最多3个请求, 5秒后发）
+		c.Limit(&colly.LimitRule{
+			DomainGlob: "*",
+			// Parallelism: 3, // 和queue队列同时存在时，用queue控制并发就行。加这个有用，但没必要。默认是0，表示没限制
+			RandomDelay: time.Duration(config.Cfg.Spider.Public.SpiderType.RandomDelayTime) * time.Second, // 请求发送前触发。模仿人类，随机等待几秒，再请求。如果queue同时给了3条URL，那每条url触发请求前，都要随机延迟下
+		})
+
+		// 获取html内容,每成功匹配一次, 就执行一次逻辑。这个标签选只匹配一次的 --
+
+		var allPageBookArr [][]T // 存放爬好的 obj，因为要返回泛型，所以用T ,以前写法：comicArr := []models.ComicSpider{}. 二维数组，里面存放 onePageBookArr = []models.T
+		// 遍历每一个book . element用forEach. colly，用Html遍历
+		c.OnHTML(".col-lg-2.col-md-3.col-sm-4.col-6", func(e *colly.HTMLElement) {
+			// 1. 获取能获取到的
+			log.Debug("-------------- 匹配col-lg-2.col-md-3.col-sm-4.col-6 = ", e.Text)
+			// 通过mapping -> 转成1个对象
+			// 创建对象comic
+			var comicT T
+			comicSpiderStats := models.ComicSpiderStats{} // 子表，统计数据
+			log.Info("-------- delete comicSpiderStats = ", comicSpiderStats)
+
+			// 通过mapping 爬内容
+			result := GetOneChapObjByCollyMapping(e, mapping)
+			if result != nil {
+				// 通过 model字段 spider，把爬出来的 map[string]any，转成 model对象
+				MapByTag(result, &comicT)
+				log.Infof("映射后的comic对象: %+v", comicT)
+			}
+
+			// 2. 设置对象值
+			// -- T 类型 -》 具体struct 类型
+			comic := any(comicT).(models.ComicSpider)
+
+			// -- 进度id逻辑
+			if processId == 1 {
+				// 如果用户传 1 - 》程序自己判断
+				comic.ProcessId = comic.End
+			} else {
+				// 如果是2/3, 就直接替换赋值
+				comic.ProcessId = int(processId)
+			}
+			// -- 其它直接赋值
+			comic.WebsiteId = int(websiteId)               // 网站id
+			comic.PornTypeId = int(pornTypeId)             // 色情类型id
+			comic.CountryId = int(countryId)               // 国家id
+			comic.TypeId = int(typeId)                     // 类型id
+			comic.AuthorConcatType = int(authorConcatType) // 作者拼接方式 id
+
+			// 3 数据清洗
+			comic.DataClean()
+
+			// 4 把爬好的单个数据，放到数组里，准备插入数据库
+			comicArr = append(comicArr, any(comic).(T))
+
+		})
+
+		// -- 添加多个页面到队列中
+		// 使用队列控制任务调度（最多并发3个Url）
+		q, _ := queue.New(config.Cfg.Spider.Public.SpiderType.QueueLimitConcMaxnum,
+			&queue.InMemoryQueueStorage{MaxSize: config.Cfg.Spider.Public.SpiderType.QueuePoolMaxnum})
+
+		// -- 添加任务到队列
+		for _, spiderUrl := range spiderUrlArr {
+			q.AddURL(spiderUrl)
+		}
+		// 测试用 - 添加任务到队列 - delete
+		// q.AddURL("http://localhost:8080/test/kxmanhua/spiderBook/index.html") // 本地测试 - delete
+		// q.AddURL("https://kxmanhua.com/manga/library?type=2&complete=2&page=48&orderby=1") // 尾页 - 真实网站 - delete
+		// q.AddURL("https://kxmanhua.com/manga/library?type=2&complete=2&page=1&orderby=1") // 首页 - 真实网站 - delete
+
+		// 启动对垒
+		q.Run(c)
+
+		// -- 爬取结束，返回结果
+		return allPageBookArr
+	*/
 }
 
 // 获取1个book所有chapter, 用colly, 通过mapping

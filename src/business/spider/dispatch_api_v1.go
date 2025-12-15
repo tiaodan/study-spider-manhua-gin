@@ -1,12 +1,13 @@
 /**
+V1 版本：都是自己摸索的方法。实现：就是逐步调用方法，传参。不能通用，不能一劳永逸
 功能: 分发爬取请求
 */
 
 package spider
 
 import (
+	"fmt"
 	"io"
-	"os"
 	"strconv"
 	"study-spider-manhua-gin/src/db"
 	"study-spider-manhua-gin/src/log"
@@ -365,8 +366,99 @@ func DispatchApi_OneBookAllChapterByHtml(c *gin.Context) {
 	c.JSON(200, "爬取成功,插入"+strconv.Itoa(okTotal)+"条chapter数据")
 }
 
+// 分发请求 - 爬取某一类型的所有书,通用方法
+/*
+目前状态: v3 算法
+
+作用简单说：
+  - 分发请求 - 爬取某一类型的所有书,通用方法
+	- 能判断爬的是 json/html
+	- 能判断爬的是什么网站，自动用什么 mapping
+
+作用详细说:
+
+核心思路:
+ 1. 读取 前端 html内容
+ 2. 根据该字段，使用不同的爬虫 ModelMapping映射表
+ 3. 调用通用 爬取方法
+
+参考通用思路：
+ 1. 校验传参
+ 2. 数据清洗
+ 3. 业务逻辑 需要的数据校验 +清洗
+ 4. 执行核心逻辑
+	- 读取html内容
+	- 通过mapping 爬取字段，赋值给chapter_spider对象
+	- 插入前, 数据清洗
+	- 批量插入db
+ 5. 返回结果
+
+参数：
+ 1. context *gin.Context  // 读取 前端JSON里 spiderTag -> website字段，根据该字段，使用不同的爬虫 ModelMapping映射表
+ 2. xx
+
+返回：
+
+注意：
+	- processId，如果用户传 1 - 》程序自己判断 如果是2/3 ，就之间替换赋值
+
+使用方式：
+传参：
+    "bookArrCssSelector": "????",  // 爬某页所有书 用的选择器。可以
+    "bookArrItemCssSelector": ".col-lg-2.col-md-3.col-sm-4.col-6"  // 爬某本书 用的选择器。爬取的css选择器写法
+		- 写法1：".col-lg-2.col-md-3.col-sm-4.col-6" 有好几个class情况
+		- 写法2："[class='col-lg-2 col-md-3 col-sm-4 col-6']" 有好几个class情况。 举例：写法：c.OnHTML("[class='a'] [class='b']"
+*/
+func DispatchApi_SpiderOneTypeAllBookArr_Template(c *gin.Context) {
+	log.Info("------- 还没实现")
+	/*
+		我们按步骤来，一点点来拆分通用模型。其实爬取流程模型大概就是：
+		1. 找到目标网站
+			-》 建一个网站爬取配置 struct : WebSiteSpiderConfig
+			包含：
+			// 在 spider.go 中创建网站配置注册表
+			type WebsiteConfig struct {
+				Name      string
+				DataType  string // "html" 或 "json"
+				TableName string // "comic", "chapter", "author"
+				Mapping   interface{} // 对应的mapping配置
+				Processor func()      // 特殊处理逻辑（可选）
+			}
+
+			var WebsiteRegistry = map[string]*WebsiteConfig{
+				"kxmanhua": {
+					Name:     "kxmanhua",
+					DataType: "html",
+					TableName: "comic",
+					Mapping:  ComicMappingForSpiderKxmanhuaByHtml,
+				},
+				"toptoon-tw": {
+					Name:     "toptoon-tw",
+					DataType: "json",
+					TableName: "comic",
+					Mapping:  ComicMappingForSpiderToptoonByJSON,
+				},
+			}
+
+			// 在 dispatch_api.go 中使用
+			config, exists := WebsiteRegistry[website]
+			if !exists {
+				return errors.New("不支持的网站: " + website)
+			}
+
+		2. 爬取(html/json)
+		3. 提取数据 -
+		4. 数据清洗/赋值
+		5. 插入db前数据清洗
+		6. 插入DB。每个步骤你有什么最好的通用方案/思路？
+	*/
+}
+
 // 分发请求 /spider/DispatchApi_OneTypeAllBookByHtml . 自行判断，该用哪个 表的 ModelMapping。不应该用 _命名方式，但是能看清
 /*
+目前状态: !实现到v0.2 -> 只把c.OnHTML() 部分通用了, 后面不考虑用这个方法了，要再生成一个更通用方法
+可以叫
+
 作用简单说：
   - 分发请求 /spider/DispatchApi_OneTypeAllBookByHtml . 自行判断，该用哪个 表的 ModelMapping
 
@@ -398,8 +490,16 @@ func DispatchApi_OneBookAllChapterByHtml(c *gin.Context) {
 	- processId，如果用户传 1 - 》程序自己判断 如果是2/3 ，就之间替换赋值
 
 使用方式：
+传参：
+    "bookArrCssSelector": "????",  // 爬某页所有书 用的选择器。可以
+    "bookArrItemCssSelector": ".col-lg-2.col-md-3.col-sm-4.col-6"  // 爬某本书 用的选择器。爬取的css选择器写法
+		- 写法1：".col-lg-2.col-md-3.col-sm-4.col-6" 有好几个class情况
+		- 写法2："[class='col-lg-2 col-md-3 col-sm-4 col-6']" 有好几个class情况。 举例：写法：c.OnHTML("[class='a'] [class='b']"
 */
-func DispatchApi_OneTypeAllBookByHtml(c *gin.Context) {
+func DispatchApi_SpiderBookArr_V2_OneTypeAllBookByHtml(c *gin.Context) {
+	// v0.2 写法，把所有网站，爬取代码统一。 一个页面匹配 1次 c.OnHTML，然后在C.OnHtml里 e.forEach()，循环匹配。这样避免，匹配多次 OnHtml，抵赖并发锁问题
+	// v0.2 写法，把所有网站，爬取代码统一。 一个页面匹配 N次 c.OnHTML。这样。q.run(c)，假如同时并发多个，需要并发锁问题
+
 	// 0. 初始化
 	okTotal := 0 // 成功条数
 
@@ -415,163 +515,88 @@ func DispatchApi_OneTypeAllBookByHtml(c *gin.Context) {
 		return
 	}
 
-	// 1. gjson 读取 前端 JSON 里 spiderTag -> website字段 --
-	website := gjson.Get(string(data), "spiderTag.website").String() // websiteTag - website
+	// 1. gjson 读取 前端 JSON 里 有用数据
+	website := gjson.Get(string(data), "spiderTag.website").String() // websiteTag - website 字段
+	spiderUrl := gjson.Get(string(data), "spiderUrl").String()       // spiderUrl 要爬取的url。这里传的是某个分类的 url (页码用%d替代)。如："https://kxmanhua.com/manga/library?type=2&complete=1&page=%d&orderby=1"
+	endNum := gjson.Get(string(data), "endNum").Int()                // 爬取页码结束数。如： 1-10页，endNum=10
+
+	// 2. 生成 爬取的url 数组
+	spiderUrlArr := make([]string, endNum)
+	for i := range spiderUrlArr {
+		spiderUrlArr[i] = fmt.Sprintf(spiderUrl, i+1) // 如："https://kxmanhua.com/manga/library?type=2&complete=1&page=%d&orderby=1"
+		log.Info("----- delete spiderUrl = ", spiderUrlArr[i])
+	}
 
 	// -- 根据该字段，使用不同的爬虫 ModelMapping映射表
 	switch website {
 	case "toptoon-tw":
-		adultArrGjsonResult := gjson.GetBytes(data, "adult").Array() // 数组 - adult 内容
-		// 思路：
-		// 1. 读取 html内容
-		// 2. 通过mapping映射到 结构体对象
-		// 3. 批量插入db
-
-		// 1. 读取 html内容
-		htmlContent, err := os.ReadFile("doc/爬取book测试html/oneTypeAllBookPage1Html.txt")
-		if err != nil {
-			c.JSON(400, gin.H{"error": "func=DispatchApi_OneTypeAllBookByHtml(分发api- /spider/oneTypeAllBookByHtml), 读取html内容失败"})
-			return
-		}
-		log.Debug("-------------------- htmlContent = ", string(htmlContent))
-		log.Info("-------------------- htmlContent = ", "11")
-
-		// -------- v0.2 写法 建立 comci 和 author多对多的关联关系，插入comic，顺便插入关联表、author表仍要单独插入
-		// -- 要求：必须先提前插入author表，再插入comic+关联表
-		var gjsonResultArr []map[string]any       // 批量插入用的参数。爬取到的 数据表对象 数组 - comic 表
-		var gjsonResultAuthorArr []map[string]any // 批量插入用的参数。爬取到的 数据表对象 数组 - author 表
-
-		// 1. 先提前插入author表
-		for i, adultGjsonResult := range adultArrGjsonResult { // 循环每个adult 对象
-			// -- 获取每个adult 作者数组，循环这个数组 -》 循环每个adult对象中，author数组中每个对象
-			authorGjsonResultArr := gjson.Get(adultGjsonResult.String(), "meta.author.authorData").Array()
-			for j := range authorGjsonResultArr {
-				// -- 给mapping 赋值
-				// 添加 author 表，用的mapping --
-				mappingAuthorTemp := deepcopy.Copy(AuthorMappingForSpiderToptoonByJSON).(map[string]models.ModelMapping) // 需要深拷贝写法，并强制转成期望类型。mappingTemp := ComicMappingForSpiderToptoonByJSON 还是浅拷贝写法，并指针，因为go里map全是指针。
-				mappingAuthor := mappingAssign(mappingAuthorTemp, i, j)                                                  // 返回空，说明有问题。 原来写法：第二次赋值不行，报错。-》 mapping := mappingAssign(ComicMappingForSpiderToptoonByJSON, i)
-				if mappingAuthor == nil {
-					c.JSON(400, gin.H{"error": "func=DispatchApi_OneCategoryByJSON(分发api- /spider/oneTypeByJson), mappingAuthor 赋值失败"}) // 返回错误
-					return                                                                                                              // 直接结束                                                                                                      // 直接金额数
-				}
-
-				// -- 根据 mapping爬取内容
-				// 爬 author 表相关 --
-				oneObjGjsonResultAuthor, _ := BookTemSpiderTypeByJson(data, mappingAuthor) // gin.Context 只能读1次，已经被读取了，所以不能传。因此传的2进制data
-
-				// -- 准备插入db 用的数据
-				// author 表相关 --
-				gjsonResultAuthorArr = append(gjsonResultAuthorArr, oneObjGjsonResultAuthor)
-			}
-
-		}
-
-		// -- 批量插入db，循环处理 gjsonResultAuthorArr[]
-		err = upsertSpiderTableData("author", gjsonResultAuthorArr)
-		if err != nil {
-			log.Error("func=BookTemSpiderTypeByJson(爬取JSON). 插入db-author 失败, err: ", err)
-			c.JSON(400, gin.H{"error": "func=DispatchApi_OneCategoryByJSON(分发api- /spider/oneTypeByJson), 批量插入db-author 失败"}) // 返回错误
-			return                                                                                                            // 返回这个c
-		}
-
-		// 2 再插入comic+关联表
-		// -- 通过mapping 循环读取每条内容
-		for i := range adultArrGjsonResult {
-			// -- 给mapping 赋值
-			// ！！！！ 非常重要。临时mapping，如果不每次都用新变量，ComicMappingForSpiderToptoonByJSON 带%d,第二次赋值 不行，会导致后面报错
-			mappingTemp := deepcopy.Copy(ComicMappingForSpiderToptoonByJSON).(map[string]models.ModelMapping) // 需要深拷贝写法，并强制转成期望类型。mappingTemp := ComicMappingForSpiderToptoonByJSON 还是浅拷贝写法，还是指针，因为go里map全是指针。
-			log.Debug("------- delete, deepCopy的 mapping = ", mappingTemp)
-			mapping := mappingAssign(mappingTemp, i) // 返回空，说明有问题。 原来写法：第二次赋值不行，报错。-》 mapping := mappingAssign(ComicMappingForSpiderToptoonByJSON, i)
-			log.Debug("------- delete, deepCopy的 mapping,赋值后 = ", mapping)
-			if mapping == nil {
-				c.JSON(400, gin.H{"error": "func=DispatchApi_OneCategoryByJSON(分发api- /spider/oneTypeByJson), mapping 赋值失败"}) // 返回错误
-				return                                                                                                        // 直接结束                                                                                                      // 直接金额数
-			}
-
-			// -- 根据 mapping爬取内容
-			oneObjGjsonResult, err := BookTemSpiderTypeByJson(data, mapping) // gin.Context 只能读1次，已经被读取了，所以不能传。因此传的2进制data
-			log.Debug("---------- delete oneObjGjsonResult = ", oneObjGjsonResult)
-			if err != nil {
-				c.JSON(400, gin.H{"error": "func=DispatchApi_OneCategoryByJSON(分发api- /spider/oneTypeByJson), 爬取失败"}) // 返回错误
-				return
-			}
-
-			// -- 准备插入db 用的数据
-			gjsonResultArr = append(gjsonResultArr, oneObjGjsonResult)
-		}
-
-		// -- 批量插入db，循环处理 gjsonResultArr[]
-		// comic 表相关 --
-		err = upsertSpiderTableData("comic", gjsonResultArr)
-		if err != nil {
-			log.Error("func=BookTemSpiderTypeByJson(爬取JSON). 插入db失败, err: ", err)
-			c.JSON(400, gin.H{"error": "func=DispatchApi_OneCategoryByJSON(分发api- /spider/oneTypeByJson), 批量插入db失败"}) // 返回错误
-			return                                                                                                    // 返回这个c
-		}
-
-		okTotal = len(gjsonResultArr) // 成功条数
-		log.Infof("func=DispatchApi_OneCategoryByJSON(分发api: /spider/oneTypeByJson), 爬取成功, 插入%d条数据", okTotal)
+		log.Info("------ 还没实现")
 	case "kxmanhua": // 开心看漫画
 		// 通过mappping 获取 book 对象
 		// 插入booK
 		// 测试-- mapping结果
-		comicArr := GetAllObjFromOneHtmlPageUseCollyByMapping[models.ComicSpider](data, ComicMappingForSpiderKxmanhuaByHtml)
-		log.Debug("---------- 返回 arr = ", comicArr)
+		// -- 最终返回结果：二维数组 var AllPageBookArr []onePageBookArr
+		allPageBookArr := GetAllObjFromOneHtmlPageUseCollyByMapping[models.ComicSpider](data, ComicMappingForSpiderKxmanhuaByHtml, spiderUrlArr)
+		log.Debug("---------- 返回 allPageBookArr = ", allPageBookArr)
 
-		// 2. 插入数据库
-		// -- 插入主表
-		err := db.DBUpsertBatch(db.DBComic, comicArr, tableComicUniqueIndexArr, tableComicUpdateColArr)
-		if err != nil {
-			c.JSON(400, gin.H{"error": "func=DispatchApi_OneCategoryByJSON(分发api- /spider/oneTypeByJson), 批量插入db-comic 失败"}) // 返回错误
-			return
-		}
-
-		// -- 重要：由于GORM批量Upsert时不会更新对象的ID字段，需要重新查询获取正确的ID
-		// 构建查询条件：根据唯一索引字段查询
-		for i := range comicArr {
-			var existingComic models.ComicSpider
-			condition := map[string]interface{}{
-				"name":          comicArr[i].Name,
-				"country_id":    comicArr[i].CountryId,
-				"website_id":    comicArr[i].WebsiteId,
-				"porn_type_id":  comicArr[i].PornTypeId,
-				"type_id":       comicArr[i].TypeId,
-				"author_concat": comicArr[i].AuthorConcat,
+		// 2. 从二维数组中，取出每一页,爬的数据，插入数据库
+		for i, onePageBookArr := range allPageBookArr {
+			// 2. 插入数据库
+			// -- 插入主表
+			err := db.DBUpsertBatch(db.DBComic, onePageBookArr, tableComicUniqueIndexArr, tableComicUpdateColArr)
+			if err != nil {
+				c.JSON(400, gin.H{"error": "func=DispatchApi_OneCategoryByJSON(分发api- /spider/oneTypeByJson), 批量插入db-comic 失败"}) // 返回错误
+				return
 			}
-			result := db.DBComic.Where(condition).First(&existingComic)
-			if result.Error == nil {
-				// 更新对象的ID为数据库中的实际ID
-				comicArr[i].Id = existingComic.Id
-				log.Debugf("更新comic ID: %s -> %d", comicArr[i].Name, existingComic.Id)
-			} else {
-				log.Errorf("查询comic失败: %s, err: %v", comicArr[i].Name, result.Error)
-			}
-		}
 
-		// -- 插入关联表
-		var comicStatsArr []models.ComicSpiderStats
-		for _, comic := range comicArr {
-			stats := models.ComicSpiderStats{
-				ComicId:                   comic.Id, // 现在使用正确的ID
-				Star:                      comic.Stats.Star,
-				LatestChapterName:         comic.Stats.LatestChapterName, // 最新章节名字
-				Hits:                      comic.Stats.Hits,
-				TotalChapter:              comic.Stats.TotalChapter,
-				LastestChapterReleaseDate: comic.Stats.LastestChapterReleaseDate,
+			// -- 重要：由于GORM批量Upsert时不会更新对象的ID字段，需要重新查询获取正确的ID
+			// 构建查询条件：根据唯一索引字段查询
+			for i := range onePageBookArr {
+				var existingComic models.ComicSpider
+				condition := map[string]interface{}{
+					"name":          onePageBookArr[i].Name,
+					"country_id":    onePageBookArr[i].CountryId,
+					"website_id":    onePageBookArr[i].WebsiteId,
+					"porn_type_id":  onePageBookArr[i].PornTypeId,
+					"type_id":       onePageBookArr[i].TypeId,
+					"author_concat": onePageBookArr[i].AuthorConcat,
+				}
+				result := db.DBComic.Where(condition).First(&existingComic)
+				if result.Error == nil {
+					// 更新对象的ID为数据库中的实际ID
+					onePageBookArr[i].Id = existingComic.Id
+					log.Debugf("更新comic ID: %s -> %d", onePageBookArr[i].Name, existingComic.Id)
+				} else {
+					log.Errorf("查询comic失败: %s, err: %v", onePageBookArr[i].Name, result.Error)
+				}
 			}
-			stats.DataClean() // 数据清洗下
-			comicStatsArr = append(comicStatsArr, stats)
-		}
-		err = db.DBUpsertBatch(db.DBComic, comicStatsArr, []string{"ComicId"},
-			[]string{"latest_chapter_id", "star", "latest_chapter_name", "hits", "total_chapter",
-				"lastest_chapter_release_date"})
-		if err != nil {
-			c.JSON(400, gin.H{"error": "func=DispatchApi_OneCategoryByJSON(分发api- /spider/oneTypeByJson), 批量插入db-comic-stats表 失败"}) // 返回错误
-			return
-		}
 
-		okTotal = len(comicArr) // 成功条数
-		log.Infof("-- kxmanhua,page=?, 爬取成功, 插入%d条comic数据", okTotal)
+			// -- 插入关联表
+			var comicStatsArr []models.ComicSpiderStats
+			for _, comic := range onePageBookArr {
+				stats := models.ComicSpiderStats{
+					ComicId:                   comic.Id, // 现在使用正确的ID
+					Star:                      comic.Stats.Star,
+					LatestChapterName:         comic.Stats.LatestChapterName, // 最新章节名字
+					Hits:                      comic.Stats.Hits,
+					TotalChapter:              comic.Stats.TotalChapter,
+					LastestChapterReleaseDate: comic.Stats.LastestChapterReleaseDate,
+				}
+				stats.DataClean() // 数据清洗下
+				comicStatsArr = append(comicStatsArr, stats)
+			}
+			err = db.DBUpsertBatch(db.DBComic, comicStatsArr, []string{"ComicId"},
+				[]string{"latest_chapter_id", "star", "latest_chapter_name", "hits", "total_chapter",
+					"lastest_chapter_release_date"})
+			if err != nil {
+				c.JSON(400, gin.H{"error": "func=DispatchApi_OneCategoryByJSON(分发api- /spider/oneTypeByJson), 批量插入db-comic-stats表 失败"}) // 返回错误
+				return
+			}
+
+			// 打印结果
+			okTotal = len(onePageBookArr) // 每页成功条数
+			log.Infof("爬取某个分类allBook, 第%d页, 爬取成功, 插入%d条 book 数据", i+1, okTotal)
+		}
 
 	default:
 		c.JSON(400, gin.H{"error": "func=DispatchApi_OneCategoryByJSON(分发api- /spider/oneTypeByJson), 没找到到应爬哪个网站. 建议: 排查json参数 spiderTag-website"}) // 返回错误
@@ -580,6 +605,191 @@ func DispatchApi_OneTypeAllBookByHtml(c *gin.Context) {
 	// 4. 执行核心逻辑
 	// 5. 返回结果
 	c.JSON(200, "爬取成功,插入"+strconv.Itoa(okTotal)+"条数据")
+
+	// v0.1 写法，没有把所有网站，爬取代码统一
+	/*
+		// 0. 初始化
+		okTotal := 0 // 成功条数
+
+		// 1. 校验传参
+		// 2. 数据清洗
+
+		// 3. 业务逻辑 需要的数据校验 +清洗
+		// -- 找到应该爬哪个网站
+		// 读取 JSON Body --
+		data, err := io.ReadAll(c.Request.Body)
+		if err != nil {
+			c.JSON(400, gin.H{"error": "func: 通过json爬分类。读取 前端传参 Body 失败"})
+			return
+		}
+
+		// 1. gjson 读取 前端 JSON 里 有用数据
+		website := gjson.Get(string(data), "spiderTag.website").String() // websiteTag - website 字段
+		// spiderUrl := gjson.Get(string(data), "spiderUrl").String()       // spiderUrl 要爬取的url。这里传的是某个分类的 url (页码用%d替代)。如："https://kxmanhua.com/manga/library?type=2&complete=1&page=%d&orderby=1"
+
+		// -- 根据该字段，使用不同的爬虫 ModelMapping映射表
+		switch website {
+		case "toptoon-tw":
+			adultArrGjsonResult := gjson.GetBytes(data, "adult").Array() // 数组 - adult 内容
+			// 思路：
+			// 1. 读取 html内容
+			// 2. 通过mapping映射到 结构体对象
+			// 3. 批量插入db
+
+			// 1. 读取 html内容
+			htmlContent, err := os.ReadFile("doc/爬取book测试html/oneTypeAllBookPage1Html.txt")
+			if err != nil {
+				c.JSON(400, gin.H{"error": "func=DispatchApi_OneTypeAllBookByHtml(分发api- /spider/oneTypeAllBookByHtml), 读取html内容失败"})
+				return
+			}
+			log.Debug("-------------------- htmlContent = ", string(htmlContent))
+			log.Info("-------------------- htmlContent = ", "11")
+
+			// -------- v0.2 写法 建立 comci 和 author多对多的关联关系，插入comic，顺便插入关联表、author表仍要单独插入
+			// -- 要求：必须先提前插入author表，再插入comic+关联表
+			var gjsonResultArr []map[string]any       // 批量插入用的参数。爬取到的 数据表对象 数组 - comic 表
+			var gjsonResultAuthorArr []map[string]any // 批量插入用的参数。爬取到的 数据表对象 数组 - author 表
+
+			// 1. 先提前插入author表
+			for i, adultGjsonResult := range adultArrGjsonResult { // 循环每个adult 对象
+				// -- 获取每个adult 作者数组，循环这个数组 -》 循环每个adult对象中，author数组中每个对象
+				authorGjsonResultArr := gjson.Get(adultGjsonResult.String(), "meta.author.authorData").Array()
+				for j := range authorGjsonResultArr {
+					// -- 给mapping 赋值
+					// 添加 author 表，用的mapping --
+					mappingAuthorTemp := deepcopy.Copy(AuthorMappingForSpiderToptoonByJSON).(map[string]models.ModelMapping) // 需要深拷贝写法，并强制转成期望类型。mappingTemp := ComicMappingForSpiderToptoonByJSON 还是浅拷贝写法，并指针，因为go里map全是指针。
+					mappingAuthor := mappingAssign(mappingAuthorTemp, i, j)                                                  // 返回空，说明有问题。 原来写法：第二次赋值不行，报错。-》 mapping := mappingAssign(ComicMappingForSpiderToptoonByJSON, i)
+					if mappingAuthor == nil {
+						c.JSON(400, gin.H{"error": "func=DispatchApi_OneCategoryByJSON(分发api- /spider/oneTypeByJson), mappingAuthor 赋值失败"}) // 返回错误
+						return                                                                                                              // 直接结束                                                                                                      // 直接金额数
+					}
+
+					// -- 根据 mapping爬取内容
+					// 爬 author 表相关 --
+					oneObjGjsonResultAuthor, _ := BookTemSpiderTypeByJson(data, mappingAuthor) // gin.Context 只能读1次，已经被读取了，所以不能传。因此传的2进制data
+
+					// -- 准备插入db 用的数据
+					// author 表相关 --
+					gjsonResultAuthorArr = append(gjsonResultAuthorArr, oneObjGjsonResultAuthor)
+				}
+
+			}
+
+			// -- 批量插入db，循环处理 gjsonResultAuthorArr[]
+			err = upsertSpiderTableData("author", gjsonResultAuthorArr)
+			if err != nil {
+				log.Error("func=BookTemSpiderTypeByJson(爬取JSON). 插入db-author 失败, err: ", err)
+				c.JSON(400, gin.H{"error": "func=DispatchApi_OneCategoryByJSON(分发api- /spider/oneTypeByJson), 批量插入db-author 失败"}) // 返回错误
+				return                                                                                                            // 返回这个c
+			}
+
+			// 2 再插入comic+关联表
+			// -- 通过mapping 循环读取每条内容
+			for i := range adultArrGjsonResult {
+				// -- 给mapping 赋值
+				// ！！！！ 非常重要。临时mapping，如果不每次都用新变量，ComicMappingForSpiderToptoonByJSON 带%d,第二次赋值 不行，会导致后面报错
+				mappingTemp := deepcopy.Copy(ComicMappingForSpiderToptoonByJSON).(map[string]models.ModelMapping) // 需要深拷贝写法，并强制转成期望类型。mappingTemp := ComicMappingForSpiderToptoonByJSON 还是浅拷贝写法，还是指针，因为go里map全是指针。
+				log.Debug("------- delete, deepCopy的 mapping = ", mappingTemp)
+				mapping := mappingAssign(mappingTemp, i) // 返回空，说明有问题。 原来写法：第二次赋值不行，报错。-》 mapping := mappingAssign(ComicMappingForSpiderToptoonByJSON, i)
+				log.Debug("------- delete, deepCopy的 mapping,赋值后 = ", mapping)
+				if mapping == nil {
+					c.JSON(400, gin.H{"error": "func=DispatchApi_OneCategoryByJSON(分发api- /spider/oneTypeByJson), mapping 赋值失败"}) // 返回错误
+					return                                                                                                        // 直接结束                                                                                                      // 直接金额数
+				}
+
+				// -- 根据 mapping爬取内容
+				oneObjGjsonResult, err := BookTemSpiderTypeByJson(data, mapping) // gin.Context 只能读1次，已经被读取了，所以不能传。因此传的2进制data
+				log.Debug("---------- delete oneObjGjsonResult = ", oneObjGjsonResult)
+				if err != nil {
+					c.JSON(400, gin.H{"error": "func=DispatchApi_OneCategoryByJSON(分发api- /spider/oneTypeByJson), 爬取失败"}) // 返回错误
+					return
+				}
+
+				// -- 准备插入db 用的数据
+				gjsonResultArr = append(gjsonResultArr, oneObjGjsonResult)
+			}
+
+			// -- 批量插入db，循环处理 gjsonResultArr[]
+			// comic 表相关 --
+			err = upsertSpiderTableData("comic", gjsonResultArr)
+			if err != nil {
+				log.Error("func=BookTemSpiderTypeByJson(爬取JSON). 插入db失败, err: ", err)
+				c.JSON(400, gin.H{"error": "func=DispatchApi_OneCategoryByJSON(分发api- /spider/oneTypeByJson), 批量插入db失败"}) // 返回错误
+				return                                                                                                    // 返回这个c
+			}
+
+			okTotal = len(gjsonResultArr) // 成功条数
+			log.Infof("func=DispatchApi_OneCategoryByJSON(分发api: /spider/oneTypeByJson), 爬取成功, 插入%d条数据", okTotal)
+		case "kxmanhua": // 开心看漫画
+			// 通过mappping 获取 book 对象
+			// 插入booK
+			// 测试-- mapping结果
+			comicArr := GetAllObjFromOneHtmlPageUseCollyByMapping[models.ComicSpider](data, ComicMappingForSpiderKxmanhuaByHtml)
+			log.Debug("---------- 返回 arr = ", comicArr)
+
+			// 2. 插入数据库
+			// -- 插入主表
+			err := db.DBUpsertBatch(db.DBComic, comicArr, tableComicUniqueIndexArr, tableComicUpdateColArr)
+			if err != nil {
+				c.JSON(400, gin.H{"error": "func=DispatchApi_OneCategoryByJSON(分发api- /spider/oneTypeByJson), 批量插入db-comic 失败"}) // 返回错误
+				return
+			}
+
+			// -- 重要：由于GORM批量Upsert时不会更新对象的ID字段，需要重新查询获取正确的ID
+			// 构建查询条件：根据唯一索引字段查询
+			for i := range comicArr {
+				var existingComic models.ComicSpider
+				condition := map[string]interface{}{
+					"name":          comicArr[i].Name,
+					"country_id":    comicArr[i].CountryId,
+					"website_id":    comicArr[i].WebsiteId,
+					"porn_type_id":  comicArr[i].PornTypeId,
+					"type_id":       comicArr[i].TypeId,
+					"author_concat": comicArr[i].AuthorConcat,
+				}
+				result := db.DBComic.Where(condition).First(&existingComic)
+				if result.Error == nil {
+					// 更新对象的ID为数据库中的实际ID
+					comicArr[i].Id = existingComic.Id
+					log.Debugf("更新comic ID: %s -> %d", comicArr[i].Name, existingComic.Id)
+				} else {
+					log.Errorf("查询comic失败: %s, err: %v", comicArr[i].Name, result.Error)
+				}
+			}
+
+			// -- 插入关联表
+			var comicStatsArr []models.ComicSpiderStats
+			for _, comic := range comicArr {
+				stats := models.ComicSpiderStats{
+					ComicId:                   comic.Id, // 现在使用正确的ID
+					Star:                      comic.Stats.Star,
+					LatestChapterName:         comic.Stats.LatestChapterName, // 最新章节名字
+					Hits:                      comic.Stats.Hits,
+					TotalChapter:              comic.Stats.TotalChapter,
+					LastestChapterReleaseDate: comic.Stats.LastestChapterReleaseDate,
+				}
+				stats.DataClean() // 数据清洗下
+				comicStatsArr = append(comicStatsArr, stats)
+			}
+			err = db.DBUpsertBatch(db.DBComic, comicStatsArr, []string{"ComicId"},
+				[]string{"latest_chapter_id", "star", "latest_chapter_name", "hits", "total_chapter",
+					"lastest_chapter_release_date"})
+			if err != nil {
+				c.JSON(400, gin.H{"error": "func=DispatchApi_OneCategoryByJSON(分发api- /spider/oneTypeByJson), 批量插入db-comic-stats表 失败"}) // 返回错误
+				return
+			}
+
+			okTotal = len(comicArr) // 成功条数
+			log.Infof("-- kxmanhua,page=?, 爬取成功, 插入%d条comic数据", okTotal)
+
+		default:
+			c.JSON(400, gin.H{"error": "func=DispatchApi_OneCategoryByJSON(分发api- /spider/oneTypeByJson), 没找到到应爬哪个网站. 建议: 排查json参数 spiderTag-website"}) // 返回错误
+		}
+
+		// 4. 执行核心逻辑
+		// 5. 返回结果
+		c.JSON(200, "爬取成功,插入"+strconv.Itoa(okTotal)+"条数据")
+	*/
 }
 
 // 分发请求 /spider/oneChapterAllContentByHtml . 自行判断，该用哪个 表的 ModelMapping。不应该用 _命名方式，但是能看清

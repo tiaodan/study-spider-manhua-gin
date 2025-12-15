@@ -197,11 +197,13 @@ func InsertDefaultData() {
 	typeDefault3D := &models.Type{Id: 5, Name: "3D漫画", Level: 1}
 	typeDefaultAmeraica := &models.Type{Id: 6, Name: "欧美漫画", Level: 1}
 	typeDefaultSameSex := &models.Type{Id: 7, Name: "同性", Level: 1}
+	typeDefaultTongren := &models.Type{Id: 8, Name: "同人志", Level: 1}
+	typeDefaultChuban := &models.Type{Id: 9, Name: "出版漫画", Level: 1}
 	defaultDataTypeArr := []*models.Type{
 		// 一级分类
 		typeDefaultNoTypeLevel1, typeDefaultKoren, typeDefaultJapan,
 		typeDefaultRealPerson, typeDefault3D, typeDefaultAmeraica,
-		typeDefaultSameSex,
+		typeDefaultSameSex, typeDefaultTongren, typeDefaultChuban,
 	}
 	typeUniqueIndexArr := []string{"Name"}                       // 唯一索引
 	typeUpdateDBColumnRealNameArr := []string{"level", "parent"} // 要更新的字段

@@ -177,7 +177,7 @@ func main() {
 	r.POST("/spider/oneTypeByJson", spider.DispatchApi_OneCategoryByJSON) // v0.2 写法，用通用爬虫模板,推荐。爬F12 目标网站返回的json数据
 
 	// -- html spider 相关
-	r.POST("/spider/oneTypeAllBookByHtml", spider.DispatchApi_OneTypeAllBookByHtml)             // v0.2 写法，用通用爬虫模板,推荐。爬html页面 - 爬一类所有书
+	r.POST("/spider/oneTypeAllBookByHtml", spider.DispatchApi_SpiderOneTypeAllBookArr_Template) // 通用模板
 	r.POST("/spider/oneBookAllChapterByHtml", spider.DispatchApi_OneBookAllChapterByHtml)       // v0.2 写法，用通用爬虫模板,推荐。爬html页面 - 爬一本书所有章节
 	r.POST("/spider/oneChapterAllContentByHtml", spider.DispatchApi_OneChapterAllContentByHtml) // v0.2 写法，用通用爬虫模板,推荐。爬html页面 - 爬章节所有内容 - 没实现一章节所有内容
 
