@@ -1,0 +1,215 @@
+# 爬虫配置文件 - 完整的6步骤配置驱动架构
+# 6个步骤：找到网站 -> 爬取 -> 提取数据 -> 数据清洗 -> 验证 -> 插入DB
+
+websites:
+  # 开心漫画网站配置
+  kxmanhua:
+    # 步骤1: 找到目标网站（网站基本信息）
+    meta:
+      name: "开心漫画"
+      base_url: "https://kxmanhua.com"
+      table: "comic"
+
+    # 步骤2: 爬取配置
+    crawl:
+      type: "html"
+      selectors:
+        book_container: ".product__item"  # 书籍容器选择器
+        pagination: ".pagination"         # 分页选择器（如果需要）
+
+    # 步骤3: 提取数据配置
+    extract:
+      mappings:
+        name:
+          selector: ".product__item__text"
+          type: "content"
+          transforms: ["trim_space", "simplify_chinese"]
+
+        comicUrlApiPath:
+          selector: ".product__item__pic.set-bg|onclick"
+          type: "attr"
+          transforms: ["trim_space", "simplify_chinese", "regex_extract"]
+
+        coverUrlApiPath:
+          selector: ".product__item__pic.set-bg|data-setbg"
+          type: "attr"
+          transforms: ["trim_space", "simplify_chinese", "remove_domain_prefix"]
+
+        end:
+          selector: ".epgreen"
+          type: "content"
+          transforms: ["trim_space", "simplify_chinese", "map_end_status"]
+
+        hits:
+          selector: ".view"
+          type: "content"
+          transforms: ["parse_hits_number"]
+
+    # 步骤4: 数据清洗/赋值配置
+    clean:
+      # 外键字段映射（从前端参数赋值）
+      foreign_keys:
+        websiteId: "websiteId"
+        pornTypeId: "pornTypeId"
+        countryId: "countryId"
+        typeId: "typeId"
+        processId: "processId"
+
+      # 默认值设置
+      defaults:
+        spider_end_status: 0
+        download_end_status: 0
+        upload_aws_end_status: 0
+        upload_baidu_end_status: 0
+
+    # 步骤5: 验证配置
+    validate:
+      rules:
+        name:
+          - name: "not_empty"
+          - name: "max_length"
+            params: {max: 200}
+        comicUrlApiPath:
+          - name: "not_empty"
+          - name: "valid_url"
+        hits:
+          - name: "min_value"
+            params: {min: 0}
+
+    # 步骤6: 数据库插入配置
+    insert:
+      strategy: "upsert"
+      unique_keys: ["name", "country_id", "website_id", "porn_type_id", "type_id", "author_concat"]
+      update_keys: ["comic_url_api_path", "cover_url_api_path", "end", "spider_end_status", "download_end_status", "upload_aws_end_status", "upload_baidu_end_status", "updated_at"]
+
+  # Toptoon台湾网站配置（JSON方式）
+  toptoon-tw:
+    meta:
+      name: "Toptoon台湾"
+      base_url: "https://www.toptoon.net"
+      table: "comic"
+
+    crawl:
+      type: "json"
+      data_path: "adult"  # JSON数组路径
+
+    extract:
+      mappings:
+        name:
+          path: "meta.title"
+          transforms: ["trim_space", "simplify_chinese"]
+
+        comicUrlApiPath:
+          path: "id"
+          transforms: ["add_prefix"]
+
+        coverUrlApiPath:
+          path: "thumbnail.standard"
+          transforms: ["trim_space"]
+
+        briefLong:
+          path: "meta.description"
+          transforms: ["trim_space", "simplify_chinese"]
+
+        end:
+          path: "meta.epTotalCnt"
+          transforms: ["map_completion_status"]
+
+    clean:
+      foreign_keys:
+        websiteId: "websiteId"
+        pornTypeId: "pornTypeId"
+        countryId: "countryId"
+        typeId: "typeId"
+        processId: "processId"
+
+      defaults:
+        spider_end_status: 0
+
+    validate:
+      rules:
+        name:
+          - name: "not_empty"
+        comicUrlApiPath:
+          - name: "not_empty"
+
+    insert:
+      strategy: "upsert"
+      unique_keys: ["name", "country_id", "website_id", "porn_type_id", "type_id", "author_concat"]
+      update_keys: ["comic_url_api_path", "cover_url_api_path", "brief_long", "spider_end_status", "updated_at"]
+
+# Transform函数库配置
+transform_library:
+  # 字符串处理
+  trim_space:
+    type: "string"
+    description: "去除首尾空格"
+
+  simplify_chinese:
+    type: "string"
+    description: "繁体转简体中文"
+    params:
+      ignore_digits: false
+
+  regex_extract:
+    type: "string"
+    description: "正则表达式提取"
+    params:
+      pattern: "location\\.href='([^']+)'"
+      group: 1
+
+  remove_domain_prefix:
+    type: "string"
+    description: "去除域名前缀"
+    params:
+      prefix: "https://img.imh99.top"
+
+  add_prefix:
+    type: "string"
+    description: "添加前缀"
+    params:
+      prefix: "/comic/epList/"
+
+  # 数据转换
+  parse_hits_number:
+    type: "number"
+    description: "解析点击量字符串为数字"
+    params:
+      default: 0
+
+  map_end_status:
+    type: "enum"
+    description: "映射连载状态"
+    params:
+      mapping:
+        "完结": 3
+        "连载": 2
+      default: 1
+
+  map_completion_status:
+    type: "enum"
+    description: "根据章节数判断完成状态"
+    params:
+      thresholds:
+        complete: 1000  # 超过1000章认为是完结
+
+  # 验证器
+  not_empty:
+    type: "validator"
+    description: "非空验证"
+
+  max_length:
+    type: "validator"
+    description: "最大长度验证"
+    params:
+      max: 100
+
+  valid_url:
+    type: "validator"
+    description: "URL格式验证"
+
+  min_value:
+    type: "validator"
+    description: "最小值验证"
+    params:
+      min: 0

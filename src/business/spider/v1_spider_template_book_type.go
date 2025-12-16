@@ -1762,3 +1762,144 @@ func buildComicUniqueKey(comic *models.ComicSpider) string {
 }
 
 // -- 方法 ------------------------------------------- end -----------------------------------
+
+// GetAllObjFromOneHtmlPageUseCollyByMappingV2 v2版本的HTML爬取函数，直接接受选择器参数
+func GetAllObjFromOneHtmlPageUseCollyByMappingV2[T any](htmlData []byte, mapping map[string]models.ModelHtmlMapping, spiderUrlArr []string, bookArrCssSelector string, bookArrItemCssSelector string, config *config.WebsiteConfig) [][]T {
+	// 使用传入的选择器参数，而不是从JSON解析
+	log.Debug("v2爬取html, bookArrCssSelector = ", bookArrCssSelector)
+	log.Debug("v2爬取html, bookArrItemCssSelector = ", bookArrItemCssSelector)
+
+	// 建一个爬虫对象
+	c := colly.NewCollector()
+
+	// 设置并发数，和爬取限制
+	c.Limit(&colly.LimitRule{
+		DomainGlob:  "*",
+		RandomDelay: 1 * time.Second, // 使用默认延迟
+	})
+
+	var allPageBookArr [][]T
+	var mu sync.Mutex
+
+	// 获取html内容,每成功匹配一次, 就执行一次逻辑。这个标签选只匹配一次的 --
+	c.OnHTML(bookArrCssSelector, func(eBookArr *colly.HTMLElement) {
+		log.Debug("v2-------------- 匹配 bookArr = ", eBookArr.Text)
+
+		// 遍历每一个 bookArrItem, 用forEach. colly，用Html遍历
+		var onePageBookArr []T
+		eBookArr.ForEach(bookArrItemCssSelector, func(i int, e *colly.HTMLElement) {
+			// 1. 获取能获取到的
+			var comicT T
+			comicSpiderStats := models.ComicSpiderStats{}
+			log.Info("v2-------- delete comicSpiderStats = ", comicSpiderStats)
+
+			// 通过mapping 爬内容
+			rawResult := GetOneChapObjByCollyMapping(e, mapping)
+			if rawResult != nil {
+				// 应用v2的transforms
+				processedResult := make(map[string]interface{})
+				for fieldName, rawValue := range rawResult {
+					// 从config中获取字段配置和transforms
+					if fieldConfig, exists := config.Extract.Mappings[fieldName]; exists && len(fieldConfig.Transforms) > 0 {
+						// 创建field mapper并应用transforms
+						fieldMapper := NewFieldMapper()
+						processedValue, err := fieldMapper.transformRegistry.ApplyTransforms(fieldConfig.Transforms, rawValue, fieldMapper.configLoader)
+						if err != nil {
+							log.Errorf("v2字段 %s 转换失败: %v", fieldName, err)
+							processedResult[fieldName] = rawValue // 使用原始值
+						} else {
+							processedResult[fieldName] = processedValue
+						}
+					} else {
+						processedResult[fieldName] = rawValue
+					}
+				}
+
+				// 通过 model字段 spider，把处理后的数据转成 model对象
+				MapByTag(processedResult, &comicT)
+				log.Infof("v2映射后的comic对象: %+v", comicT)
+			}
+
+			// 2. 设置对象值
+			comic := any(comicT).(models.ComicSpider)
+
+			// 这里不设置网站相关参数，因为这些会在v2的后续步骤中设置
+			comic.ProcessId = 1        // 默认设置为待分类
+			comic.AuthorConcatType = 0 // 默认拼接方式
+
+			// 3 数据清洗
+			comic.DataClean()
+
+			// 4 把爬好的单个数据，放到数组里，准备插入数据库
+			onePageBookArr = append(onePageBookArr, any(comic).(T))
+		})
+
+		// 使用互斥锁保护共享数据
+		mu.Lock()
+		allPageBookArr = append(allPageBookArr, onePageBookArr)
+		mu.Unlock()
+	})
+
+	// 错误处理
+	c.OnError(func(r *colly.Response, err error) {
+		log.Errorf("v2爬取页面出错: %v, URL: %s", err, r.Request.URL)
+	})
+
+	// 遍历所有URL进行爬取
+	for _, spiderUrl := range spiderUrlArr {
+		log.Debugf("v2开始爬取URL: %s", spiderUrl)
+
+		// 如果提供了原始HTML字符串（以 < 开头），才走本地字符串分支；否则一律按URL访问
+		if len(htmlData) > 0 && strings.HasPrefix(strings.TrimSpace(string(htmlData)), "<") {
+			// 创建一个新的collector实例来处理HTML字符串
+			tempCollector := c.Clone()
+			tempCollector.OnHTML(bookArrCssSelector, func(eBookArr *colly.HTMLElement) {
+				log.Debug("v2-------------- 匹配 bookArr = ", eBookArr.Text)
+
+				var onePageBookArr []T
+				eBookArr.ForEach(bookArrItemCssSelector, func(i int, e *colly.HTMLElement) {
+					var comicT T
+					comicSpiderStats := models.ComicSpiderStats{}
+					log.Info("v2-------- delete comicSpiderStats = ", comicSpiderStats)
+
+					result := GetOneChapObjByCollyMapping(e, mapping)
+					if result != nil {
+						MapByTag(result, &comicT)
+						log.Infof("v2映射后的comic对象: %+v", comicT)
+					}
+
+					comic := any(comicT).(models.ComicSpider)
+					comic.ProcessId = 1
+					comic.AuthorConcatType = 0
+					comic.DataClean()
+
+					onePageBookArr = append(onePageBookArr, any(comic).(T))
+				})
+
+				mu.Lock()
+				allPageBookArr = append(allPageBookArr, onePageBookArr)
+				mu.Unlock()
+			})
+
+			// 使用Visit方法访问data URL来解析HTML字符串
+			dataURL := "data:text/html;charset=utf-8," + url.QueryEscape(string(htmlData))
+			err := tempCollector.Visit(dataURL)
+			if err != nil {
+				log.Errorf("v2解析HTML数据失败: %v", err)
+				continue
+			}
+		} else {
+			// 正常网络请求（包括localhost/127.0.0.1）
+			err := c.Visit(spiderUrl)
+			if err != nil {
+				log.Errorf("v2访问URL失败: %v, URL: %s", err, spiderUrl)
+				continue
+			}
+		}
+
+		// 等待一下，避免请求过于频繁
+		time.Sleep(1 * time.Second)
+	}
+
+	return allPageBookArr
+}

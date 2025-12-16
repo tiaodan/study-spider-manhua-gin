@@ -176,10 +176,18 @@ func main() {
 	r.POST("/spider/oneTypeByHtml", spider.BookTemSpiderTypeByHtml)       // v0.2 写法，用通用爬虫模板,推荐。爬html页面
 	r.POST("/spider/oneTypeByJson", spider.DispatchApi_OneCategoryByJSON) // v0.2 写法，用通用爬虫模板,推荐。爬F12 目标网站返回的json数据
 
-	// -- html spider 相关
+	// -- html spider 相关 V1 策略实现
 	r.POST("/spider/oneTypeAllBookByHtml", spider.DispatchApi_SpiderOneTypeAllBookArr_Template) // 通用模板
 	r.POST("/spider/oneBookAllChapterByHtml", spider.DispatchApi_OneBookAllChapterByHtml)       // v0.2 写法，用通用爬虫模板,推荐。爬html页面 - 爬一本书所有章节
 	r.POST("/spider/oneChapterAllContentByHtml", spider.DispatchApi_OneChapterAllContentByHtml) // v0.2 写法，用通用爬虫模板,推荐。爬html页面 - 爬章节所有内容 - 没实现一章节所有内容
+
+	// v2 写法 获取配置 - start
+	// -- spider 相关 V2 策略实现
+	err := spider.InitConfigDrivenSpiderControllerV2(r, "v2-spider-config.yaml")
+	if err != nil {
+		log.Error("初始化配置驱动爬虫失败, err = ", err)
+	}
+	// v2 写法 获取配置 - end
 
 	r.Run(":8888") // 启动服务
 }
