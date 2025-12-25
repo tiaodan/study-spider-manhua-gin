@@ -280,7 +280,7 @@ func DispatchApi_OneCategoryByJSON(c *gin.Context) {
 
 使用方式：
 */
-func DispatchApi_OneBookAllChapterByHtml(c *gin.Context) {
+func DispatchApi_OneBookAllChapterByHtml_V1(c *gin.Context) {
 	// 0. 初始化
 	okTotal := 0 // 成功条数
 
@@ -299,6 +299,12 @@ func DispatchApi_OneBookAllChapterByHtml(c *gin.Context) {
 	// gjson 读取 前端 JSON 里 spiderTag -> website字段 --
 	website := gjson.Get(string(data), "spiderTag.website").String()
 	bookId := gjson.Get(string(data), "bookId").Int() // bookId字段
+	// 校验 --
+	// bookId !=0
+	if bookId == 0 {
+		c.JSON(500, gin.H{"error": "爬取1本书所有章节 失败, bookId为0, 不执行后续步骤"}) // 返回错误
+		return
+	}
 	log.Info("------ bookId = ", bookId)
 
 	// -- 根据该字段，使用不同的爬虫 ModelMapping映射表
@@ -310,6 +316,11 @@ func DispatchApi_OneBookAllChapterByHtml(c *gin.Context) {
 		// 2. 爬取 chapter
 		// -- 请求html页面
 		chapterArr := GetOneBookAllChapterByCollyMapping[models.ChapterSpider](data, ChapterMappingForSpiderKxmanhuaByHTML)
+		// -- 插入前数据校验
+		if chapterArr == nil {
+			c.JSON(400, gin.H{"error": "爬取 OneBookAllChapterByHtml失败, chapterArr 为空, 拒绝进入下一步: 插入db"}) // 返回错误
+			return                                                                                    // 直接结束
+		}
 
 		// -- 赋值上下文参数 + 数据清洗。（赋值上下文参数：是吧方法传参，给对象赋值。数据清洗：设置-爬取字段，或者默认数据）
 		for i := range chapterArr {
@@ -367,93 +378,6 @@ func DispatchApi_OneBookAllChapterByHtml(c *gin.Context) {
 }
 
 // 分发请求 - 爬取某一类型的所有书,通用方法
-/*
-目前状态: v3 算法
-
-作用简单说：
-  - 分发请求 - 爬取某一类型的所有书,通用方法
-	- 能判断爬的是 json/html
-	- 能判断爬的是什么网站，自动用什么 mapping
-
-作用详细说:
-
-核心思路:
- 1. 读取 前端 html内容
- 2. 根据该字段，使用不同的爬虫 ModelMapping映射表
- 3. 调用通用 爬取方法
-
-参考通用思路：
- 1. 校验传参
- 2. 数据清洗
- 3. 业务逻辑 需要的数据校验 +清洗
- 4. 执行核心逻辑
-	- 读取html内容
-	- 通过mapping 爬取字段，赋值给chapter_spider对象
-	- 插入前, 数据清洗
-	- 批量插入db
- 5. 返回结果
-
-参数：
- 1. context *gin.Context  // 读取 前端JSON里 spiderTag -> website字段，根据该字段，使用不同的爬虫 ModelMapping映射表
- 2. xx
-
-返回：
-
-注意：
-	- processId，如果用户传 1 - 》程序自己判断 如果是2/3 ，就之间替换赋值
-
-使用方式：
-传参：
-    "bookArrCssSelector": "????",  // 爬某页所有书 用的选择器。可以
-    "bookArrItemCssSelector": ".col-lg-2.col-md-3.col-sm-4.col-6"  // 爬某本书 用的选择器。爬取的css选择器写法
-		- 写法1：".col-lg-2.col-md-3.col-sm-4.col-6" 有好几个class情况
-		- 写法2："[class='col-lg-2 col-md-3 col-sm-4 col-6']" 有好几个class情况。 举例：写法：c.OnHTML("[class='a'] [class='b']"
-*/
-func DispatchApi_SpiderOneTypeAllBookArr_Template(c *gin.Context) {
-	log.Info("------- 还没实现")
-	/*
-		我们按步骤来，一点点来拆分通用模型。其实爬取流程模型大概就是：
-		1. 找到目标网站
-			-》 建一个网站爬取配置 struct : WebSiteSpiderConfig
-			包含：
-			// 在 spider.go 中创建网站配置注册表
-			type WebsiteConfig struct {
-				Name      string
-				DataType  string // "html" 或 "json"
-				TableName string // "comic", "chapter", "author"
-				Mapping   interface{} // 对应的mapping配置
-				Processor func()      // 特殊处理逻辑（可选）
-			}
-
-			var WebsiteRegistry = map[string]*WebsiteConfig{
-				"kxmanhua": {
-					Name:     "kxmanhua",
-					DataType: "html",
-					TableName: "comic",
-					Mapping:  ComicMappingForSpiderKxmanhuaByHtml,
-				},
-				"toptoon-tw": {
-					Name:     "toptoon-tw",
-					DataType: "json",
-					TableName: "comic",
-					Mapping:  ComicMappingForSpiderToptoonByJSON,
-				},
-			}
-
-			// 在 dispatch_api.go 中使用
-			config, exists := WebsiteRegistry[website]
-			if !exists {
-				return errors.New("不支持的网站: " + website)
-			}
-
-		2. 爬取(html/json)
-		3. 提取数据 -
-		4. 数据清洗/赋值
-		5. 插入db前数据清洗
-		6. 插入DB。每个步骤你有什么最好的通用方案/思路？
-	*/
-}
-
 // 分发请求 /spider/DispatchApi_OneTypeAllBookByHtml . 自行判断，该用哪个 表的 ModelMapping。不应该用 _命名方式，但是能看清
 /*
 目前状态: !实现到v0.2 -> 只把c.OnHTML() 部分通用了, 后面不考虑用这个方法了，要再生成一个更通用方法
@@ -496,7 +420,7 @@ func DispatchApi_SpiderOneTypeAllBookArr_Template(c *gin.Context) {
 		- 写法1：".col-lg-2.col-md-3.col-sm-4.col-6" 有好几个class情况
 		- 写法2："[class='col-lg-2 col-md-3 col-sm-4 col-6']" 有好几个class情况。 举例：写法：c.OnHTML("[class='a'] [class='b']"
 */
-func DispatchApi_SpiderBookArr_V2_OneTypeAllBookByHtml(c *gin.Context) {
+func DispatchApi_SpiderOneTypeAllBookArr_V1(c *gin.Context) {
 	// v0.2 写法，把所有网站，爬取代码统一。 一个页面匹配 1次 c.OnHTML，然后在C.OnHtml里 e.forEach()，循环匹配。这样避免，匹配多次 OnHtml，抵赖并发锁问题
 	// v0.2 写法，把所有网站，爬取代码统一。 一个页面匹配 N次 c.OnHTML。这样。q.run(c)，假如同时并发多个，需要并发锁问题
 
@@ -536,7 +460,7 @@ func DispatchApi_SpiderBookArr_V2_OneTypeAllBookByHtml(c *gin.Context) {
 		// 插入booK
 		// 测试-- mapping结果
 		// -- 最终返回结果：二维数组 var AllPageBookArr []onePageBookArr
-		allPageBookArr := GetAllObjFromOneHtmlPageUseCollyByMapping[models.ComicSpider](data, ComicMappingForSpiderKxmanhuaByHtml, spiderUrlArr)
+		allPageBookArr := GetOneTypeAllBookUseCollyByMappingV1[models.ComicSpider](data, ComicMappingForSpiderKxmanhuaByHtml, spiderUrlArr)
 		log.Debug("---------- 返回 allPageBookArr = ", allPageBookArr)
 
 		// 2. 从二维数组中，取出每一页,爬的数据，插入数据库
@@ -821,7 +745,7 @@ func DispatchApi_SpiderBookArr_V2_OneTypeAllBookByHtml(c *gin.Context) {
 
 使用方式：
 */
-func DispatchApi_OneChapterAllContentByHtml(c *gin.Context) {
+func DispatchApi_OneChapterAllContentByHtml_V1(c *gin.Context) {
 	// 0. 初始化
 	okTotal := 0 // 成功条数
 
@@ -840,6 +764,12 @@ func DispatchApi_OneChapterAllContentByHtml(c *gin.Context) {
 	// gjson 读取 前端 JSON 里 spiderTag -> website字段 --
 	website := gjson.Get(string(data), "spiderTag.website").String()
 	chapterId := gjson.Get(string(data), "chapterId").Int() // bookId字段
+	// 校验 --
+	// chapterId !=0
+	if chapterId == 0 {
+		c.JSON(500, gin.H{"error": "爬取章节所有内容 失败, chapterId为0, 不执行后续步骤"}) // 返回错误
+		return
+	}
 	log.Info("------ chapterId = ", chapterId)
 
 	// -- 根据该字段，使用不同的爬虫 ModelMapping映射表

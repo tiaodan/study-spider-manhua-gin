@@ -46,7 +46,8 @@ func BookTemSpiderCategory(context *gin.Context) {
 
 }
 
-// 爬取分类，如“热血”“恋爱”“悬疑” -》 用type
+// 爬取分类，如“热血”“恋爱”“悬疑” -》 用type 。自己实现的，用于参考，不用了，但要保留
+// 不许删
 /*
 作用简单说：
 	- 爬取网站上某一种分类。如有声书：悬疑、有声书：科幻、有声书：历史等
@@ -106,7 +107,7 @@ func BookTemSpiderCategory(context *gin.Context) {
 
 注意：
 */
-func BookTemSpiderTypeByHtmlCankao(context *gin.Context) {
+func BookTemSpiderTypeByHtmlCankao_NoUse(context *gin.Context) {
 
 	// 1. 校验传参
 	// -- 打印参数
@@ -358,47 +359,6 @@ func BookTemSpiderTypeByHtmlCankao(context *gin.Context) {
 	context.JSON(500, "OK")
 }
 
-// 爬取分类，如“热血”“恋爱”“悬疑” -》 用type
-/*
-作用简单说：
-	- 爬取网站上某一种分类。如有声书：悬疑、有声书：科幻、有声书：历史等
-
-作用详细说:
-
-核心思路:
-	1. 从请求体里，拿需要数据
-	2. 请求某个分类,第1页 html 内容
-	3. 爬取
-	4. 插入db
-	5. 循环 2-4，一直请求到尾页
-
-参考通用思路：
-	1. 校验传参
-		- 前端参数转成对象
-		- 是否需要简单清洗？
-		- 校验
-		- 分析前端参数含义
-	2. 数据清洗
-	3. 业务逻辑 需要的数据校验 +清洗
-	4. 执行核心逻辑 - 爬取 - 插入db
-		-- 拼接第一页 完整url
-		-- new 爬虫对象
-		-- 建一个爬虫对象
-		-- 设置并发数，和爬取限制
-		-- 注册 HTML 解析逻辑
-		-- 添加多个爬虫 到到队列中
-	5. 返回结果
-
-参数：
-	1. context *gin.Context 类型 // 前端传参
-
-返回：
-注意：
-*/
-func BookTemSpiderTypeByHtml(c *gin.Context) {
-
-}
-
 // 爬取分类 By Json,通过人工F12 查看的JSON返回数据，如“热血”“恋爱”“悬疑” -》
 /*
 参数：
@@ -631,7 +591,7 @@ func GetTableFieldValueBySpiderMapping(jsonByteData []byte, spiderMapping map[st
 	return result
 }
 
-// 获取所有 model Obj,从1个html页面,  用colly, 通过mapping
+// 获取所有 model Obj,从N个html页面(某个分类),  用colly, 通过mapping
 /*
 参数:
 	1. ginContextByte []byte 传一个gin.Context -> 转成的 []Byte，因为gin.Context 只能传递1次，因此方法间传参用 []byte
@@ -647,7 +607,7 @@ func GetTableFieldValueBySpiderMapping(jsonByteData []byte, spiderMapping map[st
 主表数组
 作用简单说：
 */
-func GetAllObjFromOneHtmlPageUseCollyByMapping[T any](ginContextByte []byte, mapping map[string]models.ModelHtmlMapping, spiderUrlArr []string) [][]T {
+func GetOneTypeAllBookUseCollyByMappingV1[T any](ginContextByte []byte, mapping map[string]models.ModelHtmlMapping, spiderUrlArr []string) [][]T {
 	// v0.2 通用写法, 能适配每个网站
 	// 1. gjson 读取 前端 JSON 里 spiderTag -> website字段 --
 	website := gjson.Get(string(ginContextByte), "spiderTag.website").String() // websiteTag - website
@@ -711,7 +671,7 @@ func GetAllObjFromOneHtmlPageUseCollyByMapping[T any](ginContextByte []byte, map
 			log.Info("-------- delete comicSpiderStats = ", comicSpiderStats)
 
 			// 通过mapping 爬内容
-			result := GetOneChapObjByCollyMapping(e, mapping)
+			result := GetOneObjByCollyMapping(e, mapping)
 			if result != nil {
 				// 通过 model字段 spider，把爬出来的 map[string]any，转成 model对象
 				MapByTag(result, &comicT)
@@ -764,7 +724,7 @@ func GetAllObjFromOneHtmlPageUseCollyByMapping[T any](ginContextByte []byte, map
 	// q.AddURL("https://kxmanhua.com/manga/library?type=2&complete=2&page=48&orderby=1") // 尾页 - 真实网站 - delete
 	// q.AddURL("https://kxmanhua.com/manga/library?type=2&complete=2&page=1&orderby=1") // 首页 - 真实网站 - delete
 
-	// 启动对垒
+	// 启动队列
 	q.Run(c)
 
 	// -- 爬取结束，返回结果
@@ -924,7 +884,7 @@ func GetOneBookAllChapterByCollyMapping[T any](ginContextByte []byte, mapping ma
 		var chapterT T
 
 		// -- 通过mapping 爬内容
-		result := GetOneChapObjByCollyMapping(e, mapping)
+		result := GetOneObjByCollyMapping(e, mapping)
 		log.Info("------------ delete , result = ", result)
 		if result != nil {
 			// 通过 model字段 spider，把爬出来的 map[string]any，转成 model对象
@@ -992,7 +952,7 @@ func GetOneChapterAllContentByCollyMapping[T any](ginContextByte []byte, mapping
 		var chapterContentT T
 
 		// -- 通过mapping 爬内容
-		result := GetOneChapObjByCollyMapping(e, mapping)
+		result := GetOneObjByCollyMapping(e, mapping)
 		if result != nil {
 			// 通过 model字段 spider，把爬出来的 map[string]any，转成 model对象
 			MapByTag(result, &chapterContentT)
@@ -1049,10 +1009,10 @@ func GetOneChapterAllContentByCollyMapping[T any](ginContextByte []byte, mapping
 
 使用方式：
 */
-func GetOneChapObjByCollyMapping(element *colly.HTMLElement, spiderMapping map[string]models.ModelHtmlMapping) map[string]any {
+func GetOneObjByCollyMapping(element *colly.HTMLElement, spiderMapping map[string]models.ModelHtmlMapping) map[string]any {
 	// 1. 校验传参
 	if element == nil {
-		log.Error("GetOneChapObjByCollyMapping: element参数不能为空")
+		log.Error("GetOneObjByCollyMapping: element参数不能为空")
 		return nil
 	}
 
@@ -1095,7 +1055,7 @@ func GetOneChapObjByCollyMapping(element *colly.HTMLElement, spiderMapping map[s
 			log.Warnf("GetOneChapObjByCollyMapping: 未知的GetHtmlType=%s, field=%s", fieldMapping.GetHtmlType, key)
 			v = ""
 		}
-		log.Debugf("-------- 爬到的字段,数据清洗前, key = %v value= %v", key, v)
+		log.Debugf("-------- func=GetOneChapObjByCollyMapping, 爬到的字段,数据清洗前, key = %v value= %v", key, v)
 
 		// 3. 根据结果 类型(string int ...) 赋值
 		// --- 简单处理 Transform ---
@@ -1133,7 +1093,7 @@ func GetOneChapObjByCollyMapping(element *colly.HTMLElement, spiderMapping map[s
 		// 5. 设置结果值
 		result[key] = finalValue
 
-		log.Debugf("-------- 爬到的字段,数据清洗后, key = %v value= %v", key, result[key])
+		log.Debugf("-------- func=getOneObjByCollyMapping, 爬到的字段,数据清洗后, key = %v value= %v. 如果没转换,要看下传的mapping是不是 transform函数没内容", key, result[key])
 	}
 	// 5. 返回结果
 	return result
@@ -1278,7 +1238,7 @@ func MapByTag(result map[string]any, out any) {
 						field.Set(reflect.ValueOf(val).Convert(field.Type()))
 					} else {
 						// 记录错误但继续处理其他字段
-						log.Errorf("字段转换失败: value = %v, err = %v\n", val, err)
+						log.Errorf("func=MapByTag(), 字段转换失败: value = %v, err = %v\n", val, err)
 					}
 				}
 			}
@@ -1762,144 +1722,3 @@ func buildComicUniqueKey(comic *models.ComicSpider) string {
 }
 
 // -- 方法 ------------------------------------------- end -----------------------------------
-
-// GetAllObjFromOneHtmlPageUseCollyByMappingV2 v2版本的HTML爬取函数，直接接受选择器参数
-func GetAllObjFromOneHtmlPageUseCollyByMappingV2[T any](htmlData []byte, mapping map[string]models.ModelHtmlMapping, spiderUrlArr []string, bookArrCssSelector string, bookArrItemCssSelector string, config *config.WebsiteConfig) [][]T {
-	// 使用传入的选择器参数，而不是从JSON解析
-	log.Debug("v2爬取html, bookArrCssSelector = ", bookArrCssSelector)
-	log.Debug("v2爬取html, bookArrItemCssSelector = ", bookArrItemCssSelector)
-
-	// 建一个爬虫对象
-	c := colly.NewCollector()
-
-	// 设置并发数，和爬取限制
-	c.Limit(&colly.LimitRule{
-		DomainGlob:  "*",
-		RandomDelay: 1 * time.Second, // 使用默认延迟
-	})
-
-	var allPageBookArr [][]T
-	var mu sync.Mutex
-
-	// 获取html内容,每成功匹配一次, 就执行一次逻辑。这个标签选只匹配一次的 --
-	c.OnHTML(bookArrCssSelector, func(eBookArr *colly.HTMLElement) {
-		log.Debug("v2-------------- 匹配 bookArr = ", eBookArr.Text)
-
-		// 遍历每一个 bookArrItem, 用forEach. colly，用Html遍历
-		var onePageBookArr []T
-		eBookArr.ForEach(bookArrItemCssSelector, func(i int, e *colly.HTMLElement) {
-			// 1. 获取能获取到的
-			var comicT T
-			comicSpiderStats := models.ComicSpiderStats{}
-			log.Info("v2-------- delete comicSpiderStats = ", comicSpiderStats)
-
-			// 通过mapping 爬内容
-			rawResult := GetOneChapObjByCollyMapping(e, mapping)
-			if rawResult != nil {
-				// 应用v2的transforms
-				processedResult := make(map[string]interface{})
-				for fieldName, rawValue := range rawResult {
-					// 从config中获取字段配置和transforms
-					if fieldConfig, exists := config.Extract.Mappings[fieldName]; exists && len(fieldConfig.Transforms) > 0 {
-						// 创建field mapper并应用transforms
-						fieldMapper := NewFieldMapper()
-						processedValue, err := fieldMapper.transformRegistry.ApplyTransforms(fieldConfig.Transforms, rawValue, fieldMapper.configLoader)
-						if err != nil {
-							log.Errorf("v2字段 %s 转换失败: %v", fieldName, err)
-							processedResult[fieldName] = rawValue // 使用原始值
-						} else {
-							processedResult[fieldName] = processedValue
-						}
-					} else {
-						processedResult[fieldName] = rawValue
-					}
-				}
-
-				// 通过 model字段 spider，把处理后的数据转成 model对象
-				MapByTag(processedResult, &comicT)
-				log.Infof("v2映射后的comic对象: %+v", comicT)
-			}
-
-			// 2. 设置对象值
-			comic := any(comicT).(models.ComicSpider)
-
-			// 这里不设置网站相关参数，因为这些会在v2的后续步骤中设置
-			comic.ProcessId = 1        // 默认设置为待分类
-			comic.AuthorConcatType = 0 // 默认拼接方式
-
-			// 3 数据清洗
-			comic.DataClean()
-
-			// 4 把爬好的单个数据，放到数组里，准备插入数据库
-			onePageBookArr = append(onePageBookArr, any(comic).(T))
-		})
-
-		// 使用互斥锁保护共享数据
-		mu.Lock()
-		allPageBookArr = append(allPageBookArr, onePageBookArr)
-		mu.Unlock()
-	})
-
-	// 错误处理
-	c.OnError(func(r *colly.Response, err error) {
-		log.Errorf("v2爬取页面出错: %v, URL: %s", err, r.Request.URL)
-	})
-
-	// 遍历所有URL进行爬取
-	for _, spiderUrl := range spiderUrlArr {
-		log.Debugf("v2开始爬取URL: %s", spiderUrl)
-
-		// 如果提供了原始HTML字符串（以 < 开头），才走本地字符串分支；否则一律按URL访问
-		if len(htmlData) > 0 && strings.HasPrefix(strings.TrimSpace(string(htmlData)), "<") {
-			// 创建一个新的collector实例来处理HTML字符串
-			tempCollector := c.Clone()
-			tempCollector.OnHTML(bookArrCssSelector, func(eBookArr *colly.HTMLElement) {
-				log.Debug("v2-------------- 匹配 bookArr = ", eBookArr.Text)
-
-				var onePageBookArr []T
-				eBookArr.ForEach(bookArrItemCssSelector, func(i int, e *colly.HTMLElement) {
-					var comicT T
-					comicSpiderStats := models.ComicSpiderStats{}
-					log.Info("v2-------- delete comicSpiderStats = ", comicSpiderStats)
-
-					result := GetOneChapObjByCollyMapping(e, mapping)
-					if result != nil {
-						MapByTag(result, &comicT)
-						log.Infof("v2映射后的comic对象: %+v", comicT)
-					}
-
-					comic := any(comicT).(models.ComicSpider)
-					comic.ProcessId = 1
-					comic.AuthorConcatType = 0
-					comic.DataClean()
-
-					onePageBookArr = append(onePageBookArr, any(comic).(T))
-				})
-
-				mu.Lock()
-				allPageBookArr = append(allPageBookArr, onePageBookArr)
-				mu.Unlock()
-			})
-
-			// 使用Visit方法访问data URL来解析HTML字符串
-			dataURL := "data:text/html;charset=utf-8," + url.QueryEscape(string(htmlData))
-			err := tempCollector.Visit(dataURL)
-			if err != nil {
-				log.Errorf("v2解析HTML数据失败: %v", err)
-				continue
-			}
-		} else {
-			// 正常网络请求（包括localhost/127.0.0.1）
-			err := c.Visit(spiderUrl)
-			if err != nil {
-				log.Errorf("v2访问URL失败: %v, URL: %s", err, spiderUrl)
-				continue
-			}
-		}
-
-		// 等待一下，避免请求过于频繁
-		time.Sleep(1 * time.Second)
-	}
-
-	return allPageBookArr
-}

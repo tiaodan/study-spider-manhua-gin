@@ -12,14 +12,14 @@ import (
 
 // 爬虫策略接口
 type SpiderStrategy interface {
-	Crawl(data []byte, config *config.WebsiteConfig, urls []string) (interface{}, error)
+	Crawl(data []byte, config *config.WebsiteConfig, urls []string, params map[string]interface{}) (interface{}, error)
 }
 
 // HTML爬虫策略
 type HtmlSpiderStrategy struct{}
 
 // Crawl 实现HTML爬取
-func (s *HtmlSpiderStrategy) Crawl(data []byte, config *config.WebsiteConfig, urls []string) (interface{}, error) {
+func (s *HtmlSpiderStrategy) Crawl(data []byte, config *config.WebsiteConfig, urls []string, params map[string]interface{}) (interface{}, error) {
 	// 构建ComicSpider的mapping配置
 	mapping := make(map[string]models.ModelHtmlMapping)
 
@@ -38,18 +38,36 @@ func (s *HtmlSpiderStrategy) Crawl(data []byte, config *config.WebsiteConfig, ur
 	}
 
 	// 从配置中获取选择器
-	bookArrCssSelector := ".product-page"
-	bookArrItemCssSelector := ".product__item"
+	bookArrCssSelector := ""     // 初始值
+	bookArrItemCssSelector := "" // 初始值
 
-	if config.Crawl.Selectors != nil {
-		if container, exists := config.Crawl.Selectors["book_container"]; exists {
-			bookArrCssSelector = ".product-page" // 容器选择器
-			bookArrItemCssSelector = container   // 项目选择器
+	// 从params中获取target参数，确定使用哪个场景的选择器
+	target := ""
+	if params != nil {
+		if t, ok := params["target"].(string); ok {
+			target = t
+		}
+	}
+
+	// 根据target选择对应的选择器配置
+	if config.Crawl.Selectors != nil && target != "" {
+		if scenarioConfig, exists := config.Crawl.Selectors[target]; exists {
+			if scenarioMap, ok := scenarioConfig.(map[string]interface{}); ok {
+				// 获取容器选择器（arr）
+				if arrSelector, ok := scenarioMap["arr"].(string); ok {
+					bookArrCssSelector = arrSelector
+				}
+				// 获取项目选择器（item）
+				if itemSelector, ok := scenarioMap["item"].(string); ok {
+					bookArrItemCssSelector = itemSelector
+				}
+			}
 		}
 	}
 
 	// 调用v2版本的HTML爬取函数
-	result := GetAllObjFromOneHtmlPageUseCollyByMappingV2[models.ComicSpider](data, mapping, urls, bookArrCssSelector, bookArrItemCssSelector, config)
+	// 还要考虑通用爬取，分爬type \ 爬book \ 爬chapter 3种情况 ------------- 待办 ！！！！！！！！！！
+	result := GetOneTypeAllBookUseCollyByMappingV2[models.ComicSpider](data, mapping, urls, bookArrCssSelector, bookArrItemCssSelector, config)
 	return result, nil
 }
 
@@ -57,7 +75,7 @@ func (s *HtmlSpiderStrategy) Crawl(data []byte, config *config.WebsiteConfig, ur
 type JsonSpiderStrategy struct{}
 
 // Crawl 实现JSON爬取
-func (s *JsonSpiderStrategy) Crawl(data []byte, config *config.WebsiteConfig, urls []string) (interface{}, error) {
+func (s *JsonSpiderStrategy) Crawl(data []byte, config *config.WebsiteConfig, urls []string, params map[string]interface{}) (interface{}, error) {
 	// TODO: 实现JSON爬取策略
 	// 需要创建类似HTML的JSON版本
 	return nil, fmt.Errorf("JSON爬取策略暂未实现")

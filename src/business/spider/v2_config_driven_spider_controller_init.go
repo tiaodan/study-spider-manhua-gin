@@ -32,6 +32,7 @@ func InitConfigDrivenSpiderControllerV2(router *gin.Engine, configPath string) e
 	log.Info("配置驱动爬虫系统V2初始化完成")
 	log.Info("可用API端点:")
 	log.Info("  POST /api/v2/spider/oneTypeAllBookByHtml/config - 配置驱动爬取")
+	log.Info("  POST /api/v2/spider/oneBOokAllChapterByHtml/config - 配置驱动爬取")
 	log.Info("  GET  /api/v2/spider/websites - 获取支持的网站")
 	log.Info("  GET  /api/v2/spider/config - 获取网站配置")
 	log.Info("  POST /api/v2/spider/validate - 验证配置")

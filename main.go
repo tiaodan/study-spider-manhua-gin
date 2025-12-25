@@ -172,17 +172,17 @@ func main() {
 	// 2. 爬某个漫画的所有章节，更新该漫画具体内容
 
 	// 流程：爬完漫画（spider_end）-》爬章节-》修改漫画-》 存章节-》下载漫画(download_end)-》下载章节-》下载完，上传aws章节(upload_aws_end)-》传完，更新漫画标志位
-	// r.POST("/spider/oneCategory", spider.Spider) // v0.1 写法，没用通用爬虫模板，弃用
-	r.POST("/spider/oneTypeByHtml", spider.BookTemSpiderTypeByHtml)       // v0.2 写法，用通用爬虫模板,推荐。爬html页面
-	r.POST("/spider/oneTypeByJson", spider.DispatchApi_OneCategoryByJSON) // v0.2 写法，用通用爬虫模板,推荐。爬F12 目标网站返回的json数据
+	// -- json spider 相关 V1 策略实现。自己写的，不够通用，后面考虑不用这个方法了
+	r.POST("/spider/oneTypeByJson", spider.DispatchApi_OneCategoryByJSON) // v0.2 写法，用通用爬虫模板,推荐。爬F12 目标网站返回的json数据。自己写的，不够通用，后面考虑不用这个方法了
 
-	// -- html spider 相关 V1 策略实现
-	r.POST("/spider/oneTypeAllBookByHtml", spider.DispatchApi_SpiderOneTypeAllBookArr_Template) // 通用模板
-	r.POST("/spider/oneBookAllChapterByHtml", spider.DispatchApi_OneBookAllChapterByHtml)       // v0.2 写法，用通用爬虫模板,推荐。爬html页面 - 爬一本书所有章节
-	r.POST("/spider/oneChapterAllContentByHtml", spider.DispatchApi_OneChapterAllContentByHtml) // v0.2 写法，用通用爬虫模板,推荐。爬html页面 - 爬章节所有内容 - 没实现一章节所有内容
+	// -- html spider 相关 V1 策略实现。自己写+AI实现
+	// r.POST("/spider/oneTypeByHtml_V1_NoConfigDriven_myWrite", spider.BookTemSpiderTypeByHtmlCankao_NoUse) // v0.2 写法，用通用爬虫模板,推荐。爬html页面。自己写的，别的实现可参考它
+	r.POST("/spider/oneTypeAllBookByHtml_V1", spider.DispatchApi_SpiderOneTypeAllBookArr_V1)          // 通用模板
+	r.POST("/spider/oneBookAllChapterByHtml_V1", spider.DispatchApi_OneBookAllChapterByHtml_V1)       // v0.2 写法，用通用爬虫模板,推荐。爬html页面 - 爬一本书所有章节
+	r.POST("/spider/oneChapterAllContentByHtml_V1", spider.DispatchApi_OneChapterAllContentByHtml_V1) // v0.2 写法，用通用爬虫模板,推荐。爬html页面 - 爬章节所有内容 - 没实现一章节所有内容
 
 	// v2 写法 获取配置 - start
-	// -- spider 相关 V2 策略实现
+	// -- spider 相关 V2 策略实现。纯国产乱七八糟 AI实现，真是改的狗屁不通，以后再也让AI写了。要自己弄结构，最多让AI实现1个小方法
 	err := spider.InitConfigDrivenSpiderControllerV2(r, "v2-spider-config.yaml")
 	if err != nil {
 		log.Error("初始化配置驱动爬虫失败, err = ", err)

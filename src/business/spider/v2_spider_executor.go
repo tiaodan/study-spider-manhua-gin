@@ -137,7 +137,7 @@ func (e *SpiderExecutor) step2_CrawlData(context *ExecutionContext) error {
 		return fmt.Errorf("获取爬虫策略失败: %v", err)
 	}
 
-	rawData, err := strategy.Crawl(context.RequestData, context.Config, context.Urls)
+	rawData, err := strategy.Crawl(context.RequestData, context.Config, context.Urls, context.Params)
 	if err != nil {
 		return fmt.Errorf("数据爬取失败: %v", err)
 	}
@@ -202,11 +202,24 @@ func (e *SpiderExecutor) step6_InsertDatabase(context *ExecutionContext) error {
 	}
 
 	log.Infof("v2 step6 入库数据条数: %d", sliceLen(context.ProcessedData))
-	dbResult := ExecuteDBWithConfig(context.ProcessedData, context.Config)
-	context.DBResults["main"] = dbResult
 
-	if len(dbResult.Errors) > 0 {
-		return fmt.Errorf("数据库操作失败: %v", dbResult.Errors[0])
+	// 构建数据映射，包含主表数据
+	dataMap := make(map[string]interface{})
+	dataMap["main"] = context.ProcessedData
+
+	// 使用 BatchExecute 批量执行数据库操作（支持关联表）
+	results := BatchExecute(dataMap, context.Config)
+
+	// 保存结果到上下文
+	for tableName, result := range results {
+		context.DBResults[tableName] = result
+	}
+
+	// 检查主表操作是否成功
+	if mainResult, exists := results["main"]; exists {
+		if len(mainResult.Errors) > 0 {
+			return fmt.Errorf("数据库操作失败: %v", mainResult.Errors[0])
+		}
 	}
 
 	return nil

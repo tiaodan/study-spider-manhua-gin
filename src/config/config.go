@@ -51,7 +51,7 @@ type Config struct {
 }
 
 var (
-	Cfg  *Config   // 全局变量,让其他包可以访问
+	Cfg  *Config   // 全局变量,让其他包可以访问. 对应 根目录 cofig.yaml这个文件
 	once sync.Once //保证单例初始化
 )
 

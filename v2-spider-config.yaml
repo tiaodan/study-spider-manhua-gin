@@ -13,9 +13,19 @@ websites:
     # 步骤2: 爬取配置
     crawl:
       type: "html"
+      ## AI 默认增加的。选择相关
       selectors:
-        book_container: ".product__item"  # 书籍容器选择器
-        pagination: ".pagination"         # 分页选择器（如果需要）
+        ## 我自己加的，还没加入到程序里,还没测试
+        one_type_all_book:
+          arr: "[class='col-lg-12']"     # css 选择器, 一般用 类选择器
+          item: "[class='col-lg-2 col-md-3 col-sm-4 col-6']"   # css 选择器, 书名选择器
+        one_book_all_chapter:
+          arr: "还没想好咋写"  # css 选择器, 一般用 标签选择器
+          item: "还没想好咋写"                     # css 选择器, 章节选择器
+        one_chapter_all_content:
+          arr: "还没想好咋写"      # css 选择器, 一般用 标签
+          item: "还没想好咋写"                   # css 选择器, 内容选择器
+      
 
     # 步骤3: 提取数据配置
     extract:

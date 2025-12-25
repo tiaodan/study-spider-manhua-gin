@@ -13,17 +13,18 @@ import (
 
 // 配置结构体定义
 type SpiderConfig struct {
-	Websites       map[string]*WebsiteConfig `yaml:"websites"`
-	TransformLib   map[string]*TransformDef  `yaml:"transform_library"`
+	Websites     map[string]*WebsiteConfig `yaml:"websites"`
+	TransformLib map[string]*TransformDef  `yaml:"transform_library"`
 }
 
 type WebsiteConfig struct {
-	Meta     *MetaConfig     `yaml:"meta"`
-	Crawl    *CrawlConfig    `yaml:"crawl"`
-	Extract  *ExtractConfig  `yaml:"extract"`
-	Clean    *CleanConfig    `yaml:"clean"`
-	Validate *ValidateConfig `yaml:"validate"`
-	Insert   *InsertConfig   `yaml:"insert"`
+	Meta          *MetaConfig                `yaml:"meta"`
+	Crawl         *CrawlConfig               `yaml:"crawl"`
+	Extract       *ExtractConfig             `yaml:"extract"`
+	Clean         *CleanConfig               `yaml:"clean"`
+	Validate      *ValidateConfig            `yaml:"validate"`
+	Insert        *InsertConfig               `yaml:"insert"`
+	RelatedTables map[string]*RelatedTableConfig `yaml:"related_tables"` // 关联表配置
 }
 
 type MetaConfig struct {
@@ -33,9 +34,9 @@ type MetaConfig struct {
 }
 
 type CrawlConfig struct {
-	Type      string            `yaml:"type"`       // html/json/xml/api
-	Selectors map[string]string `yaml:"selectors"` // HTML选择器
-	DataPath  string            `yaml:"data_path"`  // JSON数据路径
+	Type      string                 `yaml:"type"`      // html/json/xml/api
+	Selectors map[string]interface{} `yaml:"selectors"` // HTML选择器，支持嵌套结构
+	DataPath  string                 `yaml:"data_path"` // JSON数据路径
 }
 
 type ExtractConfig struct {
@@ -43,15 +44,15 @@ type ExtractConfig struct {
 }
 
 type FieldMapping struct {
-	Selector   string                   `yaml:"selector"`   // HTML选择器
-	Path       string                   `yaml:"path"`       // JSON路径
-	Type       string                   `yaml:"type"`       // content/attr
-	Transforms []string                 `yaml:"transforms"` // Transform函数名列表
+	Selector   string   `yaml:"selector"`   // HTML选择器
+	Path       string   `yaml:"path"`       // JSON路径
+	Type       string   `yaml:"type"`       // content/attr
+	Transforms []string `yaml:"transforms"` // Transform函数名列表
 }
 
 type CleanConfig struct {
-	ForeignKeys map[string]string `yaml:"foreign_keys"` // 外键字段映射
-	Defaults    map[string]interface{} `yaml:"defaults"` // 默认值
+	ForeignKeys map[string]string      `yaml:"foreign_keys"` // 外键字段映射
+	Defaults    map[string]interface{} `yaml:"defaults"`     // 默认值
 }
 
 type ValidateConfig struct {
@@ -64,13 +65,21 @@ type ValidateRule struct {
 }
 
 type InsertConfig struct {
-	Strategy   string   `yaml:"strategy"`    // insert/update/upsert
+	Strategy   string   `yaml:"strategy"` // insert/update/upsert
 	UniqueKeys []string `yaml:"unique_keys"`
 	UpdateKeys []string `yaml:"update_keys"`
 }
 
+// 关联表配置
+type RelatedTableConfig struct {
+	Table      string        `yaml:"table"`      // 表名
+	Source     string        `yaml:"source"`     // 数据来源：main/field
+	SourcePath string        `yaml:"source_path"` // 数据来源路径，如 "stats" 表示从主表的 Stats 字段获取
+	Insert     *InsertConfig `yaml:"insert"`     // 插入配置
+}
+
 type TransformDef struct {
-	Type        string                 `yaml:"type"`        // string/number/enum/validator
+	Type        string                 `yaml:"type"` // string/number/enum/validator
 	Description string                 `yaml:"description"`
 	Params      map[string]interface{} `yaml:"params"` // 默认参数
 }
