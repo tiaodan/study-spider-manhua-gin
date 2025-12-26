@@ -26,7 +26,6 @@ websites:
           arr: "还没想好咋写"      # css 选择器, 一般用 标签
           item: "还没想好咋写"                   # css 选择器, 内容选择器
       
-
     # 步骤3: 提取数据配置
     extract:
       mappings:

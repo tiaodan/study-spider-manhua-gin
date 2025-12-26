@@ -48,6 +48,10 @@ func init() {
 	// -- 读取配置文件， (如果配置文件不填, 自动会有默认值)
 	cfg := config.GetConfig(".", "config", "yaml")
 
+	// 1.1 加载 spider 配置文件 v2-spider-config.yaml
+	err := config.LoadSpiderConfigFromYAMLUseTagYaml("v2-spider-config-new.yaml")
+	errorutil.ErrorPanic(err, "加载 spider 配置文件 v2-spider-config.yaml 失败, err = ")
+
 	// 2. 初始化日志 (现在用logrus框架)
 	// -- 创建日志文件
 	log.InitLog(cfg.Log.Path)
@@ -101,7 +105,7 @@ func init() {
 		创建时有讲究的，一般先创新主表，再创建从表。因为从表要关联主表id，主表id没有会报错。
 		比如 &models.ComicSpiderStats{}, &models.ComicSpider{},一定要 ComicSpider主表在前
 	*/
-	err := db.DBComic.AutoMigrate(&models.Website{}, &models.Country{}, &models.PornType{}, &models.Type{},
+	err = db.DBComic.AutoMigrate(&models.Website{}, &models.Country{}, &models.PornType{}, &models.Type{},
 		&models.ComicSpider{}, &models.ComicSpiderStats{}, &models.ComicMy{}, &models.ComicMyStats{},
 		&models.WebsiteType{}, &models.Process{}, &models.Author{},
 		&models.ChapterSpider{}, &models.ChapterMy{},
@@ -181,13 +185,18 @@ func main() {
 	r.POST("/spider/oneBookAllChapterByHtml_V1", spider.DispatchApi_OneBookAllChapterByHtml_V1)       // v0.2 写法，用通用爬虫模板,推荐。爬html页面 - 爬一本书所有章节
 	r.POST("/spider/oneChapterAllContentByHtml_V1", spider.DispatchApi_OneChapterAllContentByHtml_V1) // v0.2 写法，用通用爬虫模板,推荐。爬html页面 - 爬章节所有内容 - 没实现一章节所有内容
 
-	// v2 写法 获取配置 - start
+	// v2 写法 获取配置 - start  -> 纯AI实现，写的乱七八糟
 	// -- spider 相关 V2 策略实现。纯国产乱七八糟 AI实现，真是改的狗屁不通，以后再也让AI写了。要自己弄结构，最多让AI实现1个小方法
 	err := spider.InitConfigDrivenSpiderControllerV2(r, "v2-spider-config.yaml")
 	if err != nil {
 		log.Error("初始化配置驱动爬虫失败, err = ", err)
 	}
 	// v2 写法 获取配置 - end
+
+	// V1.5版本 -> 目的基于v1.0版本，自己实现 配置驱动
+	r.POST("/api/v1.5/apider/oneTypeAllBook", spider.DispatchApi_SpiderOneTypeAllBookArr_V1_5)    // 爬某一类所有书籍
+	r.POST("/api/v1.5/spider/oneBookAllChapter", spider.DispatchApi_OneBookAllChapter_V1_5)       // 爬某一本书所有章节
+	r.POST("/api/v1.5/spider/oneChapterAllContent", spider.DispatchApi_OneChapterAllContent_V1_5) // 爬某一章节所有内容
 
 	r.Run(":8888") // 启动服务
 }

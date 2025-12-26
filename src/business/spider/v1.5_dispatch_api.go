@@ -1,0 +1,165 @@
+/*
+功能: 处理爬取api, V1.5版本实现方式
+*/
+
+package spider
+
+import (
+	"fmt"
+	"io"
+	"strconv"
+	"study-spider-manhua-gin/src/config"
+	"study-spider-manhua-gin/src/db"
+	"study-spider-manhua-gin/src/log"
+	"study-spider-manhua-gin/src/models"
+
+	"github.com/gin-gonic/gin"
+	"github.com/tidwall/gjson"
+)
+
+// ------------------------------------------- 各种处理API 方法 -------------------------------------------
+
+// 爬某一类所有书籍 - V1.5版本实现方式: 从配置文件读参数
+/*
+参考通用思路：
+ 1. 校验传参
+ 2. 数据清洗
+ 3. 业务逻辑 需要的数据校验 +清洗
+ 4. 执行核心逻辑
+	- 读取html内容
+	- 通过mapping 爬取字段，赋值给chapter_spider对象
+	- 插入前, 数据清洗
+	- 批量插入db
+ 5. 返回结果
+*/
+func DispatchApi_SpiderOneTypeAllBookArr_V1_5(c *gin.Context) {
+	// 0. 初始化
+	okTotal := 0 // 成功条数
+
+	// 1. 校验传参
+	// 2. 数据清洗
+
+	// 3. 业务逻辑 需要的数据校验 +清洗
+	// -- 找到应该爬哪个网站
+	// 读取 JSON Body --
+	data, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		c.JSON(400, gin.H{"error": "func: 通过json爬分类。读取 前端传参 Body 失败"})
+		return
+	}
+
+	// 1. gjson 读取 前端 JSON 里 有用数据
+	website := gjson.Get(string(data), "spiderTag.website").String() // websiteTag - website 字段
+	spiderUrl := gjson.Get(string(data), "spiderUrl").String()       // spiderUrl 要爬取的url。这里传的是某个分类的 url (页码用%d替代)。如："https://kxmanhua.com/manga/library?type=2&complete=1&page=%d&orderby=1"
+	endNum := gjson.Get(string(data), "endNum").Int()                // 爬取页码结束数。如： 1-10页，endNum=10
+
+	// 2. 生成 爬取的url 数组
+	spiderUrlArr := make([]string, endNum)
+	for i := range spiderUrlArr {
+		spiderUrlArr[i] = fmt.Sprintf(spiderUrl, i+1) // 如："https://kxmanhua.com/manga/library?type=2&complete=1&page=%d&orderby=1"
+		log.Info("----- delete spiderUrl = ", spiderUrlArr[i])
+	}
+
+	// -- 根据该字段，使用不同的爬虫 ModelMapping映射表
+	switch website {
+	case "toptoon-tw":
+		log.Info("------ 还没实现")
+	case "kxmanhua": // 开心看漫画
+		// 0. 使用 kxmanhua 相关配置
+		webCfg := config.CfgSpiderYaml.Websites["kxmanhua"]
+		if webCfg == nil {
+			c.JSON(400, gin.H{"error": "func=爬oneTypeAllBookArr V1.5, 配置文件里没有找到网站 kxmanhua 的配置"}) // 返回错误
+			return
+		}
+		log.Debug("------- webCfg = ", webCfg)
+
+		// 获取 one_type_all_book 阶段配置
+		stageCfg := webCfg.Stages["one_type_all_book"]
+		if stageCfg == nil {
+			c.JSON(400, gin.H{"error": "func=爬oneTypeAllBookArr V1.5, 配置文件里没有找到 one_type_all_book 阶段的配置"}) // 返回错误
+			return
+		}
+
+		// 通过mappping 获取 book 对象
+		// 插入booK
+		// 测试-- mapping结果
+		// -- 最终返回结果：二维数组 var AllPageBookArr []onePageBookArr
+		allPageBookArr := GetOneTypeAllBookUseCollyByMappingV1[models.ComicSpider](data, ComicMappingForSpiderKxmanhuaByHtml, spiderUrlArr)
+		log.Debug("---------- 返回 allPageBookArr = ", allPageBookArr)
+		log.Debug("---------- stageCfg.Insert.UniqueKeys = ", stageCfg.Insert.UniqueKeys)
+		log.Debug("---------- stageCfg.Insert.UpdateKeys = ", stageCfg.Insert.UpdateKeys)
+
+		// 2. 从二维数组中，取出每一页,爬的数据，插入数据库
+		for i, onePageBookArr := range allPageBookArr {
+			// 2. 插入数据库
+			// -- 插入主表
+			// err := db.DBUpsertBatch(db.DBComic, onePageBookArr, tableComicUniqueIndexArr, tableComicUpdateColArr) // --- delete
+			err := db.DBUpsertBatch(db.DBComic, onePageBookArr, stageCfg.Insert.UniqueKeys, stageCfg.Insert.UpdateKeys)
+			if err != nil {
+				c.JSON(400, gin.H{"error": "func=DispatchApi_OneCategoryByJSON(分发api- /spider/oneTypeByJson), 批量插入db-comic 失败"}) // 返回错误
+				return
+			}
+
+			// -- 重要：由于GORM批量Upsert时不会更新对象的ID字段，需要重新查询获取正确的ID
+			// 构建查询条件：根据唯一索引字段查询
+			for i := range onePageBookArr {
+				var existingComic models.ComicSpider
+				condition := map[string]interface{}{
+					"name":          onePageBookArr[i].Name,
+					"country_id":    onePageBookArr[i].CountryId,
+					"website_id":    onePageBookArr[i].WebsiteId,
+					"porn_type_id":  onePageBookArr[i].PornTypeId,
+					"type_id":       onePageBookArr[i].TypeId,
+					"author_concat": onePageBookArr[i].AuthorConcat,
+				}
+				result := db.DBComic.Where(condition).First(&existingComic)
+				if result.Error == nil {
+					// 更新对象的ID为数据库中的实际ID
+					onePageBookArr[i].Id = existingComic.Id
+					log.Debugf("更新comic ID: %s -> %d", onePageBookArr[i].Name, existingComic.Id)
+				} else {
+					log.Errorf("查询comic失败: %s, err: %v", onePageBookArr[i].Name, result.Error)
+				}
+			}
+
+			// -- 插入关联表
+			var comicStatsArr []models.ComicSpiderStats
+			for _, comic := range onePageBookArr {
+				stats := models.ComicSpiderStats{
+					ComicId:                   comic.Id, // 现在使用正确的ID
+					Star:                      comic.Stats.Star,
+					LatestChapterName:         comic.Stats.LatestChapterName, // 最新章节名字
+					Hits:                      comic.Stats.Hits,
+					TotalChapter:              comic.Stats.TotalChapter,
+					LastestChapterReleaseDate: comic.Stats.LastestChapterReleaseDate,
+				}
+				stats.DataClean() // 数据清洗下
+				comicStatsArr = append(comicStatsArr, stats)
+			}
+			err = db.DBUpsertBatch(db.DBComic, comicStatsArr, []string{"ComicId"},
+				[]string{"latest_chapter_id", "star", "latest_chapter_name", "hits", "total_chapter",
+					"lastest_chapter_release_date"})
+			if err != nil {
+				c.JSON(400, gin.H{"error": "func=DispatchApi_OneCategoryByJSON(分发api- /spider/oneTypeByJson), 批量插入db-comic-stats表 失败"}) // 返回错误
+				return
+			}
+
+			// 打印结果
+			okTotal = len(onePageBookArr) // 每页成功条数
+			log.Infof("爬取某个分类allBook, 第%d页, 爬取成功, 插入%d条 book 数据", i+1, okTotal)
+		}
+
+	default:
+		c.JSON(400, gin.H{"error": "func=DispatchApi_OneCategoryByJSON(分发api- /spider/oneTypeByJson), 没找到到应爬哪个网站. 建议: 排查json参数 spiderTag-website"}) // 返回错误
+	}
+
+	// 4. 执行核心逻辑
+	// 5. 返回结果
+	c.JSON(200, "爬取成功,插入"+strconv.Itoa(okTotal)+"条数据")
+}
+
+// 爬某一本书所有章节 - V1.5版本实现方式
+func DispatchApi_OneBookAllChapter_V1_5(c *gin.Context) {}
+
+// 爬某一章节所有内容 - V1.5版本实现方式
+func DispatchApi_OneChapterAllContent_V1_5(c *gin.Context) {}

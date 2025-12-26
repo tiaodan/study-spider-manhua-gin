@@ -136,7 +136,7 @@ updateDBColumnRealNameArr 必须传数据库真实字段，全小写带_ 的那�
 	2 modelObjs any //需要插入或更新的,数据模型对象 如 comic *models.Comic
 		- model 是一条数据对象，而不是 表名
 		- model 可以是对象指针，也可以是对象。一般是直接传指针
-	3 uniqueIndexArr []string 类型 // 用Model里定义的字段，不用数据库真实列名。 唯一索引字段,可以是多个 如 []string{"Name", "Id"}
+	3 uniqueIndexArr []string 类型 // 用Model里定义的字段，用数据库真实列名也行，首字母大写也行，首字母小写也行。 唯一索引字段,可以是多个 如 []string{"Name", "Id"}
 		注意：
 		- 首字母用大写，小写均可以。建议用首字母大写，因为 大写更适合 struct 结构定义，显得更规范
 	4 updateColumnsMap map[string]any 类型 // 更新的字段，可以是多个 如 map[string]any{"Name": "comic.Name", "Id": comic.Id}

@@ -93,6 +93,7 @@ func (op *DBOperator) executeInsert(dataList interface{}, tableName string) *DBO
 
 // executeUpdate 执行更新操作
 func (op *DBOperator) executeUpdate(dataList interface{}, tableName string) *DBOperationResult {
+	log.Warn("-- 放在警告,打印 tableName = ", tableName)
 	result := &DBOperationResult{}
 
 	// 暂时不支持更新操作，返回错误
@@ -138,6 +139,7 @@ func (op *DBOperator) executeUpsert(dataList interface{}, tableName string) *DBO
 
 // getDBInstance 根据表名获取数据库实例
 func (op *DBOperator) getDBInstance(tableName string) interface{} {
+	log.Debug("-- 放在警告,打印 tableName = ", tableName)
 	// 暂时都返回comic数据库，未来可以扩展为多个数据库
 	return db.DBComic
 }

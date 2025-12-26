@@ -35,12 +35,17 @@ type DataCleanable interface {
 
 // -- 批量更新用到
 // comic 表 --
-var tableComicUniqueIndexArr = []string{"Name", "CountryId", "WebsiteId", "pornTypeId", "TypeId", "authorConcat"} // 唯一索引字段
-var tableComicUpdateColArr = []string{"comic_url_api_path", "cover_url_api_path", "brief_short", "brief_long", "end",
+var tableComicUniqueIndexArr = []string{"Name", "WebsiteId", "pornTypeId", "CountryId", "TypeId", "authorConcat"} // 唯一索引字段
+
+// 要更新的字段,按数据库列顺序写
+// 注意：upsert,必须传要传updated_at参数，因为OnConflict相当于手写sql
+// 如果是 gorm 自带的 UPDATE()方法不用传，会自动改
+var tableComicUpdateColArr = []string{"process_id", "latest_chapter_id", "author_concat", "author_concat_type",
+	"comic_url_api_path", "cover_url_api_path", "brief_short", "brief_long", "end",
 	"spider_end_status", "download_end_status", "upload_aws_end_status", "upload_baidu_end_status", "release_date",
-	"updated_at",
-	"website_id", "porn_type_id", "country_id", "type_id", "process_id",
-	"author_concat", "author_concat_type"} // 要更新的字段。要传updated_at ，upsert必须传, UPDATE()方法不用传，会自动改
+	"updateed_at",
+}
+
 // author 表 --
 var tableAuthorUniqueIndexArr = []string{"Id"} // 唯一索引字段,用 models 里 字段
 var tableAuthorUpdateColArr = []string{"name"} // 要更新的字段。要传updated_at ，upsert必须传, UPDATE()方法不用传，会自动改

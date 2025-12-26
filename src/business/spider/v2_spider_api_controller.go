@@ -245,8 +245,6 @@ func (api *ConfigDrivenAPIController) DispatchApi_OneBookAllChapterByHtml_Config
 	// params["processId"] = gjson.Get(string(data), "processId").Int()
 	// params["authorConcatType"] = gjson.Get(string(data), "authorConcatType").Int()
 
-	return // 测试，这里还没写完-------------
-
 	log.Infof("开始配置驱动爬取: website=%s, urls=%d, target=%s", website, len(urls), params["target"])
 
 	// 执行爬虫流程

@@ -226,7 +226,8 @@ func (e *SpiderExecutor) step6_InsertDatabase(context *ExecutionContext) error {
 }
 
 // convertRawDataToStructs 将原始数据转换为结构体列表
-func (e *SpiderExecutor) convertRawDataToStructs(rawData interface{}, config *config.WebsiteConfig) (interface{}, error) {
+func (e *SpiderExecutor) convertRawDataToStructs(rawData interface{}, websiteConfig *config.WebsiteConfig) (interface{}, error) {
+	log.Warn("-- 放在警告,打印 websiteConfig = ", websiteConfig)
 	// 将 [][]T 扁平化为 []T，便于后续校验、入库
 	v := reflect.ValueOf(rawData)
 	if v.Kind() != reflect.Slice {

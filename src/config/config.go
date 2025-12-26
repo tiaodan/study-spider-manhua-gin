@@ -11,45 +11,6 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// 配置文件 结构体
-type Config struct {
-	// 日志相关
-	Log struct {
-		Level string `mapstructure:"level"`
-		Path  string `mapstructure:"path"`
-	}
-
-	// 网络相关
-	Network struct {
-		XimalayaIIp string `mapstructure:"ximalaya_ip"`
-	}
-
-	// 数据库相关
-	DB struct {
-		Name     string `mapstructure:"name"`
-		User     string `mapstructure:"user"`
-		Password string `mapstructure:"password"`
-	}
-
-	// gin api接口框架相关
-	Gin struct {
-		Mode string `mapstructure:"mode"`
-	}
-
-	// 爬虫相关
-	Spider struct {
-		// -- 公用配置
-		Public struct {
-			// 爬取某一类相关 --
-			SpiderType struct {
-				RandomDelayTime      int `mapstructure:"random_delay_time"`       // 爬虫对象 colly, 每次请求前，随机延迟时间。单位 = 秒
-				QueueLimitConcMaxnum int `mapstructure:"queue_limit_conc_maxnum"` // 爬虫队列, 爬虫限制最大并发数
-				QueuePoolMaxnum      int `mapstructure:"queue_pool_maxnum"`       // 爬虫队列, 队列池最大数
-			}
-		}
-	}
-}
-
 var (
 	Cfg  *Config   // 全局变量,让其他包可以访问. 对应 根目录 cofig.yaml这个文件
 	once sync.Once //保证单例初始化
