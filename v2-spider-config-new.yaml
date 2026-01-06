@@ -79,8 +79,8 @@ websites:
         insert:
           strategy: "upsert"
           # 必须首字母大写形式,对应-> 结构体Key，方便反射。否则填小写，反射不到对象的值
-          #unique_keys: ["name", "website_id", "porn_type_id", "country_id", "type_id", "author_concat"]
-          unique_keys: ["Name", "WebsiteId", "PornTypeId", "CountryId", "TypeId", "AuthorConcat"]
+          #unique_keys: ["name", "website_id", "porn_type_id", "country_id", "type_id", "process_id" "author_concat"]
+          unique_keys: ["Name", "WebsiteId", "PornTypeId", "CountryId", "TypeId", "ProcessId", "AuthorConcat"]
           update_keys: ["process_id", "latest_chapter_id", "author_concat", "author_concat_type", "comic_url_api_path", "cover_url_api_path", "brief_short", "brief_long", "end", "spider_end_status", "download_end_status", "upload_aws_end_status", "upload_baidu_end_status", "release_date", "updated_at"]
   
         # 步骤6: 数据库 关联表配置
