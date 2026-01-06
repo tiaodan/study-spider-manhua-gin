@@ -194,7 +194,7 @@ func main() {
 	// v2 写法 获取配置 - end
 
 	// V1.5版本 -> 目的基于v1.0版本，自己实现 配置驱动
-	r.POST("/api/v1.5/apider/oneTypeAllBook", spider.DispatchApi_SpiderOneTypeAllBookArr_V1_5)    // 爬某一类所有书籍
+	r.POST("/api/v1.5/apider/oneTypeAllBook", spider.DispatchApi_SpiderOneTypeAllBookArr_V1_5_V2) // 爬某一类所有书籍
 	r.POST("/api/v1.5/spider/oneBookAllChapter", spider.DispatchApi_OneBookAllChapter_V1_5)       // 爬某一本书所有章节
 	r.POST("/api/v1.5/spider/oneChapterAllContent", spider.DispatchApi_OneChapterAllContent_V1_5) // 爬某一章节所有内容
 

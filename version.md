@@ -768,6 +768,8 @@
 - 写测试用例的时候，每一个功能点弄一组测试用例。日志打印，打每组有多少用例
 - 写测试用例的时候，每个用例对应一个level，方便以后只测试指定level用例
 - 考虑，程序里，批量插入，尽量用指针，比如comicArr chapterArr里尽量存指针，因为可能回涉及很多，要修改内容。如果不用指针，就修改不了原数据了
+- 数据库 comic_spiders： end好像有点多余
+- 控制台日志打印，可以打印带颜色的 log文件，没必要打印带颜色的, 如34m[, 看着很乱
 
 
 ---------------------------------------------------------------------------
@@ -775,7 +777,78 @@
 # v0.1.5.0 临时1
     - yaml加载配置还有问题，临时提交。读不到stageCfg
 
+# v0.1.5.0 临时2
+    - 今日完成：oneType 实现配置
+    - 明日：
+    onetype
+        - 爬取oneType，要支持某一个区间爬取，而不是每次都是从1-endNum  √
+        - 把kxmanhua所有page,保存到项目中，方便以后爬取测试。√
+            -》 已经保存到 C_wokspace\test_env_run\apache-tomcat-11.0.14\webapps\test\kxmanhua\spiderBook，测试稳定后，再往项目里更新  √
+            -》 保存到项目 doc/项目/comic/kxmanhua/下载的分类页面 √
+        - 测试下导入数据后，再插入是接着id插入，还是差好多 √
+            - 明白了，要导入sql，想让后续id连续，最合适的方法就是：完全删除表重建/直接导入sql(有重建语句),修改AUTO_INCREMENT =?, 再插入 √
+            - 要么就是 手动执行 truncate table xxx, 再插入,id就从1开始了，估计也能连续上 √
+        - 下载kxmanha book,所有page页面，保存到xx.html 以防网站不让上了 （仅保存了韩漫+日漫,其它我的项目，暂时不需要） √
+        - oneType方法, 区分website case需要统一下 √
+            - DispatchApi_SpiderOneTypeAllBookArr_V1_5_V2 // 不带switch case，把kxmanhua 里的逻辑全提到外面来
+            - DispatchApi_SpiderOneTypeAllBookArr_V1_5_V1 // 带switch case 区分不通网站的 爬取逻辑
+
 # v0.1.5.0 
 版本总结: 要一劳永逸，代码不变，改配置就能实现需求
     - 自己写, 根据1.0版本代码，实现配置驱动代码：要一劳永逸，代码不变，改配置就能实现需求
     
+    - 今日完成：oneType 实现配置
+    - 明日：
+    onetype
+        - 爬取oneType，要支持某一个区间爬取，而不是每次都是从1-endNum  √
+        - 把kxmanhua所有page,保存到项目中，方便以后爬取测试。√
+            -》 已经保存到 C_wokspace\test_env_run\apache-tomcat-11.0.14\webapps\test\kxmanhua\spiderBook，测试稳定后，再往项目里更新  √
+            -》 保存到项目 doc/项目/comic/kxmanhua/下载的分类页面 √
+        - 测试下导入数据后，再插入是接着id插入，还是差好多 √
+            - 明白了，要导入sql，想让后续id连续，最合适的方法就是：完全删除表重建/直接导入sql(有重建语句),修改AUTO_INCREMENT =?, 再插入 √
+            - 要么就是 手动执行 truncate table xxx, 再插入,id就从1开始了，估计也能连续上 √
+        - 下载kxmanha book,所有page页面，保存到xx.html 以防网站不让上了 （仅保存了韩漫+日漫,其它我的项目，暂时不需要） √
+        - oneType方法, 区分website case需要统一下 √
+            - DispatchApi_SpiderOneTypeAllBookArr_V1_5_V2 // 不带switch case，把kxmanhua 里的逻辑全提到外面来
+            - DispatchApi_SpiderOneTypeAllBookArr_V1_5_V1 // 带switch case 区分不通网站的 爬取逻辑
+
+        - 尝试爬取kxmanhua 网站所有数据，保存一类，导出一个sql，再导入其它库，测试sql能用。保存爬取数据，作为备份
+        - 考虑 codegeex 性能问题建议的实现
+            - 以后都不要改我代码，等我说 “同步到我的代码” 的时候，才可以改。疑问1：代码里能打印出，colly爬某个请求，用了多少时间随机延迟吗 2 一般大厂程序，随机延迟设置几秒？ 3 你说的几个性能瓶颈：批量插入后立即查询，如何实现在批量插入/update时直接返回ID
+        - 排查，爬多个页面，慢的原因，统计大概几秒，log 看这个请求多长时间返回,性能分析
+        - 如果你能用代码，干随心所欲的事，那就是大成了。比如要保存100个网页，还是手动觉得最靠谱
+            - 当你分分钟就能，保存100个网页了，那就是随心所欲了
+        - kxmanhua 链接：
+            - 韩漫-完结：https://kxmanhua.com/manga/library?type=2&complete=2&page=1&orderby=1 ，改 page号码就行，尾页48
+            - 韩漫-连载：https://kxmanhua.com/manga/library?type=2&complete=3&page=1&orderby=1 ，改 page号码就行，尾页22
+            - 日漫-完结：https://kxmanhua.com/manga/library?type=3&complete=2&page=1&orderby=1 ，改 page号码就行，尾页37
+            - 日漫-连载：https://kxmanhua.com/manga/library?type=3&complete=3&page=1&orderby=1 , 改 page号码就行，尾页3
+    oneBook
+
+
+
+
+    -------------------------------------------- 下面都是一些想法，没实现
+        - 试下嘉立创 成本 3D打印 成本 -------------------
+            - 1套 上下壳+滚轮 大约30
+            - pcb 打板 每月免费，收费估计20一块，或者4块1块，需要测试
+        - 所有制造业离不开模具，模具离不开危害，外包离不开成本，所以最难的地方是外壳。如果可以找到供应便宜外壳的，就好下一步了
+        - 想想入口方向，还是就做网站,卖资源
+        - 还可以研究立创开源产品
+        - 了解模具，制作经验
+        - 还是站在巨人的肩膀上，找找看有没有前人成熟经验，参考，在成功的基础上, 而不是站在失败的基础上
+        - 找电子产品创建成功经验，至少低成本复刻吧
+        - 可以卖鼠标外壳的：
+            - 1688： 深圳市鑫通达电子科技有限公司
+        - 考虑是否做家具?
+        - 既然不能完全生产，我可以生产pcb完成的方案，批量发10个，如果要1个，就让自己陶运费，这样的半成品方案，比如无人机，鼠标等
+            - 鼠标要那种不用焊接的,坏哪个，换哪个，热插拔
+            - 重要的是，你能自己生产成品/半成品，提供解决需求的东西，输出产品
+            - 如果做电商，最具性价比快递咋找
+            - 跨境卖？
+            - 情趣用品这个市场？app跳蛋？
+            - 只做一个产品，做好
+        - 所以你目前，还是先找外壳+配件,看1688 pdd tb 哪个能提供，就类似特斯拉一样，别人提供配件，我来组装。先实现最简单方式-》组装，再说自己造。
+            - 先找鼠标外壳
+            - 再找无人机外壳
+            - 看看嘉立创 打板，打印外壳，先自己组装一个

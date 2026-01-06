@@ -43,7 +43,7 @@ var tableComicUniqueIndexArr = []string{"Name", "WebsiteId", "pornTypeId", "Coun
 var tableComicUpdateColArr = []string{"process_id", "latest_chapter_id", "author_concat", "author_concat_type",
 	"comic_url_api_path", "cover_url_api_path", "brief_short", "brief_long", "end",
 	"spider_end_status", "download_end_status", "upload_aws_end_status", "upload_baidu_end_status", "release_date",
-	"updateed_at",
+	"updated_at",
 }
 
 // author 表 --

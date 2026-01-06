@@ -49,6 +49,7 @@ func LoadSpiderConfigFromYAMLUseTagYaml(configPath string) error {
 	})
 
 	fmt.Println("------- delete  CfgSpiderYaml = ", CfgSpiderYaml)
+	fmt.Println("------- delete  CfgSpiderYaml.stage = ", CfgSpiderYaml.Websites["kxmanhua"].Stages["one_type_all_book"])
 	// 4. 返回结果
 	return nil // 说明成功
 }

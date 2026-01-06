@@ -11,6 +11,7 @@ import (
 	"errors"
 	"reflect"
 	"strings"
+	"study-spider-manhua-gin/src/log"
 	"study-spider-manhua-gin/src/models"
 	"unicode"
 
@@ -623,6 +624,210 @@ func DBFindOneByField[T any](field string, value any) (*T, error) {
 
 	// 5. 返回结果
 	return &result, nil
+}
+
+// 根据map条件查询 - 通用，使用于任何数据表
+/*
+作用简单说：
+	- 使用map条件查询1条数据
+
+作用详细说:
+	-
+
+核心思路:
+	1.
+
+参考通用思路：
+	1. 校验传参
+	2. 数据清洗
+	3. 准备数据库执行，需要的参数
+	4. 数据库执行
+	5. 返回结果
+
+参数：
+	1 condition map[string]interface{} 查询条件，如 map[string]interface{}{"name": "xxx", "type_id": 1}
+*/
+func DBFindOneByMapCondition[T any](condition map[string]any) (*T, error) {
+	// 1. 校验传参
+	// 2. 数据清洗
+	// 3. 准备数据库执行，需要的参数
+	// 4. 数据库执行
+	var result T
+	db := DBComic.Where(condition).First(&result)
+	if db.Error != nil {
+		// log.Error("查询失败: ", db.Error)  // 此文件不打日志，错误已经返回给上级
+		return nil, db.Error
+	}
+	// log.Infof("查询成功, 查询到 %d 条记录", 1)  // 此文件不打日志，错误已经返回给上级
+
+	// 5. 返回结果
+	return &result, nil
+}
+
+// 根据对象的唯一索引字段查询 - 通用，使用于任何数据表
+/*
+作用简单说：
+	- 根据obj 和提供的索引，生成一个只有索引的 map，并根据此map，查询1条数据
+*/
+func DBFindOneByUniqueIndexMapCondition[T any](obj *T, uniqueIndexArr []string) (*T, error) {
+	/* 之前代码 v0.1 不用
+	var existingComic models.ComicSpider
+	condition := map[string]interface{}{
+		"name":          onePageBookArr[i].Name,
+		"country_id":    onePageBookArr[i].CountryId,
+		"website_id":    onePageBookArr[i].WebsiteId,
+		"porn_type_id":  onePageBookArr[i].PornTypeId,
+		"type_id":       onePageBookArr[i].TypeId,
+		"author_concat": onePageBookArr[i].AuthorConcat,
+	}
+	result := db.DBComic.Where(condition).First(&existingComic)
+	if result.Error == nil {
+		// 更新对象的ID为数据库中的实际ID
+		onePageBookArr[i].Id = existingComic.Id
+		log.Debugf("更新comic ID: %s -> %d", onePageBookArr[i].Name, existingComic.Id)
+	} else {
+		log.Errorf("查询comic失败: %s, err: %v", onePageBookArr[i].Name, result.Error)
+	}
+	*/
+
+	/* v0.2 tongyilingma AI 给鸡巴改坏了
+	// 1. 获取obj 的反射信息
+	val := reflect.ValueOf(obj).Elem() // 反射值
+	// typ := val.Type()                  // 反射类型,暂时没用着
+
+	// 先测试生成查询 condition map
+	log.Debug("--------- delete 生成的对象 obj = ", obj)
+	log.Debug("--------- delete 生成的索引 uniqueIndexArr = ", uniqueIndexArr)
+	// 2. 构建查询条件 map
+	whereConditions := make(map[string]interface{})
+	// 遍历 判断 uniqueIndexArr 中的值. 是由在 obj的key里。通过能不能获取到 obj key的值,来判断
+	for _, uniqueIndex := range uniqueIndexArr {
+		fieldValue := val.FieldByName(uniqueIndex)
+		if fieldValue.IsValid() {
+			whereConditions[uniqueIndex] = fieldValue.Interface()
+		} else {
+			log.Debugf("通过唯一索引字段+obj, 查找1个obj失败, 通过索引=%s 获取不到 obj的值", uniqueIndex)
+			return nil, errors.New("字段 " + uniqueIndex + " 不存在")
+		}
+	}
+	log.Debug("------------ delete , whereconditon = ", whereConditions)
+
+	// 构建查询条件后，执行查询
+	var result T
+	db := DBComic.Where(whereConditions).First(&result)
+	if db.Error != nil {
+		return nil, db.Error
+	}
+	return &result, nil
+	*/
+
+	//  v0.3 修改 tongyilingma AI 改错的，垃圾
+	// 1. 获取obj 的反射信息
+	val := reflect.ValueOf(obj).Elem()
+	typ := val.Type()
+
+	// 2. 构建查询条件 map
+	whereConditions := make(map[string]interface{})
+	for _, uniqueIndex := range uniqueIndexArr {
+		field, found := typ.FieldByName(uniqueIndex)
+		if !found {
+			log.Debugf("通过唯一索引字段+obj, 查找1个obj失败, 通过索引=%s 获取不到 obj的值", uniqueIndex)
+			return nil, errors.New("字段 " + uniqueIndex + " 不存在")
+		}
+
+		fieldValue := val.FieldByName(uniqueIndex)
+		if fieldValue.IsValid() {
+			// 使用 getColumnName 转换为数据库列名
+			columnName := getColumnName(field)
+			whereConditions[columnName] = fieldValue.Interface()
+		} else {
+			log.Debugf("通过唯一索引字段+obj, 查找1个obj失败, 通过索引=%s 获取不到 obj的值", uniqueIndex)
+			return nil, errors.New("字段 " + uniqueIndex + " 不存在")
+		}
+	}
+
+	log.Debug("------------ where condition = ", whereConditions)
+
+	// 构建查询条件后，执行查询
+	var result T
+	db := DBComic.Where(whereConditions).First(&result)
+	if db.Error != nil {
+		return nil, db.Error
+	}
+	return &result, nil
+}
+
+// 根据对象查询 - 通用，使用于任何数据表
+/*
+作用简单说：
+	- 使用对象的非零值字段作为条件查询1条数据
+
+作用详细说:
+	- 使用反射获取对象的字段和值，忽略零值字段，将非零值字段作为查询条件
+
+核心思路:
+	1. 使用反射获取对象字段
+	2. 过滤掉零值字段
+	3. 构建查询条件
+
+参数：
+	1 obj T 查询对象，其非零值字段将作为查询条件
+*/
+func DBFindOneByStruct[T any](obj *T) (*T, error) {
+	// 1. 使用反射获取对象字段
+	objValue := reflect.ValueOf(obj).Elem()
+	objType := objValue.Type()
+
+	// 2. 构建查询条件 map
+	whereConditions := make(map[string]interface{})
+
+	for i := 0; i < objValue.NumField(); i++ {
+		field := objValue.Field(i)
+		fieldType := objType.Field(i)
+
+		// 获取数据库列名
+		columnName := getColumnName(fieldType)
+
+		// 检查字段是否为零值，如果是则跳过
+		if !isZeroValue(field) {
+			whereConditions[columnName] = field.Interface()
+		}
+	}
+
+	// 3. 使用构建的条件进行查询
+	var result T
+	db := DBComic.Where(whereConditions).First(&result)
+	if db.Error != nil {
+		// log.Error("查询失败: ", db.Error)  // 此文件不打日志，错误已经返回给上级
+		return nil, db.Error
+	}
+	// log.Infof("查询成功, 查询到 %d 条记录", 1)  // 此文件不打日志，错误已经返回给上级
+
+	// 4. 返回结果
+	return &result, nil
+}
+
+// isZeroValue 检查反射值是否为零值
+func isZeroValue(v reflect.Value) bool {
+	switch v.Kind() {
+	case reflect.String:
+		return v.String() == ""
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return v.Int() == 0
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return v.Uint() == 0
+	case reflect.Float32, reflect.Float64:
+		return v.Float() == 0
+	case reflect.Bool:
+		return !v.Bool()
+	case reflect.Ptr:
+		return v.IsNil()
+	case reflect.Struct:
+		// 对于结构体类型，我们可能需要递归检查，这里简单返回false
+		return false
+	default:
+		return v.IsZero()
+	}
 }
 
 // update - 通用方法

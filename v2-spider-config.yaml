@@ -88,8 +88,8 @@ websites:
     # 步骤6: 数据库插入配置
     insert:
       strategy: "upsert"
-      unique_keys: ["name", "country_id", "website_id", "porn_type_id", "type_id", "author_concat"]
-      update_keys: ["comic_url_api_path", "cover_url_api_path", "end", "spider_end_status", "download_end_status", "upload_aws_end_status", "upload_baidu_end_status", "updated_at"]
+      unique_keys: ["name", "website_id", "porn_type_id", "country_id", "type_id", "author_concat"]
+      update_keys: ["process_id", "latest_chapter_id", "author_concat", "author_concat_type", "comic_url_api_path", "cover_url_api_path", "brief_short", "brief_long", "end", "spider_end_status", "download_end_status", "upload_aws_end_status", "upload_baidu_end_status", "release_date", "updated_at"]
 
   # Toptoon台湾网站配置（JSON方式）
   toptoon-tw:
