@@ -144,8 +144,14 @@ websites:
         insert:
           strategy: "upsert"
           # 必须首字母大写形式,对应-> 结构体Key，方便反射。否则填小写，反射不到对象的值
-          unique_keys: ["ComicId", "ChapterName"]
-          update_keys: ["chapter_url", "spider_end_status", "download_end_status", "updated_at"]
+          unique_keys: ["ParentId", "ChapterNum", "ChapterSubNum"]
+          update_keys: ["chapter_real_sort_num", "name", "url_api_path", "release_date","spider_end_status", "download_end_status", "upload_aws_end_status", "upload_baidu_end_status"]
+        
+        # 步骤6.1 更新 父stats 统计表
+        update_parent_stats:
+          strategy: "update"
+          unique_keys: ["ComicId"]
+          update_keys: ["latest_chapter_id", "latest_chapter_name", "total_chapter"]
 
       # 阶段3: 爬取chapter（一个章节的所有内容）
       one_chapter_all_content:

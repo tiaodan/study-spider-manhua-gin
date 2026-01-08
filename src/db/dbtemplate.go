@@ -934,3 +934,28 @@ func getColumnName(field reflect.StructField) string {
 	}
 	return string(result)
 }
+
+// 获取总数，通过条件 : map条件参数。现在没用这，用的时候再说
+func DBCountByMapConditon(db *gorm.DB, model interface{}, conds ...interface{}) int {
+	return 0
+}
+
+// 获取总数，通过某个列名 : 比如 parent_id ，这里参数要用 小写_,用数据库真实列名形式
+func DBCountByField[T any](DBConnObj *gorm.DB, field string, value any) (int, error) {
+	// v0.2写法，err判断简洁
+	var count int64
+	err := DBConnObj.Model(new(T)).Where(field+" = ?", value).Count(&count).Error
+
+	return int(count), err
+
+	/* v0.1写法，err判断不够简洁
+	var count int64
+	db := DBConnObj.Model(new(T)).Where(field+" = ?", value).Count(&count)
+
+	if db.Error != nil {
+		return 0, db.Error
+	}
+	// 5. 返回结果
+	return int(count), nil
+	*/
+}

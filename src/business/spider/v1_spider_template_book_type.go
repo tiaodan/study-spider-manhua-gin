@@ -900,14 +900,13 @@ func GetOneBookAllChapterByCollyMapping[T any](ginContextByte []byte, mapping ma
 	q, _ := queue.New(config.Cfg.Spider.Public.SpiderType.QueueLimitConcMaxnum,
 		&queue.InMemoryQueueStorage{MaxSize: config.Cfg.Spider.Public.SpiderType.QueuePoolMaxnum})
 	// 添加任务到队列
-	/*
-		for i := 1; i <= requestBody.EndNum; i++ {
-			q.AddURL(fullUrl + strconv.Itoa(i))
-		}
-	*/
+	// for i := 1; i <= requestBody.EndNum; i++ {
+	// 	q.AddURL(fullUrl + strconv.Itoa(i))
+	// }
 
 	// 测试用 - 添加任务到队列
 	q.AddURL("http://localhost:8080/test/kxmanhua/spiderChapter/社团学姐.html") // 章节url
+	// q.AddURL("http://localhost:8080/test/kxmanhua/spiderChapter/1.html") // 章节url
 
 	// 启动对垒
 	q.Run(c)

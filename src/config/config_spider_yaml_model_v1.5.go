@@ -22,13 +22,14 @@ type WebsiteConfigV15 struct {
 // 阶段结构体： 爬取某一本书所有章节 -> one_book_all_chapter
 // 阶段结构体： 爬取某一章节所有内容 -> one_chapter_all_content
 type StageConfigV15 struct {
-	Meta          *MetaConfigV15                    `yaml:"meta" mapstructure:"meta" `
-	Crawl         *CrawlConfigV15                   `yaml:"crawl" mapstructure:"crawl"`
-	Extract       *ExtractConfigV15                 `yaml:"extract" mapstructure:"extract"`
-	Clean         *CleanConfigV15                   `yaml:"clean" mapstructure:"clean"`
-	Validate      *ValidateConfigV15                `yaml:"validate" mapstructure:"validate"`
-	Insert        *InsertConfigV15                  `yaml:"insert" mapstructure:"insert"`
-	RelatedTables map[string]*RelatedTableConfigV15 `yaml:"related_tables" mapstructure:"related_tables"` // 关联表配置
+	Meta              *MetaConfigV15                    `yaml:"meta" mapstructure:"meta" `
+	Crawl             *CrawlConfigV15                   `yaml:"crawl" mapstructure:"crawl"`
+	Extract           *ExtractConfigV15                 `yaml:"extract" mapstructure:"extract"`
+	Clean             *CleanConfigV15                   `yaml:"clean" mapstructure:"clean"`
+	Validate          *ValidateConfigV15                `yaml:"validate" mapstructure:"validate"`
+	Insert            *InsertConfigV15                  `yaml:"insert" mapstructure:"insert"`
+	RelatedTables     map[string]*RelatedTableConfigV15 `yaml:"related_tables" mapstructure:"related_tables"`           // 关联表配置
+	UpdateParentStats *UpdateParentStatsConifgV15       `yaml:"update_parent_stats" mapstructure:"update_parent_stats"` // 更新 父stats 统计表
 }
 
 type MetaConfigV15 struct {
@@ -86,4 +87,11 @@ type TransformDefV15 struct {
 	Type        string         `yaml:"type" mapstructure:"type"` // string/number/enum/validator
 	Description string         `yaml:"description" mapstructure:"description"`
 	Params      map[string]any `yaml:"params" mapstructure:"params"` // 默认参数
+}
+
+// 更新 父stats 统计表 UpdateParentStatsConifg
+type UpdateParentStatsConifgV15 struct {
+	Strategy   string   `yaml:"strategy" mapstructure:"strategy"` // insert/update/upsert
+	UniqueKeys []string `yaml:"unique_keys" mapstructure:"unique_keys"`
+	UpdateKeys []string `yaml:"update_keys" mapstructure:"update_keys"`
 }
