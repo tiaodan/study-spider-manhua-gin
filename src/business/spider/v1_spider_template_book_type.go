@@ -885,7 +885,7 @@ func GetOneBookAllChapterByCollyMapping[T any](ginContextByte []byte, mapping ma
 
 		// -- 通过mapping 爬内容
 		result := GetOneObjByCollyMapping(e, mapping)
-		log.Info("------------ delete , result = ", result)
+		log.Info("------------ 通过mapping规则,爬取结果 result = ", result)
 		if result != nil {
 			// 通过 model字段 spider，把爬出来的 map[string]any，转成 model对象
 			MapByTag(result, &chapterT)

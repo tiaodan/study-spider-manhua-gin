@@ -21,6 +21,23 @@ import (
 	"gorm.io/gorm"
 )
 
+// ------------------------------------------- 初始化 -------------------------------------------
+// 请求结构体(带验证规则) - 爬oneBookAllChapter
+type SpiderOneBookAllChapterReqV15 struct {
+	SpiderTag struct {
+		Website string `json:"website" binding:"required" ` // 必填。required 同时满足 "非空字符串"
+	} `json:"spiderTag" binding:"required" ` // 必填
+	BookId int `json:"bookId" binding:"required,min=1" ` // 必填, 且大于0。 gt=0 这样写也可以
+}
+
+// 请求结构体(带验证规则) - 爬manyBookAllChapter
+type SpiderManyBookAllChapterReqV15 struct {
+	SpiderTag struct {
+		Website string `json:"website" binding:"required" ` // 必填。required 同时满足 "非空字符串"
+	} `json:"spiderTag" binding:"required" ` // 必填
+	BookIdArr []int `json:"bookIdArr" binding:"required,min=1,dive,gt=0" ` // required 必填, min=1 数组长度最小为1, dive 判断每个子元素, gt=0 个元素必须 > 0
+}
+
 // ------------------------------------------- 各种处理API 方法 -------------------------------------------
 
 // 爬某一类所有书籍 - V1.5版本实现方式: 从配置文件读参数 ,此方法的V2 实现
@@ -613,9 +630,27 @@ func DispatchApi_SpiderOneTypeAllBookArr_V1_5_V1(c *gin.Context) {
 
 }
 
-// 爬某一本书所有章节 - V1.5版本实现方式
-func DispatchApi_OneBookAllChapter_V1_5(c *gin.Context) {
-	// v0.2 写法, 把switch 去掉
+// 爬某一本书所有章节 - V1.5版本实现方式 V2方法实现: 通过配置 实现代码,并把switch 去掉
+/*
+步骤：
+	0. 初始化
+	1. 获取传参。实现方式: gjson框架 Get()实现
+	2. 校验传参。用validator，需要提前定义 请求结构体(包含校验规则：必有、必须>0等等) -》实现这个之后，再说通过写配置实现这个结构体,而不是总改代码
+	3. 前端传参, 数据清洗
+	4. 业务逻辑 需要的数据校验 +清洗
+	5. 执行核心逻辑 (6步走)
+		步骤1: 找到目标网站
+		步骤2: 爬取
+		步骤3: 提取数据
+		步骤4: 数据清洗/ 未爬到的字段赋值
+		步骤5: 验证爬取 数据准确性
+		步骤6: 数据库插入
+	6. 返回结果
+
+	哪些步骤可以组合成1个方法
+*/
+func DispatchApi_OneBookAllChapter_V1_5_V2(c *gin.Context) {
+	// v2 写法, 把switch 去掉,并通过配置 实现代码
 	// 0. 初始化
 	okTotal := 0 // 成功条数
 
@@ -669,6 +704,7 @@ func DispatchApi_OneBookAllChapter_V1_5(c *gin.Context) {
 	chapterArr := GetOneBookAllChapterByCollyMapping[models.ChapterSpider](data, mapping.(map[string]models.ModelHtmlMapping))
 	// -- 插入前数据校验
 	if chapterArr == nil {
+		log.Error("爬取 OneBookAllChapterByHtml失败, chapterArr 为空, 拒绝进入下一步: 插入db")
 		c.JSON(400, gin.H{"error": "爬取 OneBookAllChapterByHtml失败, chapterArr 为空, 拒绝进入下一步: 插入db"}) // 返回错误
 		return                                                                                    // 直接结束
 	}
@@ -732,6 +768,145 @@ func DispatchApi_OneBookAllChapter_V1_5(c *gin.Context) {
 	}
 
 	// 4. 执行核心逻辑
+	// 5. 返回结果
+	c.JSON(200, "爬取成功,插入"+strconv.Itoa(okTotal)+"条chapter数据")
+}
+
+// 爬某一本书所有章节 - V1.5版本实现方式 V3方法实现
+// 主要改动：基于V2,将代码分成小方法，容易看，整洁。要不一个方法120行，看着乱
+// 基于V2实现: 通过配置 实现代码,并把switch 去掉
+/*
+步骤：
+	0. 初始化
+	1. 获取传参。实现方式: c.ShouldBindJSON(请求结构体)实现
+	2. 校验传参。用validator，需要提前定义 请求结构体(包含校验规则：必有、必须>0等等) -》实现这个之后，再说通过写配置实现这个结构体,而不是总改代码
+		- shouldBIndJson已经包含 validator验证了
+	3. 前端传参, 数据清洗
+	4. 业务逻辑 需要的数据校验 +清洗
+	5. 执行核心逻辑 (6步走) : 爬取 | 插入 可以分成2个方法
+		步骤1: 找到目标网站
+		步骤2: 爬取
+		步骤3: 提取数据
+		步骤4: 数据清洗/ 未爬到的字段赋值
+		步骤5: 验证爬取数据 准确性
+		步骤6: 数据库插入
+	6. 返回结果
+
+	哪些步骤可以组合成1个方法
+*/
+func DispatchApi_OneBookAllChapter_V1_5_V3(c *gin.Context) {
+	// 0. 初始化
+	okTotal := 0 // 成功条数
+	funcName := "爬OneBookAllChapter"
+	var funcErr error
+
+	// 1. 获取传参。实现方式: c.ShouldBindJSON(请求结构体)实现
+	var req SpiderOneBookAllChapterReqV15
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": fmt.Sprintf("func=%v 失败, 获取前端传参失败: %v", funcName, err)})
+		return
+	}
+	websiteName := req.SpiderTag.Website
+	bookId := req.BookId
+	log.Infof("func=%v, 要爬的bookId = %v", funcName, bookId)
+
+	// 2. 校验传参。用validator，上面shouldBIndJson已经包含 validator验证了
+	// 3. 前端传参, 数据清洗
+	// 4. 业务逻辑 需要的数据校验 +清洗
+
+	// 5. 执行核心逻辑 (6步走)
+	// -- 根据该字段，使用不同的爬虫 ModelMapping映射表
+	// -- 从mapping 工厂了拿数据
+	var mappingFactory = map[string]any{
+		"kxmanhua": ChapterMappingForSpiderKxmanhuaByHTML,
+	}
+	mapping := mappingFactory[websiteName]
+
+	// 2. 爬取 chapter
+	// -- 请求html页面
+	chapterArr, err := GetOneBookAllChapterByCollyMappingV1_5[models.ChapterSpider](mapping.(map[string]models.ModelHtmlMapping), bookId)
+	// -- 插入前数据校验
+	if chapterArr == nil || err != nil {
+		log.Error("爬取 OneBookAllChapterByHtml失败, chapterArr 为空, 拒绝进入下一步: 插入db。可能原因:1 爬取url不对 2 目标网站挂了 3 爬取逻辑错了,没爬到")
+		c.JSON(400, gin.H{"error": "爬取 OneBookAllChapterByHtml失败, chapterArr 为空, 拒绝进入下一步: 插入db可能原因:1 爬取url不对 2 目标网站挂了 3 爬取逻辑错了,没爬到"}) // 返回错误
+		return                                                                                                                        // 直接结束
+	}
+
+	// 4. 执行核心逻辑 - 插入部分
+	if okTotal, funcErr = SpiderOneBookAllChapter_UpsertPart(websiteName, bookId, chapterArr); funcErr != nil {
+		c.JSON(500, gin.H{"error": "爬取失败"})
+	}
+
+	// 5. 返回结果
+	c.JSON(200, "爬取成功,插入"+strconv.Itoa(okTotal)+"条chapter数据")
+}
+
+// 爬某多本书所有章节 - V1.5版本实现方式 V1方法实现
+// 主要改动：将代码分成小方法，容易看，整洁。要不一个方法120行，看着乱
+// 基于 DispatchApi_OneBookAllChapter_V1_5_V2 实现: 通过配置 实现代码,并把switch 去掉
+/*
+步骤：
+	0. 初始化
+	1. 获取传参。实现方式: c.ShouldBindJSON(请求结构体)实现
+	2. 校验传参。用validator，需要提前定义 请求结构体(包含校验规则：必有、必须>0等等) -》实现这个之后，再说通过写配置实现这个结构体,而不是总改代码
+		- shouldBIndJson已经包含 validator验证了
+	3. 前端传参, 数据清洗
+	4. 业务逻辑 需要的数据校验 +清洗
+	5. 执行核心逻辑 (6步走) : 爬取 | 插入 可以分成2个方法
+		步骤1: 找到目标网站
+		步骤2: 爬取
+		步骤3: 提取数据
+		步骤4: 数据清洗/ 未爬到的字段赋值
+		步骤5: 验证爬取数据 准确性
+		步骤6: 数据库插入
+	6. 返回结果
+
+	哪些步骤可以组合成1个方法
+*/
+func DispatchApi_ManyBookAllChapter_V1_5_V1(c *gin.Context) {
+	// 0. 初始化
+	okTotal := 0 // 成功条数
+	funcName := "爬ManyBookAllChapter"
+	var funcErr error
+
+	// 1. 获取传参。实现方式: c.ShouldBindJSON(请求结构体)实现
+	var req SpiderManyBookAllChapterReqV15
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": fmt.Sprintf("func=%v 失败, 获取前端传参失败: %v", funcName, err)})
+		return
+	}
+	websiteName := req.SpiderTag.Website
+	bookIdArr := req.BookIdArr
+	log.Infof("func=%v, 要爬的bookId = %v", funcName, bookIdArr)
+
+	// 2. 校验传参。用validator，上面shouldBIndJson已经包含 validator验证了
+	// 3. 前端传参, 数据清洗
+	// 4. 业务逻辑 需要的数据校验 +清洗
+
+	// 5. 执行核心逻辑 (6步走)
+	// -- 根据该字段，使用不同的爬虫 ModelMapping映射表
+	// -- 从mapping 工厂了拿数据
+	var mappingFactory = map[string]any{
+		"kxmanhua": ChapterMappingForSpiderKxmanhuaByHTML,
+	}
+	mapping := mappingFactory[websiteName]
+
+	// 2. 爬取 chapter
+	// -- 请求html页面
+	manyBookChapterArr, err := GetManyBookAllChapterByCollyMappingV1_5[models.ChapterSpider](mapping.(map[string]models.ModelHtmlMapping), websiteName, bookIdArr)
+	chapterNamePreviewCount = 0 // ！！！！重要,必有，重置计数器。chapter中 name包含"Preview"次数
+	// -- 插入前数据校验
+	if manyBookChapterArr == nil || err != nil {
+		log.Error("爬取 OneBookAllChapterByHtml失败, chapterArr 为空, 拒绝进入下一步: 插入db。可能原因:1 爬取url不对 2 目标网站挂了 3 爬取逻辑错了,没爬到")
+		c.JSON(400, gin.H{"error": "爬取 OneBookAllChapterByHtml失败, chapterArr 为空, 拒绝进入下一步: 插入db可能原因:1 爬取url不对 2 目标网站挂了 3 爬取逻辑错了,没爬到"}) // 返回错误
+		return                                                                                                                        // 直接结束
+	}
+
+	// 4. 执行核心逻辑 - 插入部分
+	if okTotal, funcErr = SpiderManyBookAllChapter_UpsertPart(websiteName, bookIdArr, manyBookChapterArr); funcErr != nil {
+		c.JSON(500, gin.H{"error": "爬取失败"})
+	}
+
 	// 5. 返回结果
 	c.JSON(200, "爬取成功,插入"+strconv.Itoa(okTotal)+"条chapter数据")
 }

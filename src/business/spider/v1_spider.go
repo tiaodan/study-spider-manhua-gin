@@ -247,6 +247,7 @@ var UpdateBookMappingForSpiderKxmanhuaByHTML = map[string]models.ModelHtmlMappin
 }
 
 // -- chapter相关
+var chapterNamePreviewCount int // 爬取  chapter 时，名称包含 ”Preview“次数，上级方法爬完后，再重置为0
 // 表映射，爬 https:/www.kxmanhua.xyz 开心漫画, 爬章节用，爬的 Html 数据 - 只能爬1个book
 var ChapterMappingForSpiderKxmanhuaByHTML = map[string]models.ModelHtmlMapping{
 	/*
@@ -275,20 +276,29 @@ var ChapterMappingForSpiderKxmanhuaByHTML = map[string]models.ModelHtmlMapping{
 			}
 
 			// 3. 从 第X话中,提取数字,作为章节号码. 用正则re实现
-			// -- 如果包含"最终话" | "完结"，就给一个很大的号码。比如: 9999
-			if strings.Contains(value, "最终话") || strings.Contains(value, "完结") {
+			// -- 如果包含"最终话" | "完结"，就给一个很大的号码。比如: 9999. strings.Contains 区分大小写
+			if strings.Contains(value, "最终话") { // 判断不对，还有叫: 33话(第一季最终话)-全新的开始
+				// 如果是最终话开头，按9999处理。如果不是，不管
+				if strings.HasPrefix(value, "最终话") {
+					return 9999
+				}
+				log.Warn("有章节名,与最终话, 判断逻辑冲突, 章节名=", value)
+			} else if strings.Contains(value, "完结") {
 				return 9999
-			}
-
-			// -- 从“第X话”中提取 数字
-			re := regexp.MustCompile(`(?:第)?(\d+)(?:话|章|集|回)?`)
-			matches := re.FindStringSubmatch(value)
-			if num, err := strconv.Atoi(matches[1]); err == nil { // matches[0]是匹配内容,如"第1话", matches[1] 是提取的第一个内容，如果有第2个，就matches[2]
-				return num
+			} else if strings.Contains(value, "Preview") { // 如果有预览,按 负数
+				chapterNamePreviewCount++
+				return -chapterNamePreviewCount // 预览,试听 这种，就按负数处理
+			} else {
+				// -- 从“第X话”中提取 数字
+				re := regexp.MustCompile(`(?:第)?(\d+)(?:话|章|集|回)?`)
+				matches := re.FindStringSubmatch(value)
+				if num, err := strconv.Atoi(matches[1]); err == nil { // matches[0]是匹配内容,如"第1话", matches[1] 是提取的第一个内容，如果有第2个，就matches[2]
+					return num
+				}
 			}
 
 			// 4. 返回
-			log.Info("------- delete 前面都失败了，要返回value = ", value)
+			log.Info("------- delete 前面都失败了, 要返回value = ", value)
 			return value // 前面都失败了，应该返回int,只能返回一个string(提取不出来的), 让程序报错
 
 		}},

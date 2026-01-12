@@ -822,6 +822,16 @@
                     2. 按理说。GORM 框架，会自动把驼峰转成  小写+下划线格式
                     3. ParentId可能写错了，可能应该写ComicId
 
+# vv0.1.5.0 临时5
+    onetype
+                - 6 考虑是否把dispatch_api方法，拆成小方法，看起来很乱啊，一个方法120行代码，而且很多比较乱的打印，和if err判断 √
+                - 7 爬取章节，传的url,改成本地/真实的 √
+                - 5 加一个方法，爬 manyBookAllChapter，类似oneType 那种实现，获取多个book的chapter，批量插入 √
+                - 8 遍历 allChapter的 onhtml 规则，没有从配置读取 √
+                - 9 解决爬取chapter,里章节名叫: Preview ，报错 √
+                - 10 if strings.Contains(value, "最终话") || strings.Contains(value, "完结")   // 判断不对，还有叫 第30话(第2季度) √
+                - 11 没搞懂 [][]T，遍历它，第2次，把第1次也加上了. -》 oneBookChapterArr = nil 解决 √
+
 # v0.1.5.0 
 版本总结: 要一劳永逸，代码不变，改配置就能实现需求
     - 自己写, 根据1.0版本代码，实现配置驱动代码：要一劳永逸，代码不变，改配置就能实现需求
@@ -860,11 +870,19 @@
                     1. Gorm把代码，转成sql的时候，没自动把驼峰命名，转成小写+下划线格式
                     2. 按理说。GORM 框架，会自动把驼峰转成  小写+下划线格式
                     3. ParentId可能写错了，可能应该写ComicId
-                - 5 加一个方法，爬 manyBookAllChapter，类似oneType 那种实现，获取多个book的chapter，批量插入 ？？？
-                - 考虑是否把dispatch_api方法，拆成小方法，看起来很乱啊，一个方法120行代码，而且很多比较乱的打印，和if err判断
+
+                - 6 考虑是否把dispatch_api方法，拆成小方法，看起来很乱啊，一个方法120行代码，而且很多比较乱的打印，和if err判断 √
+                - 7 爬取章节，传的url,改成本地/真实的 √
+                - 5 加一个方法，爬 manyBookAllChapter，类似oneType 那种实现，获取多个book的chapter，批量插入 √
+                - 8 遍历 allChapter的 onhtml 规则，没有从配置读取 √
+                - 9 解决爬取chapter,里章节名叫: Preview ，报错 √
+                - 10 if strings.Contains(value, "最终话") || strings.Contains(value, "完结")   // 判断不对，还有叫 第30话(第2季度) √
+                - 11 没搞懂 [][]T，遍历它，第2次，把第1次也加上了. -》 oneBookChapterArr = nil 解决 √
             - 爬韩漫 allchapter
         - 考虑 codegeex 性能问题建议的实现
             - 以后都不要改我代码，等我说 “同步到我的代码” 的时候，才可以改。疑问1：代码里能打印出，colly爬某个请求，用了多少时间随机延迟吗 2 一般大厂程序，随机延迟设置几秒？ 3 你说的几个性能瓶颈：批量插入后立即查询，如何实现在批量插入/update时直接返回ID
+        - website 如果需要翻墙软件的话，要提前请求下google的icon，如果能请求到，说明可以继续其它 ！！！！
+            - 可以爬取前，spiderTag里传个参数，是否需要代理
         - 如果你能用代码，干随心所欲的事，那就是大成了。比如要保存100个网页，还是手动觉得最靠谱
             - 当你分分钟就能，保存100个网页了，那就是随心所欲了
         - kxmanhua 链接：

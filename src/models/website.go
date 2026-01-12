@@ -7,7 +7,7 @@ package models
 type Website struct {
 	Id                                   int    `gorm:"primaryKey;autoIncrement"`
 	Name                                 string `gorm:"not null; uniqueIndex:idx_website_unique;size:150;check:name <> ''" `   // 网站名称.唯一组合索引
-	Domain                               string `gorm:"not null; uniqueIndex:idx_website_unique;size:500;check:domain <> ''" ` // 域名，如：www.google.com 唯一组合索引
+	Domain                               string `gorm:"not null; uniqueIndex:idx_website_unique;size:500;check:domain <> ''" ` // 域名，如：www.google.com:8888 唯一组合索引. 没有Port参数，要想写port,在host里写。例如：localhost:8888
 	NeedProxy                            bool   `gorm:"not null"`                                                              // 是否需要翻墙
 	IsHttps                              bool   `gorm:"not null"`                                                              // 网站是否Https前缀，如果是false,默认就是 http头
 	IsRefer                              bool   `gorm:"not null"`                                                              // 是否是参考/参照网站，比如电影：参考网站：豆瓣，小说：起点，漫画：toptoon
