@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"slices"
 	"strconv"
 	"study-spider-manhua-gin/src/config"
 	"study-spider-manhua-gin/src/db"
@@ -36,6 +37,15 @@ type SpiderManyBookAllChapterReqV15 struct {
 		Website string `json:"website" binding:"required" ` // 必填。required 同时满足 "非空字符串"
 	} `json:"spiderTag" binding:"required" ` // 必填
 	BookIdArr []int `json:"bookIdArr" binding:"required,min=1,dive,gt=0" ` // required 必填, min=1 数组长度最小为1, dive 判断每个子元素, gt=0 个元素必须 > 0
+}
+
+// 请求结构体(带验证规则) - 爬manyBookAllChapter V2, 增加字段 BookEverytimeMax
+type SpiderManyBookAllChapterReqV15V2 struct {
+	SpiderTag struct {
+		Website string `json:"website" binding:"required" ` // 必填。required 同时满足 "非空字符串"
+	} `json:"spiderTag" binding:"required" ` // 必填
+	BookIdArr        []int `json:"bookIdArr" binding:"required,min=1,dive,gt=0" ` // required 必填, min=1 数组长度最小为1, dive 判断每个子元素, gt=0 个元素必须 > 0
+	BookEverytimeMax int   `json:"bookEverytimeMax" binding:"required,min=1" `    // 可选, 数得 >0。解释: book每组最大请求个数
 }
 
 // ------------------------------------------- 各种处理API 方法 -------------------------------------------
@@ -908,6 +918,150 @@ func DispatchApi_ManyBookAllChapter_V1_5_V1(c *gin.Context) {
 	}
 
 	// 5. 返回结果
+	c.JSON(200, "爬取成功,插入"+strconv.Itoa(okTotal)+"条chapter数据")
+}
+
+// 爬某多本书所有章节.！！！解耦： gin.Context和实际爬取、插入逻辑， - V1.5版本实现方式 V2方法实现
+// 主要改动：将代码分成小方法，容易看，整洁。要不一个方法120行，看着乱
+// 基于 DispatchApi_OneBookAllChapter_V1_5_V2 实现: 通过配置 实现代码,并把switch 去掉
+/*
+步骤：
+	0. 初始化
+	1. 获取传参。实现方式: c.ShouldBindJSON(请求结构体)实现
+	2. 校验传参。用validator，需要提前定义 请求结构体(包含校验规则：必有、必须>0等等) -》实现这个之后，再说通过写配置实现这个结构体,而不是总改代码
+		- shouldBIndJson已经包含 validator验证了
+	3. 前端传参, 数据清洗
+	4. 业务逻辑 需要的数据校验 +清洗
+	5. 执行核心逻辑 (6步走) : 爬取 | 插入 可以分成2个方法
+		步骤5.1: 爬取 + 插入 + 更新book 字段：spider_sub_chapter_end_status
+
+
+			// 步骤1: 找到目标网站
+			// 步骤2: 爬取
+			// 步骤3: 提取数据
+			// 步骤4: 数据清洗/ 未爬到的字段赋值
+			// 步骤5: 验证爬取数据 准确性
+			// 步骤6: 数据库插入
+	6. 返回结果
+
+	哪些步骤可以组合成1个方法
+*/
+func DispatchApi_ManyBookAllChapter_V1_5_V2(c *gin.Context) {
+	// 0. 初始化
+	funcName := "爬ManyBookAllChapter"
+
+	// 1. 获取传参。实现方式: c.ShouldBindJSON(请求结构体)实现
+	var req SpiderManyBookAllChapterReqV15
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": fmt.Sprintf("func=%v 失败, 获取前端传参失败: %v", funcName, err)})
+		return
+	}
+	websiteName := req.SpiderTag.Website
+	bookIdArr := req.BookIdArr
+	log.Infof("func=%v, 要爬的bookId = %v", funcName, bookIdArr)
+
+	// 2. 校验传参。用validator，上面shouldBIndJson已经包含 validator验证了
+	// 3. 前端传参, 数据清洗
+	// 4. 业务逻辑 需要的数据校验 +清洗
+
+	// 5. 执行核心逻辑 (6步走)
+	okTotal, err := SpiderManyBookAllChapter2DB(websiteName, bookIdArr) // 成功条数
+	if err != nil {
+		c.JSON(500, "爬取成功, reason: 插入db失败")
+	}
+
+	// 5. 返回结果
+	c.JSON(200, "爬取成功,插入"+strconv.Itoa(okTotal)+"条chapter数据")
+}
+
+// 爬某多本书所有章节 - V1.5版本实现方式 V2方法实现：自动负载均衡 (根据传参: 每次最多请求几个book)
+// 主要改动：将代码分成小方法，容易看，整洁。要不一个方法120行，看着乱
+// 基于 DispatchApi_OneBookAllChapter_V1_5_V2 实现: 通过配置 实现代码,并把switch 去掉
+/*
+功能：
+	- 能断点续爬
+	- 给的bookIdArr重新排序
+	- 自动负载均衡 (根据传参: 每次最多请求几个book)
+
+建议:
+	- 建议 mysql 最多1000-5000条, 就是一次操作 10-40个book (每个book 100个章节)
+
+步骤：
+	0. 初始化
+	1. 获取传参。实现方式: c.ShouldBindJSON(请求结构体)实现
+	2. 校验传参。用validator，需要提前定义 请求结构体(包含校验规则：必有、必须>0等等) -》实现这个之后，再说通过写配置实现这个结构体,而不是总改代码
+		- shouldBIndJson已经包含 validator验证了
+	3. 前端传参, 数据清洗
+	4. 业务逻辑 需要的数据校验 +清洗
+	5. 执行核心逻辑 (6步走) : 爬取 | 插入 可以分成2个方法
+		步骤5.1: 给传的数组重新排序，从小到大
+		步骤5.2: 根据传的bookIdArr，根据负载均衡配置，分组
+		步骤5.3：for循环, 调接口。
+		调接口:DispatchApi_ManyBookAllChapter_V1_5_V1
+			步骤1: 找到目标网站
+			步骤2: 爬取
+			步骤3: 提取数据
+			步骤4: 数据清洗/ 未爬到的字段赋值
+			步骤5: 验证爬取数据 准确性
+			步骤6: 数据库插入
+	6. 返回结果
+
+	哪些步骤可以组合成1个方法
+*/
+func DispatchApi_ManyBookAllChapter_V1_5_V3(c *gin.Context) {
+	// 0. 初始化
+	okTotal := 0 // 成功条数
+	funcName := "爬ManyBookAllChapter V3"
+
+	// 1. 获取传参。实现方式: c.ShouldBindJSON(请求结构体)实现
+	var req SpiderManyBookAllChapterReqV15V2
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": fmt.Sprintf("func=%v 失败, 获取前端传参失败: %v", funcName, err)})
+		return
+	}
+	websiteName := req.SpiderTag.Website
+	bookIdArr := req.BookIdArr
+	bookEverytimeMax := req.BookEverytimeMax
+
+	// 2. 校验传参。用validator，上面shouldBIndJson已经包含 validator验证了
+	// 3. 前端传参, 数据清洗
+	// 4. 业务逻辑 需要的数据校验 +清洗
+
+	// 5. 执行核心逻辑 (6步走)
+	// 步骤5.1: 给传的数组重新排序，从小到大。slices.Sort() -> 默认从小到大
+	slices.Sort(bookIdArr) // 默认从小到大,修改原数组
+
+	// 步骤5.2: 根据传的bookIdArr，根据负载均衡配置，分组
+	spilitBookIdArr2D := util.SplitIntArr(bookIdArr, bookEverytimeMax) // 二维数组
+	// 步骤5.3：for循环, 调接口
+	for i, spilitBookIdArr := range spilitBookIdArr2D {
+		// 步骤5.3.1 查这个id是否需要爬 --
+		spilitBookIdArrNeedCrawl, err := DBGetBookIdsNeedCrawlByFiled[models.ComicSpider](db.DBComic, spilitBookIdArr, "spider_sub_chapter_end_status", 0)
+		if err != nil {
+			log.Errorf("func=%v, 第%v个数组, 爬取前查询是否需要爬 失败, reason: %v", funcName, i, err)
+			c.JSON(500, fmt.Sprint("爬取失败, 爬取前查询是否需要爬 失败, 出错数组=", spilitBookIdArr))
+			return
+		}
+
+		// 如果不需要爬，跳过
+		if len(spilitBookIdArrNeedCrawl) == 0 {
+			log.Warnf("func=%v, 第%v个数组, 不需要爬, 已经是爬取过的, arr= %v", funcName, i, spilitBookIdArr)
+			continue
+		}
+
+		// 步骤5.3.2 爬取并插入db --
+		log.Infof("func=%v, 要爬的bookIdArr = %v, 过滤需要爬的bookIdArr = %v", funcName, bookIdArr, spilitBookIdArrNeedCrawl)
+		okTotalOneArr, err := SpiderManyBookAllChapter2DB(websiteName, spilitBookIdArrNeedCrawl) // 成功条数
+		if err != nil {
+			log.Errorf("func=%v, 第%v个数组, 爬取失败, reason: %v", funcName, i, err)
+			c.JSON(500, fmt.Sprint("爬取失败, 出错数组=", spilitBookIdArr))
+			return
+		}
+		log.Infof("func=%v, 第%v个数组, 爬取成功,total: %v, arr= %v", funcName, i, okTotalOneArr, spilitBookIdArr)
+		okTotal += okTotalOneArr
+	}
+
+	// 6. 返回结果
 	c.JSON(200, "爬取成功,插入"+strconv.Itoa(okTotal)+"条chapter数据")
 }
 

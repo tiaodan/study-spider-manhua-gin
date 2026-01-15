@@ -772,6 +772,8 @@
 - 控制台日志打印，可以打印带颜色的 log文件，没必要打印带颜色的, 如34m[, 看着很乱
 - 还是要画逻辑图，否则后续要排查原因的时候，很头大
 - 考虑CoverUrlApiPath 是空的情况，目前程序是报错的。比如：kxmanhua 日漫=[短篇]富豪一族，爬取的时候为空，会触发报错。
+- api起名 规范设计
+- 考虑app埋点，分析数据
 
 
 ---------------------------------------------------------------------------
@@ -797,7 +799,7 @@
             - DispatchApi_SpiderOneTypeAllBookArr_V1_5_V2 // 不带switch case，把kxmanhua 里的逻辑全提到外面来
             - DispatchApi_SpiderOneTypeAllBookArr_V1_5_V1 // 带switch case 区分不通网站的 爬取逻辑
 
-# vv0.1.5.0 临时3
+# v0.1.5.0 临时3
     总结：爬完韩漫allType
     onetype
         - 排查，爬多个页面，慢的原因，统计大概几秒，log 看这个请求多长时间返回,性能分析 √
@@ -805,7 +807,7 @@
         - 尝试爬取kxmanhua 网站所有数据，保存一类，导出一个sql，再导入其它库，测试sql能用。保存爬取数据，作为备份 √
             - 爬韩漫 alltype √
 
-# vv0.1.5.0 临时4
+# v0.1.5.0 临时4
     总结：爬oneBook 能从配置读取了
     onetype
         - 分析：如果comic_spider_stats 表里totalChapter 和插入到 chapter_spider里个数对不上，那估计是爬取过程有重复数据了，因为 totalChapter 用的是 len(爬到的所有 非 "休刊公告"的内容) √
@@ -822,7 +824,7 @@
                     2. 按理说。GORM 框架，会自动把驼峰转成  小写+下划线格式
                     3. ParentId可能写错了，可能应该写ComicId
 
-# vv0.1.5.0 临时5
+# v0.1.5.0 临时5
     onetype
                 - 6 考虑是否把dispatch_api方法，拆成小方法，看起来很乱啊，一个方法120行代码，而且很多比较乱的打印，和if err判断 √
                 - 7 爬取章节，传的url,改成本地/真实的 √
@@ -831,6 +833,17 @@
                 - 9 解决爬取chapter,里章节名叫: Preview ，报错 √
                 - 10 if strings.Contains(value, "最终话") || strings.Contains(value, "完结")   // 判断不对，还有叫 第30话(第2季度) √
                 - 11 没搞懂 [][]T，遍历它，第2次，把第1次也加上了. -》 oneBookChapterArr = nil 解决 √
+
+# v0.1.5.0 临时6
+    onetype
+               - 12 弄一个请求，传入所有bookId,自动判断每次请求几个。建议 mysql 最多1000-5000条，因为 缓存max_allowed_packet (默认4MB/64MB)
+                    - 就是一次操作 10-40个book (每个book 100个章节)
+                    - 可以支持断点续爬 (如果这个book 标志位已经spider_end了,就不管了)
+                - 13 弄一个 爬取插入db方法，和 dispatch_api 解耦 √
+                - 14 comic_spider + comic_my 加一个状态标志位, spider_sub_chapter_end_status -> 爬取子内容 chapter 结束状态 0:未开始 1:爬取完毕 2:爬了,有问题 
+                     - 爬完并插入dbchapter后，修改book spider_sub_chapter_end_status = 1/2 √
+                     - 断点续爬，查看bookId spider_sub_chapter_end_status ，然后删除end状态的
+                     - 段转换失败: value = 第125话最终话-与阿姨携手迈向新人生, err = 无法将 string 转换为 int 解决
 
 # v0.1.5.0 
 版本总结: 要一劳永逸，代码不变，改配置就能实现需求
@@ -870,7 +883,6 @@
                     1. Gorm把代码，转成sql的时候，没自动把驼峰命名，转成小写+下划线格式
                     2. 按理说。GORM 框架，会自动把驼峰转成  小写+下划线格式
                     3. ParentId可能写错了，可能应该写ComicId
-
                 - 6 考虑是否把dispatch_api方法，拆成小方法，看起来很乱啊，一个方法120行代码，而且很多比较乱的打印，和if err判断 √
                 - 7 爬取章节，传的url,改成本地/真实的 √
                 - 5 加一个方法，爬 manyBookAllChapter，类似oneType 那种实现，获取多个book的chapter，批量插入 √
@@ -878,6 +890,18 @@
                 - 9 解决爬取chapter,里章节名叫: Preview ，报错 √
                 - 10 if strings.Contains(value, "最终话") || strings.Contains(value, "完结")   // 判断不对，还有叫 第30话(第2季度) √
                 - 11 没搞懂 [][]T，遍历它，第2次，把第1次也加上了. -》 oneBookChapterArr = nil 解决 √
+
+                - 12 弄一个请求，传入所有bookId,自动判断每次请求几个。建议 mysql 最多1000-5000条，因为 缓存max_allowed_packet (默认4MB/64MB)
+                    - 就是一次操作 10-40个book (每个book 100个章节)
+                    - 可以支持断点续爬 (如果这个book 标志位已经spider_end了,就不管了)
+                - 13 弄一个 爬取插入db方法，和 dispatch_api 解耦 √
+                - 14 comic_spider + comic_my 加一个状态标志位, spider_sub_chapter_end_status -> 爬取子内容 chapter 结束状态 0:未开始 1:爬取完毕 2:爬了,有问题 
+                     - 爬完并插入dbchapter后，修改book spider_sub_chapter_end_status = 1/2 √
+                     - 断点续爬，查看bookId spider_sub_chapter_end_status ，然后删除end状态的
+                     - 段转换失败: value = 第125话最终话-与阿姨携手迈向新人生, err = 无法将 string 转换为 int 解决
+
+                - 爬取章节后有一些冗余的，或者爬取不到的，还要手动 更新到库里
+
             - 爬韩漫 allchapter
         - 考虑 codegeex 性能问题建议的实现
             - 以后都不要改我代码，等我说 “同步到我的代码” 的时候，才可以改。疑问1：代码里能打印出，colly爬某个请求，用了多少时间随机延迟吗 2 一般大厂程序，随机延迟设置几秒？ 3 你说的几个性能瓶颈：批量插入后立即查询，如何实现在批量插入/update时直接返回ID

@@ -9,6 +9,7 @@ package db
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 	"strings"
 	"study-spider-manhua-gin/src/log"
@@ -958,4 +959,57 @@ func DBCountByField[T any](DBConnObj *gorm.DB, field string, value any) (int, er
 	// 5. 返回结果
 	return int(count), nil
 	*/
+}
+
+// 批量更新
+func DBUpdateBatchByIdArr[T any](DBConnObj *gorm.DB, idArr []int, updates map[string]any) error {
+	if len(idArr) == 0 { // 没有数据
+		return nil
+	}
+
+	return DBConnObj.Model(new(T)).Where("id in (?)", idArr).Updates(updates).Error
+}
+
+// 根据指定字段查询 多个 - 通用，使用于任何数据表
+/*
+作用简单说：
+	- 查询 1条数据
+
+作用详细说:
+	-
+
+核心思路:
+	1.
+
+参考通用思路：
+	1. 校验传参
+	2. 数据清洗
+	3. 准备数据库执行，需要的参数
+	4. 数据库执行
+	5. 返回结果
+
+参数：
+	1 field string 用数据库小写列名，如 "chapter_num"
+*/
+func DBFindManyByField[T any](field string, value any) ([]T, error) {
+	// 1. 校验传参
+	// 2. 数据清洗
+	// 3. 准备数据库执行，需要的参数
+	// 4. 数据库执行
+
+	// 1. 参数校验
+	if field == "" {
+		return nil, fmt.Errorf("field is empty")
+	}
+
+	// 2. 查询
+	var result []T
+	db := DBComic.Where(field+" = ?", value).Find(&result)
+
+	if db.Error != nil {
+		return nil, db.Error
+	}
+
+	// 5. 返回结果
+	return result, nil
 }

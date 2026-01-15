@@ -1,5 +1,5 @@
 log:                           # 日志相关配置
-  level: debug                   # 日志等级。分 debug info warn error 4种，默认是info。程序写了默认值：info
+  level: info                   # 日志等级。分 debug info warn error 4种，默认是info。程序写了默认值：info
   path: log/app.log              # 日志文件路径, 基于main.go文件所在目录 程序写了默认值：log/app.log
 network:                       # 网络相关配置
   ximalaya_ip: www.ximalaya.com  # 喜马拉雅的ip。程序写了默认值：www.ximalaya.com
@@ -12,6 +12,6 @@ gin:                           # gin: 提供api服务 框架相关配置
 spider:                        # 爬虫相关配置
   public:                         # 公共配置,只要涉及到爬虫的
     spiderType:                    # 爬取某一类时，相关配置
-      random_delay_time: 2            # 爬虫对象 colly, 每次请求前，随机延迟时间。单位 = 秒。程序写了默认值：5。codeGeex说建议0.5-3秒
+      random_delay_time: 3            # 爬虫对象 colly, 每次请求前，随机延迟时间。单位 = 秒。程序写了默认值：5。codeGeex说建议0.5-3秒
       queue_limit_conc_maxnum: 3      # 爬虫队列, 爬虫限制最大并发数。程序写了默认值：5
       queue_pool_maxnum: 100          # 爬虫队列, 队列池最大数。程序写了默认值：100

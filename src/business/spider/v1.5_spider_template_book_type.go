@@ -14,8 +14,8 @@ package spider
 
 import (
 	"errors"
-	"fmt"
 	"net/url"
+	"strconv"
 	"strings"
 	"study-spider-manhua-gin/src/config"
 	"study-spider-manhua-gin/src/db"
@@ -28,6 +28,7 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"github.com/gocolly/colly/v2/queue"
+	"gorm.io/gorm"
 )
 
 // ------------------------------------------- 方法 -------------------------------------------
@@ -346,10 +347,13 @@ func GetManyBookAllChapterByCollyMappingV1_5[T any](mapping map[string]models.Mo
 	StagesCfg := config.CfgSpiderYaml.Websites[websiteName].Stages["one_book_all_chapter"]
 	everyChapterSelectStr := StagesCfg.Crawl.Selectors["item"].(string) // 每个chapter 选择器
 	c.OnHTML(everyChapterSelectStr, func(e *colly.HTMLElement) {
+		// 0 初始化
+		currentUrl := e.Request.URL.String() // 获取当前正在爬取的 URL
+
 		// 0. 处理异常内容
 		// -- 处理 ”休刊公告“
 		oneChapterStr, _ := langutil.TraditionalToSimplified(e.Text)
-		if strings.Contains(oneChapterStr, "休刊") {
+		if strings.Contains(oneChapterStr, "休刊") || strings.Contains(oneChapterStr, "停刊") {
 			return // ✅ 这个 return 只从匿名函数返回，不会影响 GetOneBookObjByCollyMapping 函数
 		}
 
@@ -360,7 +364,7 @@ func GetManyBookAllChapterByCollyMappingV1_5[T any](mapping map[string]models.Mo
 
 		// -- 通过mapping 爬内容
 		result := GetOneObjByCollyMapping(e, mapping)
-		log.Info("------------ 通过mapping规则,爬取结果 result = ", result)
+		log.Infof("------------ bookIdArr=%v,当前爬取url=%v 通过mapping规则,爬取结果 result = %v", bookIdArr, currentUrl, result)
 		if result != nil {
 			// 通过 model字段 spider，把爬出来的 map[string]any，转成 model对象
 			MapByTag(result, &chapterT)
@@ -421,9 +425,9 @@ func GetManyBookAllChapterByCollyMappingV1_5[T any](mapping map[string]models.Mo
 		}
 
 		// 步骤1: 找到目标网站
-		// fullUrl := GetSpiderFullUrl(website.IsHttps, website.Domain, book.ComicUrlApiPath, nil) // 完整爬取 url
-		apiUrlPath := fmt.Sprintf("/test/kxmanhua/spiderChapter/%d.html", bookId)
-		fullUrl := GetSpiderFullUrl(false, "localhost:8080", apiUrlPath, nil) // 完整爬取 url，本地测试
+		fullUrl := GetSpiderFullUrl(website.IsHttps, website.Domain, book.ComicUrlApiPath, nil) // 完整爬取 url
+		// apiUrlPath := fmt.Sprintf("/test/kxmanhua/spiderChapter/%d.html", bookId)
+		// fullUrl := GetSpiderFullUrl(false, "localhost:8080", apiUrlPath, nil) // 完整爬取 url，本地测试
 		log.Info("生成的book 爬取 fullURl = ", fullUrl)
 		// 打算使用 GET 请求校验 URL 可达性，通过后才加入抓取队列。爬取的一般都是get请求， 就用get请求下。但实际不用 用c.OnError() 就能有类似效果
 
@@ -462,7 +466,7 @@ func SpiderManyBookAllChapter_UpsertPart(websiteName string, bookIdArr []int, ma
 	okTotal := 0 // 插入成功总数
 
 	for index, oneBookChapterArr := range manyBookChapterArr {
-		log.Warnf("delete index=%v len=%v------------ oneBookChapterArr=%v, ", index, len(oneBookChapterArr), oneBookChapterArr)
+		// log.Warnf("delete index=%v len=%v------------ oneBookChapterArr=%v, ", index, len(oneBookChapterArr), oneBookChapterArr)
 		// 步骤4: 数据清洗/ 未爬到的字段赋值
 		// -- 赋值上下文参数 + 数据清洗。（赋值上下文参数：是吧方法传参，给对象赋值。数据清洗：设置-爬取字段，或者默认数据）
 		for i := range oneBookChapterArr {
@@ -480,7 +484,7 @@ func SpiderManyBookAllChapter_UpsertPart(websiteName string, bookIdArr []int, ma
 		}
 		// log.Warn("---------- delete 判断去重数组 spiderChapterNumArr= ", spiderChapterNumArr)
 		if util.HasDuplicate(spiderChapterNumArr) { // 判断有重复
-			log.Warn("爬取1本书 AllChapter, 爬到的章节有重复, 要注意下")
+			log.Warn("爬取1本书 AllChapter, 爬到的章节号码 有重复, 要注意下, bookId = ", bookIdArr[index])
 		}
 
 		// 步骤6: 数据库插入
@@ -518,8 +522,14 @@ func SpiderManyBookAllChapter_UpsertPart(websiteName string, bookIdArr []int, ma
 
 		// 5. 更新comic.因为有的需要有chapter数据，才可以。比如 最后一章id, 章节总数
 		// -- 需要更新：  \ 最后章节名称 \ 总章节数 （假如需要爬 comic想的，那就得爬完插入chapter之后，再爬一次comic相关的）
-		// 找到最后一章，从chapter里获取需要内容。找 chapterNUm=9999就行
-		lastChapter, err := db.DBFindOneByField[models.ChapterSpider]("chapter_num", 9999)
+		// 找到最后一章，从chapter里获取需要内容。方案1：通过bookID + 号码=9999 找到最后一章 x 因为有的没有叫"最终话"开头的 方案2: 找parent_id + chapter_real_sort_num 最大的那个数
+		// 弃用，如果没有 "最终话开头"，会报错lastChapter, err := db.DBFindOneByMapCondition[models.ChapterSpider](map[string]any{"parent_id": bookIdArr[index], "chapter_real_sort_num": 9999})
+		lastChapter, err := db.FindOneV2[models.ChapterSpider](
+			db.WithWhere("parent_id = ?", bookIdArr[index]),
+			db.WithOrder("chapter_real_sort_num DESC"),
+			db.WithLimit(1),
+		)
+
 		if err != nil {
 			log.Error("func= DispatchApi_OneBookAllChapterByHtml(分发api- /spider/oneBookAllChapterByHtml), 找到最后一章失败, err: ", err)
 		}
@@ -549,4 +559,77 @@ func SpiderManyBookAllChapter_UpsertPart(websiteName string, bookIdArr []int, ma
 
 	log.Infof("插入成功 %v 条", okTotal)
 	return okTotal, nil // 一切正常
+}
+
+// 爬取manybook allChapter V1实现。把爬取+插入放到1个方法，且和 gin.context 解耦
+/*
+返回：
+	okTotal
+	error
+*/
+func SpiderManyBookAllChapter2DB(websiteName string, bookIdArr []int) (int, error) {
+	// 0. 初始化
+	okTotal := 0 // 成功条数
+	funcName := "SpiderManyBookAllChapter2DB"
+	var funcErr error
+
+	// 1. 获取传参。实现方式: c.ShouldBindJSON(请求结构体)实现
+	log.Infof("func=%v, 要爬的bookId = %v", funcName, bookIdArr)
+
+	// 2. 校验传参。用validator，上面shouldBIndJson已经包含 validator验证了
+	// 3. 前端传参, 数据清洗
+	// 4. 业务逻辑 需要的数据校验 +清洗
+
+	// 5. 执行核心逻辑 (6步走)
+	// -- 根据该字段，使用不同的爬虫 ModelMapping映射表
+	// -- 从mapping 工厂了拿数据
+	var mappingFactory = map[string]any{
+		"kxmanhua": ChapterMappingForSpiderKxmanhuaByHTML,
+	}
+	mapping := mappingFactory[websiteName]
+
+	// 5.1. 爬取 chapter
+	// -- 请求html页面
+	manyBookChapterArr, err := GetManyBookAllChapterByCollyMappingV1_5[models.ChapterSpider](mapping.(map[string]models.ModelHtmlMapping), websiteName, bookIdArr)
+	chapterNamePreviewCount = 0 // ！！！！重要,必有，重置计数器。chapter中 name包含"Preview"次数
+	// -- 插入前数据校验
+	if manyBookChapterArr == nil || err != nil {
+		log.Error("爬取 OneBookAllChapterByHtml失败, chapterArr 为空, 拒绝进入下一步: 插入db。可能原因:1 爬取url不对 2 目标网站挂了 3 爬取逻辑错了,没爬到")
+		return 0, err // 直接结束
+	}
+
+	// 5.2. 执行核心逻辑 - 插入部分
+	if okTotal, funcErr = SpiderManyBookAllChapter_UpsertPart(websiteName, bookIdArr, manyBookChapterArr); funcErr != nil {
+		log.Errorf("爬取失败, reaason: 插入db失败. website=%v, bookIdArr=%v", websiteName, bookIdArr)
+		return 0, funcErr
+	}
+
+	// 步骤5.3：更新book 字段：spider_sub_chapter_end_status
+	funcErr = db.DBUpdateBatchByIdArr[models.ComicSpider](db.DBComic, bookIdArr, map[string]any{"spider_sub_chapter_end_status": 1})
+	if funcErr != nil {
+		log.Errorf("func= %v 失败, 更新db book spider_sub_chapter_end_status 状态失败, err: %v", funcName, funcErr)
+		return 0, funcErr
+	}
+
+	// 6. 返回结果
+	log.Info("爬取成功,插入" + strconv.Itoa(okTotal) + "条chapter数据")
+	return okTotal, nil
+}
+
+// 获取需要爬取的bookIds
+func DBGetBookIdsNeedCrawlByFiled[T any](db *gorm.DB, bookIds []int, field string, value any) ([]int, error) {
+	if len(bookIds) == 0 {
+		return nil, nil
+	}
+
+	var need []int
+	err := db.Model(new(T)).
+		Where("id IN ?", bookIds).
+		Where(field+" = ?", value). // Where("spider_end != ?", 0)
+		Pluck("id", &need).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return need, nil
 }

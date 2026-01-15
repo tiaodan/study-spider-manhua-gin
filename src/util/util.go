@@ -5,8 +5,7 @@ package util
 
 import "study-spider-manhua-gin/src/log"
 
-/*
-	判断数组内容是否有重复项
+/* 判断数组内容是否有重复项
 
 实现: 通过 map实现
 优点：
@@ -83,4 +82,23 @@ func HasDuplicate(nums []int) bool {
 	   }
 	   return false
 	*/
+}
+
+// 拆分数组 (int类型),分成N份
+/*
+参数：arr []int,
+	max int 拆分的数组，最大个数
+*/
+func SplitIntArr(arr []int, splitArrMax int) [][]int {
+	var result [][]int
+
+	for i := 0; i < len(arr); i += splitArrMax {
+		end := i + splitArrMax
+		if end > len(arr) { // 结束for 标志
+			end = len(arr)
+		}
+		result = append(result, arr[i:end])
+	}
+
+	return result
 }
