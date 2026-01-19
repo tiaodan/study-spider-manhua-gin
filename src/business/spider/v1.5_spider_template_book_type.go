@@ -320,10 +320,17 @@ func GetSpiderFullUrl(isHttps bool, websitePrefix, apiPath string, paramArr []ma
 	3. bookIdArr
 
 返回:
+map id -> 数组
+
 主表数组
 作用简单说：
 */
-func GetManyBookAllChapterByCollyMappingV1_5[T any](mapping map[string]models.ModelHtmlMapping, websiteName string, bookIdArr []int) ([][]T, error) {
+func GetManyBookAllChapterByCollyMappingV1_5[T any](mapping map[string]models.ModelHtmlMapping, websiteName string, bookIdArr []int) (map[int][]T, error) {
+	// 初始化
+	funcName := "GetManyBookAllChapterByCollyMappingV1_5"
+	// bookId 和 fullUrl 映射关系, key 是url
+	bookIdFullUrlMapKeyUrl := make(map[string]int)
+
 	// 步骤2: 爬取
 
 	// 2. 爬虫相关
@@ -340,8 +347,8 @@ func GetManyBookAllChapterByCollyMappingV1_5[T any](mapping map[string]models.Mo
 
 	// 步骤3: 提取数据
 	// 获取html内容,每成功匹配一次, 就执行一次逻辑。这个标签选只匹配一次的 --
-	var oneBookChapterArr []T    // 存放爬好的 obj，因为要返回泛型，所以用T ,以前写法：comicArr := []models.ComicSpider{}
-	var manyBookChapterArr [][]T //所有book 的chapte数组
+	var oneBookChapterArr []T                     // 存放爬好的 obj，因为要返回泛型，所以用T ,以前写法：comicArr := []models.ComicSpider{}
+	var manyBookChapterArrMap = make(map[int][]T) //所有book 的chapte数组 map -》 bookId 对应 所有章节
 	// 遍历一个book, 每个chapter
 	// c.OnHTML(".chapter_list a", func(e *colly.HTMLElement) {
 	StagesCfg := config.CfgSpiderYaml.Websites[websiteName].Stages["one_book_all_chapter"]
@@ -399,8 +406,11 @@ func GetManyBookAllChapterByCollyMappingV1_5[T any](mapping map[string]models.Mo
 
 	// 成功爬完1页，回调
 	c.OnScraped(func(r *colly.Response) {
-		// 把 oneBookAllChapter 加到大数组中去
-		manyBookChapterArr = append(manyBookChapterArr, oneBookChapterArr)
+		// 把 oneBookAllChapter 加到 要返回的map 中去
+		currentUrl := r.Request.URL.String()         // 获取当前正在爬取的 URL
+		bookId := bookIdFullUrlMapKeyUrl[currentUrl] // 通过url 获取到bookId
+		manyBookChapterArrMap[bookId] = oneBookChapterArr
+
 		oneBookChapterArr = nil // 或者 oneBookChapterArr = []T{} 重置切片
 	})
 
@@ -429,6 +439,7 @@ func GetManyBookAllChapterByCollyMappingV1_5[T any](mapping map[string]models.Mo
 		// apiUrlPath := fmt.Sprintf("/test/kxmanhua/spiderChapter/%d.html", bookId)
 		// fullUrl := GetSpiderFullUrl(false, "localhost:8080", apiUrlPath, nil) // 完整爬取 url，本地测试
 		log.Info("生成的book 爬取 fullURl = ", fullUrl)
+		bookIdFullUrlMapKeyUrl[fullUrl] = bookId // 记录bookId 和 fullUrl 的映射关系
 		// 打算使用 GET 请求校验 URL 可达性，通过后才加入抓取队列。爬取的一般都是get请求， 就用get请求下。但实际不用 用c.OnError() 就能有类似效果
 
 		// 再添加到队列 --
@@ -438,10 +449,11 @@ func GetManyBookAllChapterByCollyMappingV1_5[T any](mapping map[string]models.Mo
 		// q.AddURL("http://localhost:8080/test/kxmanhua/spiderChapter/社团学姐.html") // 章节url
 		// q.AddURL("http://localhost:8080/test/kxmanhua/spiderChapter/1.html") // 章节url
 	}
+	log.Infof("func=%v, bookId 和 请求fullUrl映射关系 bookIdFullUrlMapKeyUrl = %v", funcName, bookIdFullUrlMapKeyUrl)
 
 	// 启动对垒
 	q.Run(c)
-	return manyBookChapterArr, nil
+	return manyBookChapterArrMap, nil
 }
 
 // 把爬取 manyBookAllChapter 分成2部分。爬取部分 + 插入部分
@@ -457,21 +469,29 @@ func GetManyBookAllChapterByCollyMappingV1_5[T any](mapping map[string]models.Mo
 			- 6.1 插入 章节
 			- 6.2 更新 book 表stats字段
 参数:
+manyBookChapterArrMap []
 
 返回 插入成功总数
  error
 */
-func SpiderManyBookAllChapter_UpsertPart(websiteName string, bookIdArr []int, manyBookChapterArr [][]models.ChapterSpider) (int, error) {
+func SpiderManyBookAllChapter_UpsertPart(websiteName string, manyBookChapterArrMap map[int][]models.ChapterSpider) (int, error) {
 	// 初始化
 	okTotal := 0 // 插入成功总数
+	// funcName := "SpiderManyBookAllChapter_UpsertPart"
 
-	for index, oneBookChapterArr := range manyBookChapterArr {
+	// 异常处理
+	if len(manyBookChapterArrMap) == 0 {
+		return 0, errors.New("func=爬 爬oneTypeAllBookArr V1.5, manyBookChapterArrMap 为空")
+	}
+
+	for bookId, oneBookChapterArr := range manyBookChapterArrMap {
 		// log.Warnf("delete index=%v len=%v------------ oneBookChapterArr=%v, ", index, len(oneBookChapterArr), oneBookChapterArr)
 		// 步骤4: 数据清洗/ 未爬到的字段赋值
 		// -- 赋值上下文参数 + 数据清洗。（赋值上下文参数：是吧方法传参，给对象赋值。数据清洗：设置-爬取字段，或者默认数据）
 		for i := range oneBookChapterArr {
 			// -赋值 上下文传参。如parentId (非数据清洗业务，放在这里)
-			oneBookChapterArr[i].ParentId = int(bookIdArr[index]) // 父id
+			// oneBookChapterArr[i].ParentId = int(bookIdArr[index]) // delete - 弃用。会导致 comic和chapter内容对不上!!!. 父id，应该从manyBookChapterArr 里拿，这里是最准确的。因为bookIdArr 是从小到大，但爬出来的 manyBookChapterArr 是按id 随机的。容易导致：comic和chapter的 真实章节 对不上
+			oneBookChapterArr[i].ParentId = bookId // 父id，应该从manyBookChapterArr 里拿，这里是最准确的。因为bookIdArr 是从小到大，但爬出来的 manyBookChapterArr 是按id 随机的。容易导致：comic和chapter的 真实章节 对不上
 			// -数据清洗
 			oneBookChapterArr[i].DataClean() // 数据清洗
 			log.Debug("清洗完数据 chapter = ", oneBookChapterArr[i])
@@ -484,7 +504,7 @@ func SpiderManyBookAllChapter_UpsertPart(websiteName string, bookIdArr []int, ma
 		}
 		// log.Warn("---------- delete 判断去重数组 spiderChapterNumArr= ", spiderChapterNumArr)
 		if util.HasDuplicate(spiderChapterNumArr) { // 判断有重复
-			log.Warn("爬取1本书 AllChapter, 爬到的章节号码 有重复, 要注意下, bookId = ", bookIdArr[index])
+			log.Warn("爬取1本书 AllChapter, 爬到的章节号码 有重复, 要注意下, bookId = ", bookId)
 		}
 
 		// 步骤6: 数据库插入
@@ -524,8 +544,8 @@ func SpiderManyBookAllChapter_UpsertPart(websiteName string, bookIdArr []int, ma
 		// -- 需要更新：  \ 最后章节名称 \ 总章节数 （假如需要爬 comic想的，那就得爬完插入chapter之后，再爬一次comic相关的）
 		// 找到最后一章，从chapter里获取需要内容。方案1：通过bookID + 号码=9999 找到最后一章 x 因为有的没有叫"最终话"开头的 方案2: 找parent_id + chapter_real_sort_num 最大的那个数
 		// 弃用，如果没有 "最终话开头"，会报错lastChapter, err := db.DBFindOneByMapCondition[models.ChapterSpider](map[string]any{"parent_id": bookIdArr[index], "chapter_real_sort_num": 9999})
-		lastChapter, err := db.FindOneV2[models.ChapterSpider](
-			db.WithWhere("parent_id = ?", bookIdArr[index]),
+		lastChapter, err := db.DBFindOneV2[models.ChapterSpider](
+			db.WithWhere("parent_id = ?", bookId),
 			db.WithOrder("chapter_real_sort_num DESC"),
 			db.WithLimit(1),
 		)
@@ -536,11 +556,12 @@ func SpiderManyBookAllChapter_UpsertPart(websiteName string, bookIdArr []int, ma
 
 		// -- 创建 comic_spider_stats对象
 		var comicSpiderStats models.ComicSpiderStats
-		comicSpiderStats.ComicId = int(bookIdArr[index])
+		comicSpiderStats.ComicId = bookId
 		comicSpiderStats.LatestChapterId = &lastChapter.Id    // 最后章节id
 		comicSpiderStats.LatestChapterName = lastChapter.Name // 最后章节名称
 
-		totalChapterDbRealUpsert, err := db.DBCountByField[models.ChapterSpider](db.DBComic, "parent_id", bookIdArr[index]) // db里真实插入 章节个数
+		// totalChapterDbRealUpsert, err := db.DBCountByField[models.ChapterSpider](db.DBComic, "parent_id", bookIdArr[index]) // 最新版弃用，db里真实插入 章节个数，之前写法，不判断 real_sort_num !=0的情况
+		totalChapterDbRealUpsert, err := db.DBCountV2[models.ChapterSpider](db.WithWhere("parent_id = ? AND chapter_real_sort_num != 0", bookId)) // db里真实插入 章节个数，找parent_id=x. and chapter_real_sort_num !=0
 		errorutil.ErrorPrint(err, "爬取oneBookAllChapter, 插入chapter_spider表后, 查询总插入数出错, err = ")
 		comicSpiderStats.TotalChapter = totalChapterDbRealUpsert // 总章节数，从数据库查的
 		okTotal += totalChapterDbRealUpsert
@@ -590,16 +611,16 @@ func SpiderManyBookAllChapter2DB(websiteName string, bookIdArr []int) (int, erro
 
 	// 5.1. 爬取 chapter
 	// -- 请求html页面
-	manyBookChapterArr, err := GetManyBookAllChapterByCollyMappingV1_5[models.ChapterSpider](mapping.(map[string]models.ModelHtmlMapping), websiteName, bookIdArr)
+	manyBookChapterArrMap, err := GetManyBookAllChapterByCollyMappingV1_5[models.ChapterSpider](mapping.(map[string]models.ModelHtmlMapping), websiteName, bookIdArr)
 	chapterNamePreviewCount = 0 // ！！！！重要,必有，重置计数器。chapter中 name包含"Preview"次数
 	// -- 插入前数据校验
-	if manyBookChapterArr == nil || err != nil {
+	if manyBookChapterArrMap == nil || err != nil {
 		log.Error("爬取 OneBookAllChapterByHtml失败, chapterArr 为空, 拒绝进入下一步: 插入db。可能原因:1 爬取url不对 2 目标网站挂了 3 爬取逻辑错了,没爬到")
 		return 0, err // 直接结束
 	}
 
 	// 5.2. 执行核心逻辑 - 插入部分
-	if okTotal, funcErr = SpiderManyBookAllChapter_UpsertPart(websiteName, bookIdArr, manyBookChapterArr); funcErr != nil {
+	if okTotal, funcErr = SpiderManyBookAllChapter_UpsertPart(websiteName, manyBookChapterArrMap); funcErr != nil {
 		log.Errorf("爬取失败, reaason: 插入db失败. website=%v, bookIdArr=%v", websiteName, bookIdArr)
 		return 0, funcErr
 	}

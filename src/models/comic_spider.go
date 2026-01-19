@@ -103,7 +103,7 @@ type ComicSpiderStats struct {
 	Star                      float64   `json:"star" gorm:"not null" spider:"star" `                           // 评分
 	LatestChapterName         string    `json:"latestChapterName" gorm:"not null" spider:"latestChapterName" ` // 更新到多少集, 字符串,最新章节.可以是空字符串
 	Hits                      int       `json:"hits" gorm:"not null" spider:"hits" `                           // 人气
-	TotalChapter              int       `json:"totalChapter" gorm:"not null" spider:"totalChapter" `           // 总章节数
+	TotalChapter              int       `json:"totalChapter" gorm:"not null" spider:"totalChapter" `           // 总章节数。应该不包括 前言、后记、试听这些
 	LastestChapterReleaseDate time.Time `json:"lastestChapterReleaseDate" spider:"lastestChapterReleaseDate" ` // 最新章节发布时间，可以空
 
 	// 外键结构

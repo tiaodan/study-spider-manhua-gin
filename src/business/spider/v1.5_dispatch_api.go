@@ -903,17 +903,17 @@ func DispatchApi_ManyBookAllChapter_V1_5_V1(c *gin.Context) {
 
 	// 2. 爬取 chapter
 	// -- 请求html页面
-	manyBookChapterArr, err := GetManyBookAllChapterByCollyMappingV1_5[models.ChapterSpider](mapping.(map[string]models.ModelHtmlMapping), websiteName, bookIdArr)
+	manyBookChapterArrMap, err := GetManyBookAllChapterByCollyMappingV1_5[models.ChapterSpider](mapping.(map[string]models.ModelHtmlMapping), websiteName, bookIdArr)
 	chapterNamePreviewCount = 0 // ！！！！重要,必有，重置计数器。chapter中 name包含"Preview"次数
 	// -- 插入前数据校验
-	if manyBookChapterArr == nil || err != nil {
+	if manyBookChapterArrMap == nil || err != nil {
 		log.Error("爬取 OneBookAllChapterByHtml失败, chapterArr 为空, 拒绝进入下一步: 插入db。可能原因:1 爬取url不对 2 目标网站挂了 3 爬取逻辑错了,没爬到")
 		c.JSON(400, gin.H{"error": "爬取 OneBookAllChapterByHtml失败, chapterArr 为空, 拒绝进入下一步: 插入db可能原因:1 爬取url不对 2 目标网站挂了 3 爬取逻辑错了,没爬到"}) // 返回错误
 		return                                                                                                                        // 直接结束
 	}
 
 	// 4. 执行核心逻辑 - 插入部分
-	if okTotal, funcErr = SpiderManyBookAllChapter_UpsertPart(websiteName, bookIdArr, manyBookChapterArr); funcErr != nil {
+	if okTotal, funcErr = SpiderManyBookAllChapter_UpsertPart(websiteName, manyBookChapterArrMap); funcErr != nil {
 		c.JSON(500, gin.H{"error": "爬取失败"})
 	}
 

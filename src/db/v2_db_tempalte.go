@@ -39,7 +39,7 @@ import "gorm.io/gorm"
 type FindOption func(*gorm.DB) *gorm.DB
 
 // 核心通用查询方法
-func FindOneV2[T any](opts ...FindOption) (*T, error) {
+func DBFindOneV2[T any](opts ...FindOption) (*T, error) {
 	var result T
 
 	db := DBComic // 假设这是你的全局 db 实例
@@ -55,6 +55,25 @@ func FindOneV2[T any](opts ...FindOption) (*T, error) {
 	}
 
 	return &result, nil
+}
+
+// 统计数量
+func DBCountV2[T any](opts ...FindOption) (int, error) {
+	var count int64
+
+	db := DBComic // 假设这是你的全局 db 实例
+
+	// 依次应用所有选项
+	for _, opt := range opts {
+		db = opt(db)
+	}
+
+	err := db.Model(new(T)).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+
+	return int(count), nil
 }
 
 // ------------------ 常用的选项工厂函数 ------------------

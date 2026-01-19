@@ -845,6 +845,13 @@
                      - 断点续爬，查看bookId spider_sub_chapter_end_status ，然后删除end状态的
                      - 段转换失败: value = 第125话最终话-与阿姨携手迈向新人生, err = 无法将 string 转换为 int 解决
 
+# v0.1.5.0 临时7
+    总结: 解决: comic_spiders的id 和 chapter_spider的parent_id 有时候对不上
+    onetype
+                - 爬取 外传-第几话，生成的号码不对，应该按第X话，提取+ -10 √
+                - stats表，统计总数逻辑需要改下，应该不包括 前言、后记、试听这些 √ 改了逻辑，验证通过 √
+                - 数据库，comic_spiders的id 和 chapter_spider的parent_id 有时候对不上，原因找到了,修改了 DispatchApi_ManyBookAllChapter_V1_5_V3 方法，验证通过 √
+
 # v0.1.5.0 
 版本总结: 要一劳永逸，代码不变，改配置就能实现需求
     - 自己写, 根据1.0版本代码，实现配置驱动代码：要一劳永逸，代码不变，改配置就能实现需求
@@ -900,8 +907,13 @@
                      - 断点续爬，查看bookId spider_sub_chapter_end_status ，然后删除end状态的
                      - 段转换失败: value = 第125话最终话-与阿姨携手迈向新人生, err = 无法将 string 转换为 int 解决
 
-                - 爬取章节后有一些冗余的，或者爬取不到的，还要手动 更新到库里
+                - 爬取 外传-第几话，生成的号码不对，应该按第X话，提取+ -10 √
+                - stats表，统计总数逻辑需要改下，应该不包括 前言、后记、试听这些 √ 改了逻辑，验证通过 √
+                - 数据库，omic_spiders的id 和 chapter_spider的parent_id 有时候对不上，原因找到了,修改了 DispatchApi_ManyBookAllChapter_V1_5_V3 方法，验证通过 √
 
+                - 类似kxmanhua 那种，要自己加上水印？还是前端代码写的?
+                - 爬取章节后有一些冗余的，或者爬取不到的，还要手动 更新到库里
+                
             - 爬韩漫 allchapter
         - 考虑 codegeex 性能问题建议的实现
             - 以后都不要改我代码，等我说 “同步到我的代码” 的时候，才可以改。疑问1：代码里能打印出，colly爬某个请求，用了多少时间随机延迟吗 2 一般大厂程序，随机延迟设置几秒？ 3 你说的几个性能瓶颈：批量插入后立即查询，如何实现在批量插入/update时直接返回ID
