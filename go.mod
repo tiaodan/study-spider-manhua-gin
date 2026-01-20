@@ -15,6 +15,8 @@ require (
 	gorm.io/gorm v1.26.0
 )
 
+require github.com/Wall-ee/chinese2digits v0.0.0-20230326114705-af0762877d60 // direct
+
 require github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // direct
 
 require (

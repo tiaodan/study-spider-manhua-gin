@@ -13,6 +13,8 @@ import (
 	"study-spider-manhua-gin/src/models"
 	"study-spider-manhua-gin/src/util/langutil"
 	"study-spider-manhua-gin/src/util/stringutil"
+
+	"github.com/Wall-ee/chinese2digits/chinese2digits"
 )
 
 // -- 初始化 ------------------------------------------------------------------------------
@@ -247,8 +249,7 @@ var UpdateBookMappingForSpiderKxmanhuaByHTML = map[string]models.ModelHtmlMappin
 }
 
 // -- chapter相关
-var chapterNamePreviewCount int  // 爬取  chapter 时，名称包含 ”Preview“次数，上级方法爬完后，再重置为0。-》 如果显示preview 从-1开始
-var chapterNameWaiZhuanCount int // 爬取  chapter 时，章节名 如果开头 "外传-第N话" -》 从-10 开始 - -30,预留20个
+var chapterNamePreviewCount int // 爬取  chapter 时，名称包含 ”Preview“次数，上级方法爬完后，再重置为0。-》 如果显示preview 从-1开始
 // 表映射，爬 https:/www.kxmanhua.xyz 开心漫画, 爬章节用，爬的 Html 数据 - 只能爬1个book
 var ChapterMappingForSpiderKxmanhuaByHTML = map[string]models.ModelHtmlMapping{
 	/*
@@ -287,12 +288,34 @@ var ChapterMappingForSpiderKxmanhuaByHTML = map[string]models.ModelHtmlMapping{
 				chapterNamePreviewCount++
 				return -chapterNamePreviewCount // 预览,试听 这种，就按负数处理
 			} else if strings.HasPrefix(value, "外传") { // 场景1：外传-第x话
-				chapterNameWaiZhuanCount++
-				return -10 + -chapterNameWaiZhuanCount
+				// 提取第几话的数组，变为负数，然后 -10- -30 预留20个
+				if regexp.MustCompile(`^外传.*第\s*(\d+)\s*(话|章|集|回)`).MatchString(value) { //  要能实现匹配数字 或者中文 数字 一二三四五这种。原来写法：`^外传.*第\s*(\d+)\s*(话|章|集|回)`   `^外传.*第\s*([0-9]+|[一二三四五六七八九十百千]+)\s*(话|章|集|回)`
+					// -- 从“第X话”中提取 数字
+					re := regexp.MustCompile(`(?:第)?(?:\s*)?(\d+)(?:\s*)?(?:话|章|集|回)?`) // 捕获用这个. 要能实现匹配数字
+					matches := re.FindStringSubmatch(value)
+					if num, err := strconv.Atoi(matches[1]); err == nil { // matches[0]是匹配内容,如"第1话", matches[1] 是提取的第一个内容，如果有第2个，就matches[2]
+						return -10 + -num
+					}
+				} else if regexp.MustCompile(`^外传.*第\s*[一二三四五六七八九十]+\s*(话|章|集|回)`).MatchString(value) { // 场景2: 匹配到 第X话 中文数字
+					log.Info("第N话,匹配到中文数字")
+					// -- 从“第X话”中提取 数字
+					re := regexp.MustCompile(`(?:第)?(?:\s*)?([一二三四五六七八九十]+)(?:\s*)?(?:话|章|集|回)?`) // 捕获用这个. 要能实现匹配中文数字
+					matches := re.FindStringSubmatch(value)
+					if num, err := strconv.Atoi(chinese2digits.ChineseToDigits(matches[1], false)); err == nil { // matches[0]是匹配内容,如"第1话", matches[1] 是提取的第一个内容，如果有第2个，就matches[2]
+						// 调用三方库，中文数字转成int
+						return -10 + -num
+					}
+				} else if regexp.MustCompile(`^外传.*最\s*终\s*(话|章|集|回)`).MatchString(value) { // 匹配到 外传-最终话
+					return -9999
+				} else {
+					log.Error("这个ChapterName 不知道咋适配, chapterName= ", value)
+				}
+
+				return value // 前面都失败了，应该返回int,只能返回一个string(提取不出来的), 让程序报错
+			} else if regexp.MustCompile(`^第\s*(\d+)\s*(话|章|集|回)`).MatchString(value) { // 场景2: 匹配到 第X话 开头，用这个表达式。 还要能适配第X话中间带空格,如:
 				// } else if regexp.MustCompile(`(?:第)?(\d+)(?:话|章|集|回)?`).MatchString(value) { // 场景2: 匹配到 第X话 字段。这个写法，匹配太广：`(?:第)?(\d+)(?:话|章|集|回)?`)  -》第1季最终话 也能匹配上
-			} else if regexp.MustCompile(`^第(\d+)(话|章|集|回)`).MatchString(value) { // 场景2: 匹配到 第X话 开头，用这个表达式
 				// -- 从“第X话”中提取 数字
-				re := regexp.MustCompile(`(?:第)?(\d+)(?:话|章|集|回)?`) // 捕获用这个
+				re := regexp.MustCompile(`(?:第)?(?:\s*)?(\d+)(?:\s*)?(?:话|章|集|回)?`) // 捕获用这个. 要能实现匹配数字 或者中文 数字 一二三四五这种
 				matches := re.FindStringSubmatch(value)
 				if num, err := strconv.Atoi(matches[1]); err == nil { // matches[0]是匹配内容,如"第1话", matches[1] 是提取的第一个内容，如果有第2个，就matches[2]
 					return num
