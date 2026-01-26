@@ -320,12 +320,20 @@ var ChapterMappingForSpiderKxmanhuaByHTML = map[string]models.ModelHtmlMapping{
 				if num, err := strconv.Atoi(matches[1]); err == nil { // matches[0]是匹配内容,如"第1话", matches[1] 是提取的第一个内容，如果有第2个，就matches[2]
 					return num
 				}
+			} else if regexp.MustCompile(`^第\s*[一二三四五六七八九十]+\s*(话|章|集|回)`).MatchString(value) { // 场景3: 匹配到 第X话 中文数字
+				log.Info("第N话,匹配到中文数字")
+				// -- 从“第X话”中提取 数字
+				re := regexp.MustCompile(`(?:第)?(?:\s*)?([一二三四五六七八九十]+)(?:\s*)?(?:话|章|集|回)?`) // 捕获用这个. 要能实现匹配中文数字
+				matches := re.FindStringSubmatch(value)
+				if num, err := strconv.Atoi(chinese2digits.ChineseToDigits(matches[1], false)); err == nil { // matches[0]是匹配内容,如"第1话", matches[1] 是提取的第一个内容，如果有第2个，就matches[2]
+					// 调用三方库，中文数字转成int
+					return num
+				}
 			} else { // 不知道咋处理
 				log.Error("这个ChapterName 不知道咋适配, chapterName= ", value)
 			}
 
 			// 4. 返回
-			log.Info("------- delete 前面都失败了, 要返回value = ", value)
 			return value // 前面都失败了，应该返回int,只能返回一个string(提取不出来的), 让程序报错
 
 		}},
