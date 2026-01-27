@@ -869,6 +869,9 @@
 # v0.1.5.0 临时10
     总结: 上传kxmanhua 爬取数据库
 
+# v0.1.5.0 临时11
+    总结: V1.5 api 能爬chapter_content 
+
 # v0.1.5.0 
 版本总结: 要一劳永逸，代码不变，改配置就能实现需求
     - 自己写, 根据1.0版本代码，实现配置驱动代码：要一劳永逸，代码不变，改配置就能实现需求
@@ -923,7 +926,6 @@
                      - 爬完并插入dbchapter后，修改book spider_sub_chapter_end_status = 1/2 √
                      - 断点续爬，查看bookId spider_sub_chapter_end_status ，然后删除end状态的
                      - 段转换失败: value = 第125话最终话-与阿姨携手迈向新人生, err = 无法将 string 转换为 int 解决
-
                 - 爬取 外传-第几话，生成的号码不对，应该按第X话，提取+ -10 √
                 - stats表，统计总数逻辑需要改下，应该不包括 前言、后记、试听这些 √ 改了逻辑，验证通过 √
                 - 数据库，omic_spiders的id 和 chapter_spider的parent_id 有时候对不上，原因找到了,修改了 DispatchApi_ManyBookAllChapter_V1_5_V3 方法，验证通过 √
@@ -932,6 +934,10 @@
                 - 外传序号逻辑不对，所有的，后续的关注下 √
 
                 - 类似kxmanhua 那种，要自己加上水印？还是前端代码写的? ----------------------- 
+                明日目标：爬完所有chapterContent,
+                        写一个通用，用自己方法实现的，和用配置实现爬取的方法。并验证
+                        保存已爬取的content数据
+                        找1个没有水印的网站，尝试爬取
                 
             - 爬韩漫 allchapter
         - 考虑 codegeex 性能问题建议的实现

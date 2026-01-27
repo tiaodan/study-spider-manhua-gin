@@ -108,7 +108,7 @@ websites:
           type: "html"
           selectors:
             arr: "还没想好咋写"  # 需要补充
-            item: ".chapter_list a"  # 每个章节选择起。也可这样写: "[class='chapter_list'] a
+            item: ".chapter_list a"  # 每个章节选择起。也可这样写: "[class='chapter_list'] a "
 
         # 步骤3: 提取数据配置
         extract:
@@ -164,7 +164,7 @@ websites:
           type: "html"
           selectors:
             arr: "还没想好咋写"  # 需要补充
-            item: "还没想好咋写"  # 需要补充
+            item: "[class='blog__details__content'] img"  # 需要补充, .blog__details__content img 也可以写 [class='blog__details__content'] img 
 
         # 步骤3: 提取数据配置
         extract:
@@ -199,8 +199,12 @@ websites:
         insert:
           strategy: "upsert"
           # 必须首字母大写形式,对应-> 结构体Key，方便反射。否则填小写，反射不到对象的值
-          unique_keys: ["ChapterId"]
-          update_keys: ["content_url", "content", "spider_end_status", "download_end_status", "updated_at"]
+          unique_keys: ["ParentId", "Num", "SubNum"]
+          update_keys: ["real_sort_num", "name", "url_api_path", "spider_end_status", "download_end_status", "upload_aws_end_status", "upload_baidu_end_status", "updated_at"]
+        update_parent_stats:
+          strategy: "update"
+          unique_keys: ["Id"]
+          update_keys: ["spider_end_status"]
 
   # Toptoon台湾网站配置（JSON方式）
   toptoon-tw:

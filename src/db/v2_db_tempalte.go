@@ -39,10 +39,10 @@ import "gorm.io/gorm"
 type FindOption func(*gorm.DB) *gorm.DB
 
 // 核心通用查询方法
-func DBFindOneV2[T any](opts ...FindOption) (*T, error) {
+func DBFindOneV2[T any](dbConn *gorm.DB, opts ...FindOption) (*T, error) {
 	var result T
 
-	db := DBComic // 假设这是你的全局 db 实例
+	db := dbConn // 假设这是你的全局 db 实例
 
 	// 依次应用所有选项
 	for _, opt := range opts {
@@ -58,10 +58,10 @@ func DBFindOneV2[T any](opts ...FindOption) (*T, error) {
 }
 
 // 统计数量
-func DBCountV2[T any](opts ...FindOption) (int, error) {
+func DBCountV2[T any](dbConn *gorm.DB, opts ...FindOption) (int, error) {
 	var count int64
 
-	db := DBComic // 假设这是你的全局 db 实例
+	db := dbConn // 假设这是你的全局 db 实例
 
 	// 依次应用所有选项
 	for _, opt := range opts {
@@ -74,6 +74,26 @@ func DBCountV2[T any](opts ...FindOption) (int, error) {
 	}
 
 	return int(count), nil
+}
+
+// 通用执行选项 函数
+func applyOptions(dbConn *gorm.DB, opts ...FindOption) *gorm.DB {
+	db := dbConn
+	for _, opt := range opts {
+		db = opt(db)
+	}
+	return db
+}
+
+// 通用 提取某一列 Pluck
+/*
+参数:
+	column string, // 要 pluck 的列名，例如 "id"
+	dest *[]R, // 接收结果的切片指针，例如 *[]int64
+*/
+func DBPluckV2[T any, R any](dbConn *gorm.DB, column string, dest *[]R, opts ...FindOption) error {
+	db := applyOptions(dbConn.Model(new(T)), opts...)
+	return db.Pluck(column, dest).Error
 }
 
 // ------------------ 常用的选项工厂函数 ------------------
