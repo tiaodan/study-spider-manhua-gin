@@ -980,7 +980,7 @@ func GetOneChapterAllContentByCollyMapping[T any](ginContextByte []byte, mapping
 	return chapterContentArr
 }
 
-// 获取 1个章节对象,所有字段，通过colly 爬虫框架 mapping
+// 获取 1个对象,所有字段，通过colly 爬虫框架 mapping
 /*
 参数：
 	1. element 传一个章节obj colly结果,全称: oneChapterCollyResult

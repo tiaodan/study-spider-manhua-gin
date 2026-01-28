@@ -99,7 +99,7 @@ func GetOneTypeAllBookUseCollyByMappingV2[T any](requestBodyData []byte, mapping
 			// 创建对象comic
 			var comicT T
 			comicSpiderStats := models.ComicSpiderStats{} // 子表，统计数据
-			log.Info("-------- delete comicSpiderStats = ", comicSpiderStats)
+			log.Info("delete comicSpiderStats = ", comicSpiderStats)
 
 			// 通过mapping 爬内容
 			rawResult := GetOneObjByCollyMapping(e, mapping)

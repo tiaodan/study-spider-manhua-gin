@@ -54,7 +54,7 @@ type SpiderManyChapterAllContentReqV15V1 struct {
 		Website string `json:"website" binding:"required" ` // 必填。required 同时满足 "非空字符串"
 	} `json:"spiderTag" binding:"required" ` // 必填
 	ChapterIdArr        []int `json:"chapterIdArr" binding:"required,min=1,dive,gt=0" ` // required 必填, min=1 数组长度最小为1, dive 判断每个子元素, gt=0 个元素必须 > 0
-	ChapterEverytimeMax int   `json:"chapterEverytimeMax" binding:"required,min=1" `    // 可选, 数得 >0。解释: chapter每组最大请求个数
+	ChapterEverytimeMax int   `json:"chapterEverytimeMax" binding:"required,min=1" `    // 必填, 数得 >0。解释: chapter每组最大请求个数
 }
 
 // 请求结构体(带验证规则) - 爬manyBookAllChapter V1, 增加字段 spiderTag.websiteId 必填
@@ -64,7 +64,19 @@ type SpiderManyChapterAllContentReqV15V2 struct {
 		Website   string `json:"website" binding:"required" `   // 必填。required 同时满足 "非空字符串"
 	} `json:"spiderTag" binding:"required" ` // 必填
 	ChapterIdArr        []int `json:"chapterIdArr" binding:"required,min=1,dive,gt=0" ` // required 必填, min=1 数组长度最小为1, dive 判断每个子元素, gt=0 个元素必须 > 0
-	ChapterEverytimeMax int   `json:"chapterEverytimeMax" binding:"required,min=1" `    // 可选, 数得 >0。解释: chapter每组最大请求个数
+	ChapterEverytimeMax int   `json:"chapterEverytimeMax" binding:"required,min=1" `    // 必填, 数得 >0。解释: chapter每组最大请求个数
+}
+
+// 请求结构体(带验证规则) - 爬manyBookAllChapter V3, 可以2种方式传数组：1. 传一个随机数组 2 传开始、结束号码，用这个的时候，ChapterIdArr 传空数组就行
+type SpiderManyChapterAllContentReqV15V3 struct {
+	SpiderTag struct {
+		WebsiteId int    `json:"websiteId" binding:"required" ` // 必填。required 同时满足 "非空字符串"
+		Website   string `json:"website" binding:"required" `   // 必填。required 同时满足 "非空字符串"
+	} `json:"spiderTag" binding:"required" ` // 必填
+	ChapterIdArr        []int `json:"chapterIdArr" binding:"required,min=0,dive,gt=0" ` // required 必填, V3 min=0 数组长度最小为0, dive 判断每个子元素, gt=0 个元素必须 > 0。与V2区别：V2是数组长度最小1
+	ChapterEverytimeMax int   `json:"chapterEverytimeMax" binding:"required,min=1" `    // 必填, 数得 >0。解释: chapter每组最大请求个数
+	ChapterIdStart      *int  `json:"chapterIdStart" binding:"omitempty,gt=0" `         // 可选, 大于0。解释: chapterId开始号码
+	ChapterIdEnd        *int  `json:"chapterIdEnd" binding:"omitempty,gt=0" `           // 可选, 大于0。解释: chapterId结束号码
 }
 
 // ------------------------------------------- 各种处理API 方法 -------------------------------------------
@@ -121,7 +133,7 @@ func DispatchApi_SpiderOneTypeAllBookArr_V1_5_V2(c *gin.Context) {
 	spiderUrlArr := make([]string, totalPages)
 	for i := range spiderUrlArr {
 		spiderUrlArr[i] = fmt.Sprintf(spiderUrl, startPageNum+int64(i)) // 如："https://kxmanhua.com/manga/library?type=2&complete=1&page=%d&orderby=1"
-		log.Info("----- delete spiderUrl = ", spiderUrlArr[i])
+		log.Info("delete spiderUrl = ", spiderUrlArr[i])
 	}
 
 	// -- 根据网站字段，使用不同的爬虫 ModelMapping映射表
@@ -528,7 +540,7 @@ func DispatchApi_SpiderOneTypeAllBookArr_V1_5_V1(c *gin.Context) {
 	for i := range spiderUrlArr {
 		// spiderUrlArr[i] = fmt.Sprintf(spiderUrl, i+1) // 原来写法：如："https://kxmanhua.com/manga/library?type=2&complete=1&page=%d&orderby=1"
 		spiderUrlArr[i] = fmt.Sprintf(spiderUrl, startPageNum+i) // 如："https://kxmanhua.com/manga/library?type=2&complete=1&page=%d&orderby=1"
-		log.Info("----- delete spiderUrl = ", spiderUrlArr[i])
+		log.Info("delete spiderUrl = ", spiderUrlArr[i])
 	}
 
 	// -- 根据该字段，使用不同的爬虫 ModelMapping映射表
@@ -538,7 +550,7 @@ func DispatchApi_SpiderOneTypeAllBookArr_V1_5_V1(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "func=爬oneTypeAllBookArr V1.5, 配置文件里没有找到网站 kxmanhua 的配置"}) // 返回错误
 		return
 	}
-	log.Debug("------- webCfg = ", webCfg)
+	log.Debug("webCfg = ", webCfg)
 
 	// 获取 one_type_all_book 阶段配置
 	stageCfg := webCfg.Stages["one_type_all_book"]
@@ -704,7 +716,7 @@ func DispatchApi_OneBookAllChapter_V1_5_V2(c *gin.Context) {
 		c.JSON(500, gin.H{"error": "爬取1本书所有章节 失败, bookId为0, 不执行后续步骤"}) // 返回错误
 		return
 	}
-	log.Info("------ bookId = ", bookId)
+	log.Info("bookId = ", bookId)
 
 	// -- 根据网站字段，使用不同的爬虫 ModelMapping映射表
 	webCfg := config.CfgSpiderYaml.Websites[website]
@@ -712,7 +724,7 @@ func DispatchApi_OneBookAllChapter_V1_5_V2(c *gin.Context) {
 		c.JSON(400, gin.H{"error": fmt.Sprintf("func=爬oneTypeAllBookArr V1.5, 配置文件里没有找到网站 %s 的配置", website)}) // 返回错误
 		return
 	}
-	log.Debug("------- webCfg = ", webCfg)
+	log.Debug("webCfg = ", webCfg)
 
 	// 获取 one_book_all_chapter 阶段配置
 	stageCfg := webCfg.Stages["one_book_all_chapter"]
@@ -786,9 +798,9 @@ func DispatchApi_OneBookAllChapter_V1_5_V2(c *gin.Context) {
 	okTotal = totalChapterDbRealUpsert
 
 	// -- 更新 comic_spider_stats
-	log.Info("------ update comicSpiderStats = ", comicSpiderStats)
-	log.Info("------ update comicSpiderStats.ComicId = ", comicSpiderStats.ComicId)
-	log.Info("------ update comicSpiderStats.LatestChapterId = ", *comicSpiderStats.LatestChapterId)
+	log.Info("update comicSpiderStats = ", comicSpiderStats)
+	log.Info("update comicSpiderStats.ComicId = ", comicSpiderStats.ComicId)
+	log.Info("update comicSpiderStats.LatestChapterId = ", *comicSpiderStats.LatestChapterId)
 	err = db.DBUpdate(db.DBComic, &comicSpiderStats, stageCfg.UpdateParentStats.UniqueKeys, stageCfg.UpdateParentStats.UpdateKeys)
 	if err != nil {
 		log.Error("func= DispatchApi_OneBookAllChapterByHtml, 更新comic_spider_stats失败, err: ", err)
@@ -1112,7 +1124,7 @@ func DispatchApi_ManyChapterAllContent_V1_5_V1(c *gin.Context) {
 	funcName := "爬ManyChapterAllContent V1"
 
 	// 1. 获取传参。实现方式: c.ShouldBindJSON(请求结构体)实现
-	var req SpiderManyChapterAllContentReqV15V2
+	var req SpiderManyChapterAllContentReqV15V3 // 可以传 start end 表示数组
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(400, gin.H{"error": fmt.Sprintf("func=%v 失败, 获取前端传参失败: %v", funcName, err)})
 		return
@@ -1123,6 +1135,23 @@ func DispatchApi_ManyChapterAllContent_V1_5_V1(c *gin.Context) {
 	ChapterEverytimeMax := req.ChapterEverytimeMax
 
 	// 2. 校验传参。用validator，上面shouldBIndJson已经包含 validator验证了
+	// 如果 chapterIdArr 传空数组，就使用 start end 章节号码，代替chapterIdArr --
+	if len(chapterIdArr) == 0 {
+		if req.ChapterIdStart == nil || req.ChapterIdEnd == nil {
+			log.Errorf("func=%v 前端传参错误: chapterIdArr 传空数组，请传 start end 章节号码", funcName)
+			c.JSON(400, gin.H{"error": fmt.Sprintf("func=%v 前端传参错误: chapterIdArr 传空数组，请传 start end 章节号码", funcName)})
+			return
+		} else if *req.ChapterIdStart > *req.ChapterIdEnd {
+			log.Errorf("func=%v 前端传参错误: start章节号码 应小于 end章节号码", funcName)
+			c.JSON(400, gin.H{"error": fmt.Sprintf("func=%v 前端传参错误: start章节号码 应小于 end章节号码", funcName)})
+			return
+		} else { // 应使用 start end 章节号码，代替chapterIdArr
+			chapterIdArr = util.GenArr(*req.ChapterIdStart, *req.ChapterIdEnd, 1)
+			log.Info("使用start、end生成 chapterId数组 = ", chapterIdArr)
+		}
+
+	}
+
 	// 3. 前端传参, 数据清洗
 	// 4. 业务逻辑 需要的数据校验 +清洗
 
@@ -1144,12 +1173,12 @@ func DispatchApi_ManyChapterAllContent_V1_5_V1(c *gin.Context) {
 
 		// 如果查询数据库空的，跳过
 		if len(spilitChapterIdArrNeedCrawl) == 0 {
-			log.Warnf("func=%v, 第%v个数组, 不需要爬, 已经是爬取过的, arr= %v", funcName, i, spilitChapterIdArr)
+			log.Warnf("func=%v, 第%v个数组, 不需要爬, 原因: 已经是爬取过的/无此id, arr= %v", funcName, i, spilitChapterIdArr)
 			continue
 		}
 
 		// 步骤5.3.2 爬取并插入db --
-		log.Infof("func=%v, 要爬的chapterIdArr = %v, 过滤需要爬的chapterIdArr = %v", funcName, chapterIdArr, spilitChapterIdArrNeedCrawl)
+		log.Debugf("func=%v, 要爬的chapterIdArr = %v, 过滤需要爬的chapterIdArr = %v", funcName, chapterIdArr, spilitChapterIdArrNeedCrawl)
 		okTotalOneArr, err := SpiderManyChapterAllContent2DB(websiteId, websiteName, spilitChapterIdArrNeedCrawl) // 成功条数
 		if err != nil {
 			log.Errorf("func=%v, 第%v个数组, 爬取失败, reason: %v, 可能原因:1 爬取url不对 2 目标网站挂了 3 爬取逻辑错了,没爬到", funcName, i, err)

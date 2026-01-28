@@ -81,13 +81,13 @@ func GetOneBookAllChapterByCollyMappingV1_5[T any](mapping map[string]models.Mod
 		}
 
 		// 1. 获取能获取到的
-		log.Debug("-------------- 匹配 .chapter_list a = ", e.Text)
+		log.Debug("匹配 .chapter_list a = ", e.Text)
 		// -- 创建对象comic
 		var chapterT T
 
 		// -- 通过mapping 爬内容
 		result := GetOneObjByCollyMapping(e, mapping)
-		log.Info("------------ 通过mapping规则,爬取结果 result = ", result)
+		log.Info("通过mapping规则,爬取结果 result = ", result)
 		if result != nil {
 			// 通过 model字段 spider，把爬出来的 map[string]any，转成 model对象
 			MapByTag(result, &chapterT)
@@ -251,9 +251,9 @@ func SpiderOneBookAllChapter_UpsertPart(websiteName string, bookId int, chapterA
 	comicSpiderStats.TotalChapter = totalChapterDbRealUpsert // 总章节数，从数据库查的
 
 	// -- 更新 comic_spider_stats
-	log.Info("------ update comicSpiderStats = ", comicSpiderStats)
-	log.Info("------ update comicSpiderStats.ComicId = ", comicSpiderStats.ComicId)
-	log.Info("------ update comicSpiderStats.LatestChapterId = ", *comicSpiderStats.LatestChapterId)
+	log.Info("update comicSpiderStats = ", comicSpiderStats)
+	log.Info("update comicSpiderStats.ComicId = ", comicSpiderStats.ComicId)
+	log.Info("update comicSpiderStats.LatestChapterId = ", *comicSpiderStats.LatestChapterId)
 	err = db.DBUpdate(db.DBComic, &comicSpiderStats, stageCfg.UpdateParentStats.UniqueKeys, stageCfg.UpdateParentStats.UpdateKeys)
 	if err != nil {
 		log.Error("func= DispatchApi_OneBookAllChapterByHtml, 更新comic_spider_stats失败, err: ", err)
@@ -369,13 +369,13 @@ func GetManyBookAllChapterByCollyMappingV1_5[T any](mapping map[string]models.Mo
 		}
 
 		// 1. 获取能获取到的
-		log.Debug("-------------- 匹配 .chapter_list a = ", e.Text)
+		log.Debug("匹配 .chapter_list a = ", e.Text)
 		// -- 创建对象comic
 		var chapterT T
 
 		// -- 通过mapping 爬内容
 		result := GetOneObjByCollyMapping(e, mapping)
-		log.Infof("------------ bookIdArr=%v,当前爬取url=%v 通过mapping规则,爬取结果 result = %v", bookIdArr, currentUrl, result)
+		log.Infof(" bookIdArr=%v,当前爬取url=%v 通过mapping规则,爬取结果 result = %v", bookIdArr, currentUrl, result)
 		if result != nil {
 			// 通过 model字段 spider，把爬出来的 map[string]any，转成 model对象
 			MapByTag(result, &chapterT)
@@ -571,9 +571,9 @@ func SpiderManyBookAllChapter_UpsertPart(websiteName string, manyBookChapterArrM
 		okTotal += totalChapterDbRealUpsert
 
 		// -- 更新 comic_spider_stats
-		log.Info("------ update comicSpiderStats = ", comicSpiderStats)
-		log.Info("------ update comicSpiderStats.ComicId = ", comicSpiderStats.ComicId)
-		log.Info("------ update comicSpiderStats.LatestChapterId = ", *comicSpiderStats.LatestChapterId)
+		log.Info("update comicSpiderStats = ", comicSpiderStats)
+		log.Info("update comicSpiderStats.ComicId = ", comicSpiderStats.ComicId)
+		log.Info("update comicSpiderStats.LatestChapterId = ", *comicSpiderStats.LatestChapterId)
 		err = db.DBUpdate(db.DBComic, &comicSpiderStats, stageCfg.UpdateParentStats.UniqueKeys, stageCfg.UpdateParentStats.UpdateKeys)
 		if err != nil {
 			log.Error("func= DispatchApi_OneBookAllChapterByHtml, 更新comic_spider_stats失败, err: ", err)
@@ -819,20 +819,36 @@ func GetManyChapterAllContentByCollyMappingV1_5_V1[T any](mapping map[string]mod
 		// 0. 处理异常内容
 
 		// 1. 获取能获取到的
-		log.Debug("-------------- 匹配 oneChapterStr = ", e.Text)
+		log.Debug("匹配 oneChapterStr = ", e.Text)
 		// -- 创建对象comic
-		var chapterT T
+		var chapterContentT T
 
 		// -- 通过mapping 爬内容
 		result := GetOneObjByCollyMapping(e, mapping)
-		log.Infof("------------ chapterIdArr=%v,当前爬取url=%v 通过mapping规则,爬取结果 result = %v", chapterIdArr, currentUrl, result)
+		log.Infof(" chapterIdArr=%v,当前爬取url=%v 通过mapping规则,爬取结果 result = %v", chapterIdArr, currentUrl, result)
 		if result != nil {
 			// 通过 model字段 spider，把爬出来的 map[string]any，转成 model对象
-			MapByTag(result, &chapterT)
-			log.Debugf("映射后的 chapter 对象, 还未清洗: %+v", chapterT)
+			MapByTag(result, &chapterContentT)
+			log.Debugf("映射后的 chapter 对象, 还未清洗: %+v", chapterContentT)
 		}
+
+		// 数据清洗/校验，如果url 是空的，不处理 --
+		// 方式1：用类型断言
+		// 数据清洗/校验，如果urlApiPath 是空的，不处理
+		/*
+			if chapterContent, ok := any(chapterContentT).(models.ChapterContentSpider); ok {
+				if chapterContent.UrlApiPath == "" {
+					log.Warnf("当前爬取url=%v 的 urlApiPath 为空，跳过该记录", currentUrl)
+					return
+				}
+			}*/
+		// 方式2：直接从 result map 中判断
+		if urlApiPath, ok := result["urlApiPath"].(string); ok && urlApiPath == "" {
+			return
+		}
+
 		// 2. 放到 oneChapterContentArr 里
-		oneChapterContentArr = append(oneChapterContentArr, any(chapterT).(T))
+		oneChapterContentArr = append(oneChapterContentArr, any(chapterContentT).(T))
 	})
 
 	// 错误回调
@@ -930,7 +946,7 @@ manyBookChapterArrMap []
 func SpiderManyChapterAllContent_UpsertPart(websiteName string, manyChapterContentArrMap map[int][]models.ChapterContentSpider) (int, error) {
 	// 初始化
 	okTotal := 0 // 插入成功总数
-	funcName := "SpiderManyBookAllChapter_UpsertPart"
+	funcName := "SpiderManyChapterAllContent_UpsertPart"
 
 	// 异常处理
 	if len(manyChapterContentArrMap) == 0 {

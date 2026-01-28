@@ -102,3 +102,16 @@ func SplitIntArr(arr []int, splitArrMax int) [][]int {
 
 	return result
 }
+
+// 按顺序生成数组，根据start end step。范围：[start, end] 包含end
+func GenArr(start, end, step int) []int {
+	if step == 0 {
+		return []int{}
+	}
+
+	var result []int
+	for i := start; i <= end; i += step {
+		result = append(result, i)
+	}
+	return result
+}
