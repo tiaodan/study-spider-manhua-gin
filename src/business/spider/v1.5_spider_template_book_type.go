@@ -24,6 +24,7 @@ import (
 	"study-spider-manhua-gin/src/models"
 	"study-spider-manhua-gin/src/util"
 	"study-spider-manhua-gin/src/util/langutil"
+	"sync"
 	"time"
 
 	"github.com/gocolly/colly/v2"
@@ -489,7 +490,6 @@ func SpiderManyBookAllChapter_UpsertPart(websiteName string, manyBookChapterArrM
 	}
 
 	for bookId, oneBookChapterArr := range manyBookChapterArrMap {
-		// log.Warnf("delete index=%v len=%v------------ oneBookChapterArr=%v, ", index, len(oneBookChapterArr), oneBookChapterArr)
 		// 步骤4: 数据清洗/ 未爬到的字段赋值
 		// -- 赋值上下文参数 + 数据清洗。（赋值上下文参数：是吧方法传参，给对象赋值。数据清洗：设置-爬取字段，或者默认数据）
 		for i := range oneBookChapterArr {
@@ -712,14 +712,18 @@ func SpiderManyChapterAllContent2DB(websiteId int, websiteName string, chapterId
 
 	// 5.1. 爬取 chapter
 	// -- 请求html页面
-	manyChapterContentArrMap, err := GetManyChapterAllContentByCollyMappingV1_5_V1[models.ChapterContentSpider](mapping.(map[string]models.ModelHtmlMapping), websiteId, websiteName, chapterIdArr)
+	// manyChapterContentArrMap, err := GetManyChapterAllContentByCollyMappingV1_5_V1[models.ChapterContentSpider](mapping.(map[string]models.ModelHtmlMapping), websiteId, websiteName, chapterIdArr)
+	manyChapterContentArrMap, err := GetManyChapterAllContentByCollyMappingV1_5_V2_Async[models.ChapterContentSpider](mapping.(map[string]models.ModelHtmlMapping), websiteId, websiteName, chapterIdArr)
 	chapterNamePreviewCount = 0 // ！！！！重要,必有，重置计数器。chapter中 name包含"Preview"次数
 	// -- 插入前数据校验
-	if manyChapterContentArrMap == nil || err != nil {
+	if err != nil {
 		log.Error("爬取 OneBookAllChapterByHtml失败, chapterArr 为空, 拒绝进入下一步: 插入db。可能原因:1 爬取url不对 2 目标网站挂了 3 爬取逻辑错了,没爬到")
 		return 0, err // 直接结束
 	}
-
+	if len(manyChapterContentArrMap) == 0 {
+		log.Error("爬取 OneBookAllChapterByHtml失败, chapterArr 为空,没爬到, 拒绝进入下一步: 插入db。可能原因:1 爬取url不对 2 目标网站挂了 3 爬取逻辑错了,没爬到")
+		return 0, errors.New("manyChapterContentArrMap 为空, 没爬到, 拒绝进入下一步") // 直接结束
+	}
 	// 5.1.1 插入前必要数据清洗，比如parentId num subNUm要加上
 	for chapterId, oneChapterContentArr := range manyChapterContentArrMap {
 		for i := range oneChapterContentArr {
@@ -763,7 +767,7 @@ func SpiderManyChapterAllContent2DB(websiteId int, websiteName string, chapterId
 	return okTotal, nil
 }
 
-// 获取多个chapter所有content, 用colly, 通过mapping
+// 获取多个chapter所有content, 用colly, 通过mapping。串行方式，实现
 /*
 
 5. 执行核心逻辑 (6步走) : 爬取 | 插入 可以分成2个方法
@@ -795,7 +799,9 @@ func GetManyChapterAllContentByCollyMappingV1_5_V1[T any](mapping map[string]mod
 
 	// 2. 爬虫相关
 	// -- 建一个爬虫对象
-	c := colly.NewCollector()
+	c := colly.NewCollector(
+	// colly.Async(true), // ← 这一行没加就一直是串行的
+	)
 
 	// -- 设置并发数，和爬取限制
 	// 设置请求限制（每秒最多3个请求, 5秒后发）
@@ -825,7 +831,8 @@ func GetManyChapterAllContentByCollyMappingV1_5_V1[T any](mapping map[string]mod
 
 		// -- 通过mapping 爬内容
 		result := GetOneObjByCollyMapping(e, mapping)
-		log.Infof(" chapterIdArr=%v,当前爬取url=%v 通过mapping规则,爬取结果 result = %v", chapterIdArr, currentUrl, result)
+		// log.Infof(" chapterId=%v,当前爬取url=%v 通过mapping规则,爬取结果 result = %v", chapterIdArr, currentUrl, result)
+		log.Infof("当前爬取url=%v 通过mapping规则,爬取结果 result = %v", currentUrl, result)
 		if result != nil {
 			// 通过 model字段 spider，把爬出来的 map[string]any，转成 model对象
 			MapByTag(result, &chapterContentT)
@@ -925,6 +932,251 @@ func GetManyChapterAllContentByCollyMappingV1_5_V1[T any](mapping map[string]mod
 	return manyChapterContenArrMap, nil
 }
 
+// 获取多个chapter所有content, 用colly, 通过mapping。并行方式，实现
+/*
+
+5. 执行核心逻辑 (6步走) : 爬取 | 插入 可以分成2个方法
+	步骤1: 找到目标网站
+	步骤2: 爬取
+	步骤3: 提取数据 <- 往上是本方法
+	步骤4: 数据清洗/ 未爬到的字段赋值
+	步骤5: 验证爬取数据 准确性
+	步骤6: 数据库插入
+
+参数:
+	2. mapping map[string]models.ModelMapping 爬取映射关系
+	2. websiteName string 网站名称
+	3. bookIdArr
+
+返回:
+map id -> 数组
+
+主表数组
+作用简单说：
+*/
+func GetManyChapterAllContentByCollyMappingV1_5_V2_Async[T any](mapping map[string]models.ModelHtmlMapping, websiteId int, websiteName string, chapterIdArr []int) (map[int][]T, error) {
+	// 初始化
+	funcName := "GetManyChapterAllContentByCollyMappingV1_5_V2_Async"
+
+	// 步骤2: 爬取
+
+	// 2. 爬虫相关
+	// -- 建一个爬虫对象
+	c := colly.NewCollector(
+		colly.Async(true), // ← 这一行没加就一直是串行的
+	)
+
+	// -- 设置并发数，和爬取限制
+	// 设置请求限制（每秒最多3个请求, 5秒后发）
+	c.Limit(&colly.LimitRule{
+		DomainGlob: "*",
+		// Parallelism: 3, // 和queue队列同时存在时，用queue控制并发就行。加这个有用，但没必要。默认是0，表示没限制
+		RandomDelay: time.Duration(config.Cfg.Spider.Public.SpiderType.RandomDelayTime) * time.Second, // 请求发送前触发。模仿人类，随机等待几秒，再请求。如果queue同时给了3条URL，那每条url触发请求前，都要随机延迟下
+	})
+
+	// ↓↓↓ 新增：保护最终结果 map 的并发安全
+	var mu sync.Mutex
+
+	// 步骤3: 提取数据
+	// 获取html内容,每成功匹配一次, 就执行一次逻辑。这个标签选只匹配一次的 --
+	// var oneChapterContentArr []T                    // 存放爬好的 obj，因为要返回泛型，所以用T ,以前写法：comicArr := []models.ComicSpider...
+	// ↓↓↓ 注释掉全局 oneChapterContentArr，因为并发时会串数据
+	// var oneChapterContentArr []T
+	var manyChapterContenArrMap = make(map[int][]T) //所有 chapter 的 content 数组 map 。key=chapterId value=arr
+
+	// ↓↓↓ 新增：在 OnRequest 阶段为每个请求绑定 chapterId 和 独立的 items slice 指针
+	c.OnRequest(func(r *colly.Request) {
+		chapterIdStr := r.Ctx.Get("chapter_id")
+		if chapterIdStr == "" {
+			return
+		}
+
+		// 不要 new 一个全新的 context
+		// 直接在现有的 r.Ctx 上放
+		items := &[]T{}
+		r.Ctx.Put("items", items)
+
+		/* 错误写法
+		chapterIdStr := r.Ctx.Get("chapter_id")
+		if chapterIdStr == "" {
+			return
+		}
+
+		// 为这个请求创建独立的上下文和 slice
+		newCtx := colly.NewContext()
+		newCtx.Put("chapter_id", chapterIdStr)
+		newCtx.Put("items", &[]T{}) // 每个请求有自己独立的 slice
+		r.Ctx = newCtx              // 覆盖为新的 context
+		*/
+	})
+
+	// 遍历一个book, 每个chapter
+	StagesCfg := config.CfgSpiderYaml.Websites[websiteName].Stages["one_chapter_all_content"]
+	everyChapterSelectStr := StagesCfg.Crawl.Selectors["item"].(string) // 每个chapter 选择器
+	c.OnHTML(everyChapterSelectStr, func(e *colly.HTMLElement) {
+		// 0 初始化
+		// ↓↓↓ 新增：从上下文取 chapterId 和 items slice
+		ctx := e.Request.Ctx
+		chapterIdStr := ctx.Get("chapter_id")
+		if chapterIdStr == "" {
+			return
+		}
+
+		chapterId, err := strconv.Atoi(chapterIdStr)
+		if err != nil {
+			return
+		}
+
+		itemsPtrAny := ctx.GetAny("items")
+		if itemsPtrAny == nil {
+			return
+		}
+		itemsPtr, ok := itemsPtrAny.(*[]T)
+		if !ok || itemsPtr == nil {
+			return
+		}
+
+		// 1. 获取能获取到的
+		log.Debug("匹配 oneChapterStr = ", e.Text)
+		// -- 创建对象comic
+		var chapterContentT T
+
+		// -- 通过mapping 爬内容
+		result := GetOneObjByCollyMapping(e, mapping)
+		log.Infof("当前爬取 chapterId = %v url=%v 通过mapping规则,爬取结果 result = %v", chapterId, e.Request.URL.String(), result)
+		if result != nil {
+			// 通过 model字段 spider，把爬出来的 map[string]any，转成 model对象
+			MapByTag(result, &chapterContentT)
+			log.Debugf("映射后的 chapter 对象, 还未清洗: %+v", chapterContentT)
+		}
+
+		// 数据清洗/校验，如果url 是空的，不处理 --
+		// 方式1：用类型断言
+		// 数据清洗/校验，如果urlApiPath 是空的，不处理
+		/*
+			if chapterContent, ok := any(chapterContentT).(models.ChapterContentSpider); ok {
+				if chapterContent.UrlApiPath == "" {
+					log.Warnf("当前爬取url=%v 的 urlApiPath 为空，跳过该记录", currentUrl)
+					return
+				}
+			}*/
+		// 方式2：直接从 result map 中判断
+		if urlApiPath, ok := result["urlApiPath"].(string); ok && urlApiPath == "" {
+			return
+		}
+
+		// 2. 放到 oneChapterContentArr 里
+		// oneChapterContentArr = append(oneChapterContentArr, any(chapterContentT).(T))
+		// ↓↓↓ 修改为：追加到当前请求专属的 slice
+		*itemsPtr = append(*itemsPtr, chapterContentT)
+	})
+
+	// 错误回调
+	c.OnError(func(r *colly.Response, err error) {
+		if r == nil {
+			// 网络层错误（DNS / timeout / TLS）
+			log.Error("func= GetOneBookAllChapterByCollyMappingV1_5, 网络层错误（DNS / timeout / TLS）, err: ", err)
+			return
+		}
+		// 下面好像触发不到！！！
+		switch {
+		case r.StatusCode >= 400 && r.StatusCode < 500:
+			// 4xx：客户端错误（参数错误、被封、资源不存在）
+			log.Error("func= GetOneBookAllChapterByCollyMappingV1_5, 客户端错误（参数错误、被封、资源不存在）, err: ", err)
+
+		case r.StatusCode >= 500 && r.StatusCode < 600:
+			// 5xx：服务端错误（可重试）
+			log.Error("func= GetOneBookAllChapterByCollyMappingV1_5, 服务端错误（可重试）, err: ", err)
+
+		default:
+			// 其他非常规状态码
+			// 可选重试
+		}
+	})
+
+	c.OnScraped(func(r *colly.Response) {
+		// ↓↓↓ 修改为：从上下文取 chapterId
+		ctx := r.Ctx
+		chapterIdStr := ctx.Get("chapter_id")
+		if chapterIdStr == "" {
+			return
+		}
+
+		chapterId, err := strconv.Atoi(chapterIdStr)
+		if err != nil {
+			return
+		}
+
+		// ↓↓↓ 新增：从上下文取 items 并存入最终 map
+		itemsPtrAny := ctx.GetAny("items")
+		if itemsPtrAny == nil {
+			return
+		}
+		itemsPtr, ok := itemsPtrAny.(*[]T)
+		if !ok || itemsPtr == nil {
+			return
+		}
+
+		mu.Lock()
+		// manyChapterContenArrMap[chapterId] = oneChapterContentArr  // 原来写法
+		// oneChapterContentArr = nil // 或者 oneChapterContentArr = []T{} 重置切片  // 原来写法
+		manyChapterContenArrMap[chapterId] = *itemsPtr // 复制内容
+		mu.Unlock()
+
+	})
+	// -- 添加多个页面到队列中
+	// 使用队列控制任务调度（最多并发3个Url）
+	q, err := queue.New(config.Cfg.Spider.Public.SpiderType.QueueLimitConcMaxnum,
+		&queue.InMemoryQueueStorage{MaxSize: config.Cfg.Spider.Public.SpiderType.QueuePoolMaxnum})
+	if err != nil {
+		return nil, err
+	}
+
+	// -- 添加任务到队列
+	for _, chapterId := range chapterIdArr {
+		// 通过websiteId 查询，并拼接出 book的 url --
+		// 步骤1: 找到目标网站
+		website, err := db.DBFindOneByFieldV1_5[models.Website](db.DBComic, "id", websiteId)
+		if err != nil || website == nil {
+			log.Errorf("func= %v, 通过websiteId查询website信息失败,因为通过websiteId获取website对象失败, err: %v", funcName, err)
+			return nil, errors.New("通过websiteId查询website信息失败")
+		}
+
+		chapter, err := db.DBFindOneByFieldV1_5[models.ChapterSpider](db.DBComic, "id", chapterId) // 通过 chapterId 获取 chapter信息
+		if err != nil {
+			log.Errorf("func= %v, 通过chapterId查询chapter信息失败,因为通过chapterId获取chapter对象失败, err: %v", funcName, err)
+			return nil, err
+		}
+		fullUrl := GetSpiderFullUrl(website.IsHttps, website.Domain, chapter.UrlApiPath, nil) // 完整爬取 url
+		// apiUrlPath := fmt.Sprintf("/test/kxmanhua/spiderChapterContent/%d.html", chapterId)
+		// fullUrl := GetSpiderFullUrl(false, "localhost:8080", apiUrlPath, nil) // 完整爬取 url，本地测试
+		log.Info("生成的 chapter 爬取 fullURl = ", fullUrl)
+
+		// 打算使用 GET 请求校验 URL 可达性，通过后才加入抓取队列。爬取的一般都是get请求， 就用get请求下。但实际不用 用c.OnError() 就能有类似效果
+		ctx := colly.NewContext()
+		ctx.Put("chapter_id", strconv.Itoa(chapterId))
+
+		// 关键：使用 c.Request() 创建 request（自动处理 URL 解析）
+		// 正确调用 c.Request()，它只返回 *colly.Request 和 error
+		err = c.Request("GET", fullUrl, nil, ctx, nil) // 用c.Request 就不用写q.AddRequest(req) 这种了？自动就进去queue了
+		if err != nil {
+			log.Warnf("创建 request 失败 %s: %v", fullUrl, err)
+			continue
+		}
+
+		// q.AddRequest(req)  // 用不到.Request 就表示 自动就 入队列了
+	}
+
+	// 在 q.Run(c) 前加
+	// 启动队列并等待完成
+	q.Run(c)
+
+	// ↓↓↓ 新增：等待所有异步请求完成（虽然 q.Run 通常会阻塞，但加 c.Wait() 更保险）
+	c.Wait()
+
+	return manyChapterContenArrMap, nil
+}
+
 // 把爬取 manyChapterAllCcontent 分成2部分。爬取部分 + 插入部分
 // 插入部分 - 插入多个章节的 内容
 /*
@@ -954,7 +1206,10 @@ func SpiderManyChapterAllContent_UpsertPart(websiteName string, manyChapterConte
 	}
 
 	for chapterId, oneChapterContentArr := range manyChapterContentArrMap {
-		// log.Warnf("delete index=%v len=%v------------ oneBookChapterArr=%v, ", index, len(oneBookChapterArr), oneBookChapterArr)
+		if len(oneChapterContentArr) == 0 { // 如果是空数组，跳过，防止后面返回错误err
+			log.Warn("chapterId = ", chapterId, " 爬取结果为0，跳过该记录")
+			continue
+		}
 		// 步骤4: 数据清洗/ 未爬到的字段赋值
 		// -- 赋值上下文参数 + 数据清洗。（赋值上下文参数：是吧方法传参，给对象赋值。数据清洗：设置-爬取字段，或者默认数据）
 		for i := range oneChapterContentArr {
@@ -971,7 +1226,6 @@ func SpiderManyChapterAllContent_UpsertPart(websiteName string, manyChapterConte
 		for _, chapter := range oneChapterContentArr {
 			spiderChapterNumArr = append(spiderChapterNumArr, chapter.Num)
 		}
-		// log.Warn("---------- delete 判断去重数组 spiderChapterNumArr= ", spiderChapterNumArr)
 		if util.HasDuplicate(spiderChapterNumArr) { // 判断有重复
 			log.Warn("爬取1本书 AllChapter, 爬到的章节号码 有重复, 要注意下, chapterId = ", chapterId)
 		}

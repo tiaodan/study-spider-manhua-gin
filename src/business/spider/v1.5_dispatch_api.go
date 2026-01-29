@@ -1181,7 +1181,7 @@ func DispatchApi_ManyChapterAllContent_V1_5_V1(c *gin.Context) {
 		log.Debugf("func=%v, 要爬的chapterIdArr = %v, 过滤需要爬的chapterIdArr = %v", funcName, chapterIdArr, spilitChapterIdArrNeedCrawl)
 		okTotalOneArr, err := SpiderManyChapterAllContent2DB(websiteId, websiteName, spilitChapterIdArrNeedCrawl) // 成功条数
 		if err != nil {
-			log.Errorf("func=%v, 第%v个数组, 爬取失败, reason: %v, 可能原因:1 爬取url不对 2 目标网站挂了 3 爬取逻辑错了,没爬到", funcName, i, err)
+			log.Errorf("func=%v, 第%v个数组, 爬取失败, 可能原因:1 爬取url不对 2 目标网站挂了 3 爬取逻辑错了,没爬到. err = %v", funcName, i, err)
 			c.JSON(500, fmt.Sprint("爬取失败, 出错数组=", spilitChapterIdArr))
 			return
 		}

@@ -881,6 +881,12 @@
     2. 为什么插入报错的，还是改了父类状态 找到了 SpiderManyChapterAllContent2DB -》 判断 needUpdateChapterIdArr那里，即便oneArr里有几个空字符串的，但整理len >0  √
     3. 爬出来的空的数据，应该在哪个步骤剔除？？？ mapping爬取 ， getOneObjBymapping mappingbytag? 插入前数据清洗？ 插入？ -》 应该越早越好，在爬取 c.OnHtml那里处理 √
 
+# v0.1.5.0 临时13
+    总结: 写了异步爬取方法，但还是串行的
+    - 爬到全是空的，为啥报异常，就不往下走了 -> SpiderManyChapterAllContent_UpsertPart 函数，加了判断数组空就跳过逻辑  √
+    - 写了异步方法 GetManyChapterAllContentByCollyMappingV1_5_V2_Async，但是测试时间，还是串行的
+    - 删除大文件
+
 # v0.1.5.0 
 版本总结: 要一劳永逸，代码不变，改配置就能实现需求
     - 自己写, 根据1.0版本代码，实现配置驱动代码：要一劳永逸，代码不变，改配置就能实现需求
@@ -947,8 +953,13 @@
                         写一个通用，用自己方法实现的，和用配置实现爬取的方法。并验证
                         保存已爬取的content数据
                         找1个没有水印的网站，尝试爬取
+
+                        - 爬到全是空的，为啥报异常，就不往下走了 -> SpiderManyChapterAllContent_UpsertPart 函数，加了判断数组空就跳过逻辑  √
+                        - 组内并发，应该2秒处理完，为啥还是10秒呢？感觉还是串行呢？
                 
             - 爬韩漫 allchapter
+                有问题的chapter: 爬不到内容：
+                [ 4064  5706 ]
         - 考虑 codegeex 性能问题建议的实现
             - 以后都不要改我代码，等我说 “同步到我的代码” 的时候，才可以改。疑问1：代码里能打印出，colly爬某个请求，用了多少时间随机延迟吗 2 一般大厂程序，随机延迟设置几秒？ 3 你说的几个性能瓶颈：批量插入后立即查询，如何实现在批量插入/update时直接返回ID
         - website 如果需要翻墙软件的话，要提前请求下google的icon，如果能请求到，说明可以继续其它 ！！！！
