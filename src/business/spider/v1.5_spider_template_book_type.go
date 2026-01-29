@@ -969,8 +969,8 @@ func GetManyChapterAllContentByCollyMappingV1_5_V2_Async[T any](mapping map[stri
 	// -- 设置并发数，和爬取限制
 	// 设置请求限制（每秒最多3个请求, 5秒后发）
 	c.Limit(&colly.LimitRule{
-		DomainGlob: "*",
-		// Parallelism: 3, // 和queue队列同时存在时，用queue控制并发就行。加这个有用，但没必要。默认是0，表示没限制
+		DomainGlob:  "*",
+		Parallelism: config.Cfg.Spider.Public.SpiderType.QueueLimitConcMaxnum,                         // 和queue队列同时存在时，这个必须有。和queue无关，它是真正控制并发的！！！！！！！
 		RandomDelay: time.Duration(config.Cfg.Spider.Public.SpiderType.RandomDelayTime) * time.Second, // 请求发送前触发。模仿人类，随机等待几秒，再请求。如果queue同时给了3条URL，那每条url触发请求前，都要随机延迟下
 	})
 
