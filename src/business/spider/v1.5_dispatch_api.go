@@ -1122,6 +1122,7 @@ func DispatchApi_ManyChapterAllContent_V1_5_V1(c *gin.Context) {
 	// 0. 初始化
 	okTotal := 0 // 成功条数
 	funcName := "爬ManyChapterAllContent V1"
+	errorChapterIdArr2D := [][]int{} // 保存出错的章节id数组
 
 	// 1. 获取传参。实现方式: c.ShouldBindJSON(请求结构体)实现
 	var req SpiderManyChapterAllContentReqV15V3 // 可以传 start end 表示数组
@@ -1166,9 +1167,10 @@ func DispatchApi_ManyChapterAllContent_V1_5_V1(c *gin.Context) {
 		// 步骤5.3.1 查这个id是否需要爬 --
 		spilitChapterIdArrNeedCrawl, err := DBGetIdsNeedCrawl[models.ComicSpider](db.DBComic, spilitChapterIdArr, "spider_end_status", 0)
 		if err != nil {
-			log.Errorf("func=%v, 第%v个数组, 爬取前查询是否需要爬 失败, reason: %v", funcName, i, err)
-			c.JSON(500, fmt.Sprint("爬取失败, 爬取前查询是否需要爬 失败, 出错数组=", spilitChapterIdArr))
-			return
+			log.Errorf("func=%v, 第%v个数组, 爬取前查询是否需要爬 失败,继续爬取下一个数组 reason: %v", funcName, i, err)
+			// c.JSON(500, fmt.Sprint("爬取失败, 爬取前查询是否需要爬 失败, 出错数组=", spilitChapterIdArr))
+			errorChapterIdArr2D = append(errorChapterIdArr2D, spilitChapterIdArr)
+			continue // 之前是 return，会导致爬取不到后续的数组
 		}
 
 		// 如果查询数据库空的，跳过
@@ -1182,13 +1184,20 @@ func DispatchApi_ManyChapterAllContent_V1_5_V1(c *gin.Context) {
 		okTotalOneArr, err := SpiderManyChapterAllContent2DB(websiteId, websiteName, spilitChapterIdArrNeedCrawl) // 成功条数
 		if err != nil {
 			log.Errorf("func=%v, 第%v个数组, 爬取失败, 可能原因:1 爬取url不对 2 目标网站挂了 3 爬取逻辑错了,没爬到. err = %v", funcName, i, err)
-			c.JSON(500, fmt.Sprint("爬取失败, 出错数组=", spilitChapterIdArr))
-			return
+			// c.JSON(500, fmt.Sprint("爬取失败, 出错数组=", spilitChapterIdArr))
+			errorChapterIdArr2D = append(errorChapterIdArr2D, spilitChapterIdArr)
+			continue // 之前是 return，会导致爬取不到后续的数组
 		}
 		log.Infof("func=%v, 第%v个数组, 爬取成功,total: %v, arr= %v", funcName, i, okTotalOneArr, spilitChapterIdArr)
 		okTotal += okTotalOneArr
 	}
 
 	// 6. 返回结果
-	c.JSON(200, "爬取成功,插入"+strconv.Itoa(okTotal)+"条chapterContent数据")
+	// 错误时
+	if len(errorChapterIdArr2D) > 0 { // 爬取失败的数组
+		c.JSON(500, gin.H{"error": fmt.Sprintf("func=%v, 爬取失败, 出错数组=%v", funcName, errorChapterIdArr2D)})
+		return
+	}
+
+	c.JSON(200, "爬取成功,插入"+strconv.Itoa(okTotal)+"条chapterContent数据") // 一切正常
 }

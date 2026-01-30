@@ -892,6 +892,10 @@
     - 爬到全是空的，为啥报异常，就不往下走了 -> SpiderManyChapterAllContent_UpsertPart 函数，加了判断数组空就跳过逻辑  √
     - 组内并发，应该2秒处理完，为啥还是10秒呢？感觉还是串行呢？ √
 
+# v0.1.5.0 临时15
+    总结: 修改bug: 一个数组为空,会影响其它数组爬取
+    一个数组为空后，会影响爬取其它数组 √ -》 DispatchApi_ManyChapterAllContent_V1_5_V1 for 循环那里 return 改为 continue,并记录有问题的数组,一起返回给前端
+
 # v0.1.5.0 
 版本总结: 要一劳永逸，代码不变，改配置就能实现需求
     - 自己写, 根据1.0版本代码，实现配置驱动代码：要一劳永逸，代码不变，改配置就能实现需求
@@ -958,6 +962,8 @@
                         - 保存已爬取的content数据 √
                         - 爬到全是空的，为啥报异常，就不往下走了 -> SpiderManyChapterAllContent_UpsertPart 函数，加了判断数组空就跳过逻辑  √
                         - 组内并发，应该2秒处理完，为啥还是10秒呢？感觉还是串行呢？ √
+
+                        - 一个数组为空后，会影响爬取其它数组 √ -》 DispatchApi_ManyChapterAllContent_V1_5_V1 for 循环那里 return 改为 continue,并记录有问题的数组,一起返回给前端
                         
                         - 写一个通用，用自己方法实现的，和用配置实现爬取的方法。并验证
                         - log 自动截取日志大小 《50M github能上传的大小
