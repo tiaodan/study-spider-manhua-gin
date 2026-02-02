@@ -88,7 +88,7 @@ func applyOptions(dbConn *gorm.DB, opts ...FindOption) *gorm.DB {
 // 通用 提取某一列 Pluck
 /*
 参数:
-	column string, // 要 pluck 的列名，例如 "id"
+	column string, // 要 pluck 的列名(数据库小写形式)，例如 "id"
 	dest *[]R, // 接收结果的切片指针，例如 *[]int64
 */
 func DBPluckV2[T any, R any](dbConn *gorm.DB, column string, dest *[]R, opts ...FindOption) error {

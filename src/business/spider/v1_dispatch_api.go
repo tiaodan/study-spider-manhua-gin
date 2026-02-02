@@ -74,6 +74,7 @@ func DispatchApi_OneCategoryByJSON(c *gin.Context) {
 
 	// gjson 读取 前端JSON里 spiderTag -> website字段 --
 	website := gjson.Get(string(data), "spiderTag.website").String()
+	websiteId := int(gjson.Get(string(data), "websiteId").Int())
 	adultArrGjsonResult := gjson.GetBytes(data, "adult").Array()
 
 	// -- 根据该字段，使用不同的爬虫 ModelMapping映射表
@@ -117,7 +118,7 @@ func DispatchApi_OneCategoryByJSON(c *gin.Context) {
 		}
 
 		// -- 批量插入db，循环处理 gjsonResultAuthorArr[]
-		err = upsertSpiderTableData("author", gjsonResultAuthorArr)
+		err = upsertSpiderTableData("author", gjsonResultAuthorArr, websiteId)
 		if err != nil {
 			log.Error("func=BookTemSpiderTypeByJson(爬取JSON). 插入db-author 失败, err: ", err)
 			c.JSON(400, gin.H{"error": "func=DispatchApi_OneCategoryByJSON(分发api- /spider/oneTypeByJson), 批量插入db-author 失败"}) // 返回错误
@@ -152,7 +153,7 @@ func DispatchApi_OneCategoryByJSON(c *gin.Context) {
 
 		// -- 批量插入db，循环处理 gjsonResultArr[]
 		// comic 表相关 --
-		err := upsertSpiderTableData("comic", gjsonResultArr)
+		err := upsertSpiderTableData("comic", gjsonResultArr, websiteId)
 		if err != nil {
 			log.Error("func=BookTemSpiderTypeByJson(爬取JSON). 插入db失败, err: ", err)
 			c.JSON(400, gin.H{"error": "func=DispatchApi_OneCategoryByJSON(分发api- /spider/oneTypeByJson), 批量插入db失败"}) // 返回错误

@@ -1433,7 +1433,7 @@ func handleBasicTypeConversion(sourceValue reflect.Value, targetField reflect.Va
 	1 tableName string 表名
 	2 gjsonResultArr []map[string]any 爬出来的对象，数组
 */
-func upsertSpiderTableData(tableName string, gjsonResultArr []map[string]any) error {
+func upsertSpiderTableData(tableName string, gjsonResultArr []map[string]any, websiteId int) error {
 	log.Debug("func=upsertSpiderTableData(插入爬取表数据) tableName=", tableName)
 
 	// 1. 校验传参
@@ -1497,7 +1497,7 @@ func upsertSpiderTableData(tableName string, gjsonResultArr []map[string]any) er
 			return err
 		}
 
-		// ----- test delete 添加comic_authoer 关联表
+		// 添加comic_authoer 关联表
 		// 插入多对多关联表
 		for _, comic := range comicArr {
 			if len(comic.AuthorArr) > 0 {
@@ -1559,6 +1559,7 @@ func upsertSpiderTableData(tableName string, gjsonResultArr []map[string]any) er
 			// 直接从gjsonResult获取name字段
 			// 准备插入参数, 循环清洗，空格+繁体 --
 			author := &models.Author{}
+			author.WebsiteId = websiteId  // 设置 WebsiteId,为了给 authoer的 websiteId 用
 			MapByTag(gjsonResult, author) // 爬取json内容，赋值给 author 对象
 			// 从gjsonResult中获取name字段
 			if nameValue, ok := gjsonResult["name"]; ok {
@@ -1641,6 +1642,7 @@ func attachAuthorIDs(comicArr []*models.ComicSpider) error {
 		var filtered []models.Author
 		for _, author := range comic.AuthorArr {
 			authorCopy := author
+			authorCopy.WebsiteId = comic.WebsiteId // 保留 WebsiteId
 			authorCopy.TrimSpaces()
 			authorCopy.Trad2Simple()
 			if authorCopy.Name == "" {
