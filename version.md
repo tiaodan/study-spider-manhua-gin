@@ -898,6 +898,10 @@
 
 # v0.1.5.0 临时16
     总结：把数据库 bigint改成int,为了 节省云服务内存+存储空间
+
+# v0.1.5.0 临时17
+    总结: 1) 爬取toptoon comic_spider_author表没数据 2) 所有nouse文件, 前缀改为"comic_spider_author"
+    - 解决bug: v1 接口json爬取toptoon不插入 comic_spider_author 多对多表 ->  v1_spider_template_book_type.go 的 upsertSpiderTableData 函数中，在主表插入成功后（第1490行之后），添加关联表插入逻辑 db.DBComic.Model(comic).Association("AuthorArr").Replace(comic.AuthorArr)
     
 # v0.1.5.0 
 版本总结: 要一劳永逸，代码不变，改配置就能实现需求
@@ -967,6 +971,7 @@
                         - 组内并发，应该2秒处理完，为啥还是10秒呢？感觉还是串行呢？ √
                         - 一个数组为空后，会影响爬取其它数组 √ -》 DispatchApi_ManyChapterAllContent_V1_5_V1 for 循环那里 return 改为 continue,并记录有问题的数组,一起返回给前端 √
                         - 把数据库 bigint改成int,为了 节省云服务内存+存储空间
+                        - 解决bug: v1 接口json爬取toptoon不插入 comic_spider_author 多对多表 ->  v1_spider_template_book_type.go 的 upsertSpiderTableData 函数中，在主表插入成功后（第1490行之后），添加关联表插入逻辑 db.DBComic.Model(comic).Association("AuthorArr").Replace(comic.AuthorArr)
                         
                         - 写一个通用，用自己方法实现的，和用配置实现爬取的方法。并验证
                         - log 自动截取日志大小 《50M github能上传的大小

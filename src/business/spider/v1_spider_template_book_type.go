@@ -1497,6 +1497,17 @@ func upsertSpiderTableData(tableName string, gjsonResultArr []map[string]any) er
 			return err
 		}
 
+		// ----- test delete 添加comic_authoer 关联表
+		// 插入多对多关联表
+		for _, comic := range comicArr {
+			if len(comic.AuthorArr) > 0 {
+				if err := db.DBComic.Model(comic).Association("AuthorArr").Replace(comic.AuthorArr); err != nil {
+					log.Errorf("插入关联表失败: comic=%s, err=%v", comic.Name, err)
+					return err
+				}
+			}
+		}
+
 		// -- 批量插入 / 更新 子表 Stats 数据（ComicSpiderStats）
 		// 说明：
 		// 1. 上面循环里已经对 comic.Stats 做了 TrimSpaces / Trad2Simple 清洗
