@@ -25,13 +25,13 @@ type ComicMy struct {
 	Id   int    `json:"id" gorm:"primaryKey;autoIncrement"`                                                          // 数据库id,主键、自增.
 	Name string `json:"name" gorm:"not null; uniqueIndex:idx_comic_unique;size:150;check:name <> ''" spider:"name" ` // 漫画名 组合索引字段
 	// 外键
-	WebsiteId       int      `json:"websiteId" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"websiteId" `   // 网站id-外键 组合索引字段
-	PornTypeId      int      `json:"pornTypeId" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"pornTypeId" ` // 总分类id-最高级-外键 组合索引字段
-	CountryId       int      `json:"countryId" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"countryId" `   // 国家id-外键 组合索引字段
-	TypeId          int      `json:"typeId" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"typeId" `         // 类型id-外键 组合索引字段
-	ProcessId       int      `json:"process" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"processId" `     // 进度id-外键 组合索引字段
-	AuthorArr       []Author `gorm:"many2many:comic_my_authors;" spider:"authorArr" `                               // 多对多关联
-	LatestChapterId *int     `json:"latestChapterId" spider:"latestChapterId" `                                     // 最新章节id。可为空，因为爬书的时候，章节表还没有内容。传指针，传nil时，就是null
+	WebsiteId       int      `json:"websiteId" gorm:"not null; uniqueIndex:idx_comic_unique" spider:"websiteId" `                 // 网站id-外键 组合索引字段
+	PornTypeId      int      `json:"pornTypeId" gorm:"type:smallint;not null; uniqueIndex:idx_comic_unique" spider:"pornTypeId" ` // 总分类id-最高级-外键 组合索引字段
+	CountryId       int      `json:"countryId" gorm:"type:smallint;not null; uniqueIndex:idx_comic_unique" spider:"countryId" `   // 国家id-外键 组合索引字段
+	TypeId          int      `json:"typeId" gorm:"type:smallint;not null; uniqueIndex:idx_comic_unique" spider:"typeId" `         // 类型id-外键 组合索引字段
+	ProcessId       int      `json:"process" gorm:"type:smallint;not null; uniqueIndex:idx_comic_unique" spider:"processId" `     // 进度id-外键 组合索引字段
+	AuthorArr       []Author `gorm:"many2many:comic_my_authors;" spider:"authorArr" `                                             // 多对多关联
+	LatestChapterId *int     `json:"latestChapterId" spider:"latestChapterId" `                                                   // 最新章节id。可为空，因为爬书的时候，章节表还没有内容。传指针，传nil时，就是null
 
 	// 其它
 	AuthorConcat              string    `json:"authorConcat" gorm:"not null;uniqueIndex:idx_comic_unique;size:500; check:author_concat <> ''" spider:"authorConcat" ` // 作者.不能是空字符串。组合索引
@@ -41,12 +41,12 @@ type ComicMy struct {
 	CoverSavePathApiPath      string    `json:"coverSavePathApiPath" gorm:"not null;check:cover_save_path_api_path <> ''" spider:"coverSavePathApiPath" `             // 封面图片, 保存路径的api. .可以是空字符串,因为没上传时，是空的
 	BriefShort                string    `json:"briefShort" gorm:"not null" spider:"briefShort" `                                                                      // 简介-短.可以是空字符串
 	BriefLong                 string    `json:"briefLong" gorm:"not null" spider:"briefLong" `                                                                        // 简介-长.可以是空字符串
-	End                       int       `json:"end" gorm:"not null" spider:"end" `                                                                                    // 漫画是否完结,如果 未知1 连载2 完结3 == processId
-	SpiderSubChapterEndStatus int       `json:"spiderSubChapterEndStatus" gorm:"not null;" spider:"spiderSubChapterEndStatus"`                                        // 爬取子内容-chapter结束状态,0:未爬取,1:已爬取,2:爬取失败
-	SpiderEndStatus           int       `json:"spiderEndStatus" gorm:"not null" spider:"spiderEndStatus" `                                                            // 爬取结束状态
-	DownloadEndStatus         int       `json:"downloadEndStatus" gorm:"not null" spider:"downloadEndStatus" `                                                        // 下载结束状态
-	UploadAwsEndStatus        int       `json:"uploadAwsEndStatus" gorm:"not null" spider:"uploadAwsEndStatus" `                                                      // 是否上传到aws
-	UploadBaiduEndStatus      int       `json:"uploadBaiduEndStatus" gorm:"not null" spider:"uploadBaiduEndStatus" `                                                  // 是否上传到baidu网盘
+	End                       int       `json:"end" gorm:"type:smallint;not null" spider:"end" `                                                                      // 漫画是否完结,如果 未知1 连载2 完结3 == processId
+	SpiderSubChapterEndStatus int       `json:"spiderSubChapterEndStatus" gorm:"type:smallint;not null;" spider:"spiderSubChapterEndStatus"`                          // 爬取子内容-chapter结束状态,0:未爬取,1:已爬取,2:爬取失败
+	SpiderEndStatus           int       `json:"spiderEndStatus" gorm:"type:smallint;not null" spider:"spiderEndStatus" `                                              // 爬取结束状态
+	DownloadEndStatus         int       `json:"downloadEndStatus" gorm:"type:smallint;not null" spider:"downloadEndStatus" `                                          // 下载结束状态
+	UploadAwsEndStatus        int       `json:"uploadAwsEndStatus" gorm:"type:smallint;not null" spider:"uploadAwsEndStatus" `                                        // 是否上传到aws
+	UploadBaiduEndStatus      int       `json:"uploadBaiduEndStatus" gorm:"type:smallint;not null" spider:"uploadBaiduEndStatus" `                                    // 是否上传到baidu网盘
 	ReleaseDate               time.Time `json:"releaseDate" gorm:"not null" spider:"releaseDate" `                                                                    // 发布日期.可以是空字符串
 
 	// gorm自带时间更新，软删除
@@ -104,11 +104,11 @@ type ComicMyStats struct {
 	LatestChapterId *int `json:"latestChapterId" spider:"latestChapterId" ` // 最新章节id。可为空，因为爬书的时候，章节表还没有内容。冗余1个，为了查询方便，不join影响性能
 
 	// 频繁更新字段
-	Star                      float64   `json:"star" gorm:"not null" spider:"star" `                           // 评分
-	LatestChapterName         string    `json:"latestChapterName" gorm:"not null" spider:"latestChapterName" ` // 更新到多少集, 字符串,最新章节.可以是空字符串
-	Hits                      int       `json:"hits" gorm:"not null" spider:"hits" `                           // 人气
-	TotalChapter              int       `json:"totalChapter" gorm:"not null" spider:"totalChapter" `           // 总章节数。应该不包括 前言、后记、试听这些
-	LastestChapterReleaseDate time.Time `json:"lastestChapterReleaseDate" spider:"lastestChapterReleaseDate" ` // 最新章节发布时间，可以空
+	Star                      float64   `json:"star" gorm:"not null" spider:"star" `                               // 评分
+	LatestChapterName         string    `json:"latestChapterName" gorm:"not null" spider:"latestChapterName" `     // 更新到多少集, 字符串,最新章节.可以是空字符串
+	Hits                      int       `json:"hits" gorm:"not null" spider:"hits" `                               // 人气
+	TotalChapter              int       `json:"totalChapter" gorm:"type:smallint;not null" spider:"totalChapter" ` // 总章节数。应该不包括 前言、后记、试听这些
+	LastestChapterReleaseDate time.Time `json:"lastestChapterReleaseDate" spider:"lastestChapterReleaseDate" `     // 最新章节发布时间，可以空
 
 	// 外键结构
 	// LatestChapter Chapter `gorm:"foreignKey:LatestChapterId;references:Id; constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;" spider:"latestChapter"` // 考虑删除，想着都是冗余了，如果用不到就先删除，用到再说

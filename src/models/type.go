@@ -22,6 +22,6 @@ package models
 type Type struct {
 	Id     int    `gorm:"primaryKey;autoIncrement"`          // 主键
 	Name   string `gorm:"not null;unique;check:name <> ''" ` // 唯一索引
-	Level  int    `gorm:"not null"`                          // 1:一级分类，2:二级分类，3:三级分类
+	Level  int    `gorm:"type:smallint;not null"`            // 1:一级分类，2:二级分类，3:三级分类
 	Parent int    `gorm:"not null"`                          // 父级分类id
 }

@@ -1,3 +1,6 @@
 *.log
 *.log.*
+log/
+log/*.log
+log/*.log.*
 doc/项目/comic/kxmanhua/sql备份记录/**/*.sql
