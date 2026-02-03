@@ -201,6 +201,83 @@ func DBUpsertBatch(DBConnObj *gorm.DB, modelObjs any, uniqueIndexArr []string, u
 	// v0.2 写法 事务 里包裹 Upsert，并且每次 按gorm默认实现：插入500条
 }
 
+// 增-批量V2  upsertBatch V2 可以指定表名 : 批量插入或更新。批量操作，涉及到数据回滚问题
+/*
+updateDBColumnRealNameArr 必须传数据库真实字段，全小写带_ 的那种
+
+作用简单说：
+  - 批量插入或更新 N条数据
+
+作用详细说:
+  - 批量插入或更新 N条数据
+    - 不存在 唯一索引，插入新数据
+    - 存在 唯一索引，更新数据
+
+核心思路:
+	1. 批量插入或更新N条数据
+		- 不存在 唯一索引，插入新数据
+		- 存在 唯一索引，更新数据
+	2. 转成唯一索引，的写法有2种
+		- 写法1： []clause.Column{{Name: "Name"}, {Name: "Id"}}, // 判断唯一索引: Name+Id
+		- 写法2： 传参[]string{"Name", "Id"}, 然后调用方法toGormColumns() 转成gorm写法。推荐!!
+
+参考通用思路：
+	1. 校验传参
+	2. 数据清洗
+	3. 准备数据库执行，需要的参数
+	4. 数据库执行
+	5. 返回结果
+
+参数：
+	1. DBConnObj *gorm.DB 类型 // 数据库连接对象
+		- 比如连了 comic 数据库，就传 comidcDB 对象
+		- 比如连了 audiobook 数据库，就传 		- 比如连了 audiobook 数据库，就传 comidcDB 对象
+	2 modelObjs any //需要插入或更新的,数据模型对象 如 comic *models.Comic
+		- model 是一条数据对象，而不是 表名
+		- model 可以是对象指针，也可以是对象。一般是直接传指针
+	3 uniqueIndexArr []string 类型 // 用Model里定义的字段，用数据库真实列名也行，首字母大写也行，首字母小写也行。 唯一索引字段,可以是多个 如 []string{"Name", "Id"}
+		注意：
+		- 首字母用大写，小写均可以。建议用首字母大写，因为 大写更适合 struct 结构定义，显得更规范
+	4 updateColumnsMap map[string]any 类型 // 更新的字段，可以是多个 如 map[string]any{"Name": "comic.Name", "Id": comic.Id}
+	updateColumnsMap []string  类型 // 数据库真实列名，可以是多个 如 [""Name", "Id"]
+		- 一种方式是传map,弃用了，这种还得手动往里面塞值
+		- 一种方式是：直接传 数据库真实列名，不是model里定义的列名 !!!!!!!!!!! -》 推荐 !!!!!!
+*/
+func DBUpsertBatchV2SpecifyTableName(DBConnObj *gorm.DB, tableName string, modelObjs any, uniqueIndexArr []string, updateDBColumnRealNameArr []string) error {
+
+	// 1. 校验传参
+	// 2. 数据清洗
+	// 3. 准备数据库执行，需要的参数
+
+	// 4. 数据库执行
+
+	// 准备唯一索引数据，写法2-推荐: 传参[]string{"Name", "Id"}, 然后调用方法toGormColumns() 转成gorm写法。
+	// 事务里 包Upsert操作 。 db.Transcation就是创建事务
+	err := DBConnObj.Table(tableName).Transaction(func(tx *gorm.DB) error { // 原本写法应该是这样，但是DB用的全局参数，所以tx那里就不用传参了. tx是事务对象
+		// 批量插入 + 冲突更新
+		result := tx.Omit(clause.Associations).Clauses(clause.OnConflict{
+			Columns:   toGormColumns(uniqueIndexArr), // 判断唯一索引: 如：Name + Id。多个条件是 并且的关系。Omit(clause.Associations) -》 为了不更新关联表，只更新主表
+			DoUpdates: clause.AssignmentColumns(updateDBColumnRealNameArr),
+		}).Select("*").Create(modelObjs) // 等价于 CreateInBatches(users, 1000). Select("*"， “Stats”) -》 为了更新关联表 Stats.Select(*)必须保留，因为Select("*") + Omit(clause.Associations)才能保证不更新关联表
+
+		if result.Error != nil {
+			// log.Error("批量插入失败, err = ", result.Error)  // 此文件不打日志，错误已经返回给上级
+			return result.Error // 返回错误，事务回滚
+		}
+
+		// 执行到这里，说明没问题，事务提交
+		return nil // 事务函数返回结果
+	})
+
+	if err != nil {
+		// log.Error("批量插入失败，事务已回滚:, err = ", err)  // 此文件不打日志，错误已经返回给上级
+		return err
+	}
+
+	// 5. 返回结果
+	return nil // 批量插入成功
+}
+
 // 配合 DBUpsert 方法使用，把wtring数组，转成gorm 类型的column
 /*
 执行下面这一步，用的到

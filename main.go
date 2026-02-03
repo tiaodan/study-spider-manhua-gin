@@ -245,7 +245,10 @@ func initV2() {
 		&models.ChapterContentMy{}) // 有几个表, 写几个参数
 	errorutil.ErrorPanic(err, "自动迁移表结构(不分表) 报错, err = ")
 
-	// 3.2. 分表 chapter_content_spider_xxxx 创建（最推荐写法）
+	// -- 插入默认数据
+	db.InsertDefaultData()
+
+	// 3.2. 分表 chapter_content_spider_xxxx 创建（最推荐写法）。必须在website插入默认数据后
 	// 查询website有哪些id --
 	var websiteIdArr []int
 	err = db.DBPluckV2[models.Website](db.DBComic, "id", &websiteIdArr)
@@ -270,9 +273,6 @@ func initV2() {
 
 		log.Infof("分表 %s 创建/迁移成功", tableName)
 	}
-
-	// -- 插入默认数据
-	db.InsertDefaultData()
 }
 
 // main 入口函数

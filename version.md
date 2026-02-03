@@ -911,6 +911,9 @@
         - website 没有dataclean √
     author 加外键 websiteId，不用分表 √
         - 作者表加dataclean √  
+
+# v0.1.5.0 临时19
+    总结：完善v1.5爬取方法，增加author_comic关联表的插入
     
 # v0.1.5.0 
 版本总结: 要一劳永逸，代码不变，改配置就能实现需求
@@ -988,6 +991,7 @@
                             - website 没有dataclean √
                         author 加外键 websiteId，不用分表 √
 	                    - 作者表加dataclean √   
+                        完善v1.5爬取方法，增加author_comic关联表的插入 √
                         
                         - 写一个通用，用自己方法实现的，和用配置实现爬取的方法。并验证
                         - log 自动截取日志大小 《50M github能上传的大小

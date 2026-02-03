@@ -14,6 +14,7 @@ package spider
 
 import (
 	"errors"
+	"fmt"
 	"net/url"
 	"strconv"
 	"strings"
@@ -735,7 +736,7 @@ func SpiderManyChapterAllContent2DB(websiteId int, websiteName string, chapterId
 	}
 
 	// 5.2. 执行核心逻辑 - 插入部分
-	if okTotal, funcErr = SpiderManyChapterAllContent_UpsertPart(websiteName, manyChapterContentArrMap); funcErr != nil {
+	if okTotal, funcErr = SpiderManyChapterAllContent_UpsertPart(websiteId, websiteName, manyChapterContentArrMap); funcErr != nil {
 		log.Errorf("爬取失败, reaason: 插入db失败. website=%v, chapterIdArr=%v", websiteName, chapterIdArr)
 		return 0, funcErr
 	}
@@ -1195,7 +1196,7 @@ manyBookChapterArrMap []
 返回 插入成功总数
  error
 */
-func SpiderManyChapterAllContent_UpsertPart(websiteName string, manyChapterContentArrMap map[int][]models.ChapterContentSpider) (int, error) {
+func SpiderManyChapterAllContent_UpsertPart(websiteId int, websiteName string, manyChapterContentArrMap map[int][]models.ChapterContentSpider) (int, error) {
 	// 初始化
 	okTotal := 0 // 插入成功总数
 	funcName := "SpiderManyChapterAllContent_UpsertPart"
@@ -1251,7 +1252,10 @@ func SpiderManyChapterAllContent_UpsertPart(websiteName string, manyChapterConte
 			return 0, errors.New("func=爬chapter AllContent V1.5, chapterArr 为空")
 		}
 
-		err := db.DBUpsertBatch(db.DBComic, oneChapterContentArr, stageCfg.Insert.UniqueKeys, stageCfg.Insert.UpdateKeys)
+		// err := db.DBUpsertBatch(db.DBComic, oneChapterContentArr, stageCfg.Insert.UniqueKeys, stageCfg.Insert.UpdateKeys) // v1写法，保留，不能指定表名，比如content_005这个分表，因此引入v2写法
+		tableName := fmt.Sprintf("chapter_content_spider_%04d", websiteId)
+		err := db.DBUpsertBatchV2SpecifyTableName(db.DBComic, tableName, oneChapterContentArr, stageCfg.Insert.UniqueKeys, stageCfg.Insert.UpdateKeys) // v2写法，可以指定表名，比如content_005这个分表
+
 		if err != nil {
 			log.Errorf("func= %v, 批量插入db chapter 失败, err: %v", funcName, err)
 		}
