@@ -9,10 +9,12 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"study-spider-manhua-gin/src/errorutil"
 	"study-spider-manhua-gin/src/log"
 	"study-spider-manhua-gin/src/models"
 	"study-spider-manhua-gin/src/util/langutil"
 	"study-spider-manhua-gin/src/util/stringutil"
+	"time"
 
 	"github.com/Wall-ee/chinese2digits/chinese2digits"
 )
@@ -401,6 +403,313 @@ var ChapterContentMappingForSpiderKxmanhuaByHTML = map[string]models.ModelHtmlMa
 
 			// 4. 返回
 			return value
+		}},
+}
+
+// ------ rouman8
+// 表映射，爬 https:/rouman8.xyz  用，爬的 Html 数据 - 只能爬1个book
+var ComicMappingForSpiderRouman8ByHtml = map[string]models.ModelHtmlMapping{
+	// 注意: GetFieldPath 假如要传2个值，就用|分隔. 比如: GetFieldPath: ".product__item__pic set-bg|onclick"。 支持 [class=''] 这种写法
+	// 表都有哪些数据
+	"name": {GetFieldPath: "[class='text-xs md:text-sm font-medium line-clamp-1']", GetHtmlType: "content", FiledType: "string",
+		Transform: func(v any) any {
+			// 思路： 爬出来都是string类型，必须先清洗: 去空格，繁体转简体; 再做其他转换
+			// 1. 去空格
+			name := strings.TrimSpace(v.(string))
+
+			// 2. 繁体转简体
+			name, err := langutil.TraditionalToSimplified(name)
+			if err != nil {
+				log.Errorf("繁体转简体失败: %v", err)
+			}
+
+			// 3. 其他处理
+
+			// 4. 返回
+			return name
+		}},
+
+	// 其他
+	// 这里所有的colly写法，都是找的子元素。如果这个mappping已经是a标签了，如果在colly写a标签，找不到。因此要用  .|href -> 本系统定义的一种写法
+	"comicUrlApiPath": {GetFieldPath: ".|href", GetHtmlType: "attr", FiledType: "string", // 原来写法：[class='block min-w-[120px] md:min-w-0']|href，获取不到
+		Transform: func(v any) any {
+			// 爬出来 = /book/517;
+			// 思路： 爬出来都是string类型，必须先清洗: 去空格，繁体转简体; 再做其他转换
+			// 1. 去空格
+			value := strings.TrimSpace(v.(string))
+			// 2. 繁体转简体
+			value, _ = langutil.TraditionalToSimplified(value)
+
+			// 3. 其它
+
+			// 4. 返回
+			return value
+		}},
+	"coverUrlApiPath": {GetFieldPath: "[class='object-cover w-full h-full']|src", GetHtmlType: "attr", FiledType: "string",
+		Transform: func(v any) any {
+			// 爬出来 = https://www.jjmh.cc/static/upload/book/629/cover.jp
+			// 思路： 爬出来都是string类型，必须先清洗: 去空格，繁体转简体; 再做其他转换
+			// 1. 去空格
+			value := strings.TrimSpace(v.(string))
+			// 2. 繁体转简体
+			value, _ = langutil.TraditionalToSimplified(value)
+
+			// 3. 去除协议头+域名， https://www.jjmh.cc,只留后面内容,re 正则获取
+			re := regexp.MustCompile(`https://www.jjmh.cc`)
+			value = re.ReplaceAllString(value, "")
+
+			// 4. 返回
+			return value
+		}}, // 还需要方法，去除一些东西
+
+	"briefShort": {GetFieldPath: "[class='text-[10px] md:text-xs text-gray-500 line-clamp-2']", GetHtmlType: "content", FiledType: "string",
+		Transform: func(v any) any {
+			// 爬出来 = 字符串
+			// 思路： 爬出来都是string类型，必须先清洗: 去空格，繁体转简体; 再做其他转换
+			// 1. 去空格
+			value := strings.TrimSpace(v.(string))
+
+			// 2. 繁体转简体 (暂时注释掉，可能有问题)
+			value, _ = langutil.TraditionalToSimplified(value)
+
+			// 3. 其它
+			// 4. 返回
+			return value
+		}},
+
+	// 子表相关
+
+}
+
+// 表映射，爬 https:/www.rouman8.com 肉漫吧, 爬章节用，爬的 Html 数据 - 只能爬1个book
+var ChapterMappingForSpiderRouman8ByHTML = map[string]models.ModelHtmlMapping{
+	/*
+		- 可获取章节信息：(我的思路，能爬到哪些，就set哪些，爬不到的就默认处理。最后通过DataClean()清洗下)，"chapterNum" 这种用的时候用大写，不要用数据字段-小写格式
+			- ！！！ 要用大写格式，不要用数据字段-小写格式
+			- id x 不用爬，不用管。自行生成
+			- chapterNum √ 能爬，需要截取，需要判单没有 第x话，怎么处理？,比如最终话，或者根本就没有第X话，写出负数累加？
+			- chapterSubNum x 爬不到。不管，按默认来
+			- chapterRealSortNum x 爬不到。要管，爬到之后，先程序生成一些，先= chapter_num
+			- name √ 能爬。不用截取，如果里面有nbsp字段，需要处理
+			- urlApiPath √ 能爬。需要考虑截取http头+域名
+			- releaseDate x 爬不到。就按默认
+			- parentId。爬不到。但是需要，用的时候，其它函数传个id就行
+
+			//
+			comic 相关 --
+				name  -》 已经有数据了，不用爬
+				endStatus 完结状态 -》 已经有数据了，不用爬
+				country -》 已经有数据了，不用爬
+				分类标签 -》 现在没用着，不用爬
+
+				发布时间 -》 需要, 能爬到 ！！！ releaseDate
+
+			comic stats 相关 --
+				点击率 -》要用, 能爬到 hits
+
+			author 相关 --
+				作者 -》 要用 name -> 和上面冲突了
+
+			chapter 相关 --
+				chapterNum 序号
+				name 名字
+				urlApiPath 章节路径
+
+			！！！comic.stats表 、 author 表 也能用这个map,做3次mapByTag()，第一次是chapter，第二次是comic，第3次是author
+
+	*/
+
+	// 章节相关 ----
+	// 序号
+	"chapterNum": {GetFieldPath: "[class='text-sm text-gray-400 font-medium w-[2.5ch] text-right']", GetHtmlType: "content", FiledType: "string",
+		Transform: func(v any) any {
+			// 爬出来 = 最终话-白佳贞&amp;陈钰琳要不要和我共组家庭?♥
+			// 思路： 爬出来都是string类型，必须先清洗: 去空格，繁体转简体; 再做其他转换
+			// 1. 去空格
+			value := strings.TrimSpace(v.(string))
+
+			// 2. 繁体转简体
+			value, err := langutil.TraditionalToSimplified(value)
+			if err != nil {
+				log.Errorf("繁体转简体失败: %v", err)
+			}
+
+			// 3. 其它处理
+
+			// 4. 返回
+			return value // 前面都失败了，应该返回int,只能返回一个string(提取不出来的), 让程序报错
+
+		}},
+	// 章节名称
+	"name": {GetFieldPath: "[class='text-sm text-gray-600 truncate']", GetHtmlType: "content", FiledType: "string",
+		Transform: func(v any) any {
+			// 爬出来 = 最终话-白佳贞&amp;陈钰琳要不要和我共组家庭?♥
+			// 思路： 爬出来都是string类型，必须先清洗: 去空格，繁体转简体; 再做其他转换
+			// 1. 去空格
+			value := strings.TrimSpace(v.(string))
+
+			// 2. 繁体转简体
+			value, err := langutil.TraditionalToSimplified(value)
+			if err != nil {
+				log.Errorf("繁体转简体失败: %v", err)
+			}
+
+			// 3. 其它处理
+
+			// 4. 返回
+			return value
+		}},
+	// 章节 url路径
+	"urlApiPath": {GetFieldPath: ".|href", GetHtmlType: "attr", FiledType: "string",
+		Transform: func(v any) any {
+			// 爬出来 = 最终话-白佳贞&amp;陈钰琳要不要和我共组家庭?♥
+			// 思路： 爬出来都是string类型，必须先清洗: 去空格，繁体转简体; 再做其他转换
+			// 1. 去空格
+			value := strings.TrimSpace(v.(string))
+
+			// 2. 繁体转简体
+			value, err := langutil.TraditionalToSimplified(value)
+			if err != nil {
+				log.Errorf("繁体转简体失败: %v", err)
+			}
+
+			// 3. 其它处理
+			// 不用去除 http头+域名，只保留路径, 提前出来直接= /chapter/26682
+
+			// 4. 返回
+			return value
+		}},
+}
+
+// 表映射，爬 https:/www.rouman8.com 肉漫吧, 爬章节页面，能爬到 book 数据 - 只能爬1个
+var ChapterMappingForSpiderRouman8ByHTML_CanGetBook = map[string]models.ModelHtmlMapping{
+	/*
+		- 可获取章节信息：(我的思路，能爬到哪些，就set哪些，爬不到的就默认处理。最后通过DataClean()清洗下)，"chapterNum" 这种用的时候用大写，不要用数据字段-小写格式
+			- ！！！ 要用大写格式，不要用数据字段-小写格式
+			- id x 不用爬，不用管。自行生成
+			- chapterNum √ 能爬，需要截取，需要判单没有 第x话，怎么处理？,比如最终话，或者根本就没有第X话，写出负数累加？
+			- chapterSubNum x 爬不到。不管，按默认来
+			- chapterRealSortNum x 爬不到。要管，爬到之后，先程序生成一些，先= chapter_num
+			- name √ 能爬。不用截取，如果里面有nbsp字段，需要处理
+			- urlApiPath √ 能爬。需要考虑截取http头+域名
+			- releaseDate x 爬不到。就按默认
+			- parentId。爬不到。但是需要，用的时候，其它函数传个id就行
+
+			//
+			comic 相关 --
+				name  -》 已经有数据了，不用爬
+				endStatus 完结状态 -》 已经有数据了，不用爬
+				country -》 已经有数据了，不用爬
+				分类标签 -》 现在没用着，不用爬
+
+				发布时间 -》 需要, 能爬到 ！！！ releaseDate
+	*/
+	"releaseDate": {GetFieldPath: "[class='flex items-center gap-1']:nth-child(2) span", GetHtmlType: "content", FiledType: "string",
+		Transform: func(v any) any {
+			// 爬出来 = 最终话-白佳贞&amp;陈钰琳要不要和我共组家庭?♥
+			// 思路： 爬出来都是string类型，必须先清洗: 去空格，繁体转简体; 再做其他转换
+			// 1. 去空格
+			value := strings.TrimSpace(v.(string))
+
+			// 2. 繁体转简体
+			value, err := langutil.TraditionalToSimplified(value)
+			errorutil.ErrorPrint(err, "繁体转简体失败, err=")
+
+			// 3. 其它处理
+			// 把 17/12/2024(日/月/年) string 转成 time.Time 类型
+			// "2006-01-02", value) → 处理 yyyy-mm-dd这种数据，不能处理 dd/mm/yyyy 这种数据 !!
+			// "01/02/2006", value) → 处理 dd/mm/yyyy这种数据，不能处理 17/12/2024 这种数据 !!
+			// 该网站 是 dd/mm/yyyy 这种数据
+			timeValue, err := time.Parse("01/02/2006", value) // 2024-12-17 00:00:00 +0000 UTC，必须用01/02/2006，固定写法，方便记忆，从0-6 -》2006 年 1 月 2 日 15:04:0 ->1→2→3→4→5→6 的順序，方便記憶
+			errorutil.ErrorPrint(err, "dd/mm/yyyy str 转time.Time 失败, err = ")
+
+			// 4. 返回
+			return timeValue
+		}},
+}
+
+// 表映射，爬 https:/www.rouman8.com 肉漫吧, 爬章节页面，能爬到 book stats 数据 - 只能爬1个
+var ChapterMappingForSpiderRouman8ByHTML_CanGetBookStats = map[string]models.ModelHtmlMapping{
+	/*
+		- 可获取章节信息：(我的思路，能爬到哪些，就set哪些，爬不到的就默认处理。最后通过DataClean()清洗下)，"chapterNum" 这种用的时候用大写，不要用数据字段-小写格式
+			- ！！！ 要用大写格式，不要用数据字段-小写格式
+			- id x 不用爬，不用管。自行生成
+			- chapterNum √ 能爬，需要截取，需要判单没有 第x话，怎么处理？,比如最终话，或者根本就没有第X话，写出负数累加？
+			- chapterSubNum x 爬不到。不管，按默认来
+			- chapterRealSortNum x 爬不到。要管，爬到之后，先程序生成一些，先= chapter_num
+			- name √ 能爬。不用截取，如果里面有nbsp字段，需要处理
+			- urlApiPath √ 能爬。需要考虑截取http头+域名
+			- releaseDate x 爬不到。就按默认
+			- parentId。爬不到。但是需要，用的时候，其它函数传个id就行
+
+			//
+
+			comic stats 相关 --
+				点击率 -》要用, 能爬到 hits
+	*/
+	// book stats 相关 -----
+	// 点击率 因为2个div classs相同了，用了nth-child(1) 获取第1个
+	"hits": {GetFieldPath: "[class='flex items-center gap-1']:nth-child(1) span", GetHtmlType: "content", FiledType: "string",
+		Transform: func(v any) any {
+			// 爬出来 = 最终话-白佳贞&amp;陈钰琳要不要和我共组家庭?♥
+			// 思路： 爬出来都是string类型，必须先清洗: 去空格，繁体转简体; 再做其他转换
+			// 1. 去空格
+			value := strings.TrimSpace(v.(string))
+
+			// 2. 繁体转简体
+			value, err := langutil.TraditionalToSimplified(value)
+			if err != nil {
+				log.Errorf("繁体转简体失败: %v", err)
+			}
+
+			// 3. 其它处理
+			// 把 2.7M 转成数字.把 带字母/中文的 "访问量" 转成 数字, 判断逻辑: 看字符末尾是由有 k/千w/万/M/K , 正则实现
+			value = strconv.Itoa(stringutil.ParseHitsStr(value)) // 直接返回字符串形式的数字
+
+			// 4. 返回
+			return value
+		}},
+}
+
+// 表映射，爬 https:/www.rouman8.com 肉漫吧, 爬章节页面，能爬到 author 数据 - 只能爬1个
+var ChapterMappingForSpiderRouman8ByHTML_CanGetAuthor = map[string]models.ModelHtmlMapping{
+	/*
+		- 可获取章节信息：(我的思路，能爬到哪些，就set哪些，爬不到的就默认处理。最后通过DataClean()清洗下)，"chapterNum" 这种用的时候用大写，不要用数据字段-小写格式
+			- ！！！ 要用大写格式，不要用数据字段-小写格式
+			- id x 不用爬，不用管。自行生成
+			- chapterNum √ 能爬，需要截取，需要判单没有 第x话，怎么处理？,比如最终话，或者根本就没有第X话，写出负数累加？
+			- chapterSubNum x 爬不到。不管，按默认来
+			- chapterRealSortNum x 爬不到。要管，爬到之后，先程序生成一些，先= chapter_num
+			- name √ 能爬。不用截取，如果里面有nbsp字段，需要处理
+			- urlApiPath √ 能爬。需要考虑截取http头+域名
+			- releaseDate x 爬不到。就按默认
+			- parentId。爬不到。但是需要，用的时候，其它函数传个id就行
+
+			//
+			author 相关 --
+				作者 -》 要用 name -> 和上面冲突了
+
+	*/
+
+	// author 相关 -----
+	// 作者
+	"name": {GetFieldPath: "", GetHtmlType: "content", FiledType: "string",
+		Transform: func(v any) any {
+			// 爬出来 = 最终话-白佳贞&amp;陈钰琳要不要和我共组家庭?♥
+			// 思路： 爬出来都是string类型，必须先清洗: 去空格，繁体转简体; 再做其他转换
+			// 1. 去空格
+			value := strings.TrimSpace(v.(string))
+
+			// 2. 繁体转简体
+			value, err := langutil.TraditionalToSimplified(value)
+			if err != nil {
+				log.Errorf("繁体转简体失败: %v", err)
+			}
+
+			// 3. 其它处理
+
+			// 4. 返回
+			return value // 作者有可能好几个，用&分开，先返回整体，由程序做后续处理
 		}},
 }
 

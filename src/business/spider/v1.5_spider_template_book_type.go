@@ -21,6 +21,7 @@ import (
 	"study-spider-manhua-gin/src/config"
 	"study-spider-manhua-gin/src/db"
 	"study-spider-manhua-gin/src/errorutil"
+	"study-spider-manhua-gin/src/errs"
 	"study-spider-manhua-gin/src/log"
 	"study-spider-manhua-gin/src/models"
 	"study-spider-manhua-gin/src/util"
@@ -309,7 +310,7 @@ func GetSpiderFullUrl(isHttps bool, websitePrefix, apiPath string, paramArr []ma
 	return u.String()
 }
 
-// 获取多个book所有chapter, 用colly, 通过mapping
+// 获取多个book所有chapter, 用colly, 通过mapping V1,只适用于 kxmanhua , 不通用
 /*
 
 5. 执行核心逻辑 (6步走) : 爬取 | 插入 可以分成2个方法
@@ -331,7 +332,7 @@ map id -> 数组
 主表数组
 作用简单说：
 */
-func GetManyBookAllChapterByCollyMappingV1_5[T any](mapping map[string]models.ModelHtmlMapping, websiteName string, bookIdArr []int) (map[int][]T, error) {
+func GetManyBookAllChapterByCollyMappingV1_5_V1_OnlyForKxmanhua[T any](mapping map[string]models.ModelHtmlMapping, websiteName string, bookIdArr []int) (map[int][]T, error) {
 	// 初始化
 	funcName := "GetManyBookAllChapterByCollyMappingV1_5"
 	// bookId 和 fullUrl 映射关系, key 是url
@@ -462,7 +463,7 @@ func GetManyBookAllChapterByCollyMappingV1_5[T any](mapping map[string]models.Mo
 	return manyBookChapterArrMap, nil
 }
 
-// 把爬取 manyBookAllChapter 分成2部分。爬取部分 + 插入部分
+// 把爬取 manyBookAllChapter 分成2部分。爬取部分 + 插入部分. V1 实现，只适用于kxmanhua，如果章节页面有其它表数据(comic,comic_stats, author)，不会同步更新
 // 插入部分 - 插入多个书的 chapter
 /*
 5. 执行核心逻辑 (6步走) : 爬取 | 插入 可以分成2个方法
@@ -480,7 +481,7 @@ manyBookChapterArrMap []
 返回 插入成功总数
  error
 */
-func SpiderManyBookAllChapter_UpsertPart(websiteName string, manyBookChapterArrMap map[int][]models.ChapterSpider) (int, error) {
+func SpiderManyBookAllChapter_UpsertPart_V1_OnlyForKxmanhua(websiteName string, manyBookChapterArrMap map[int][]models.ChapterSpider) (int, error) {
 	// 初始化
 	okTotal := 0 // 插入成功总数
 	// funcName := "SpiderManyBookAllChapter_UpsertPart"
@@ -587,16 +588,17 @@ func SpiderManyBookAllChapter_UpsertPart(websiteName string, manyBookChapterArrM
 	return okTotal, nil // 一切正常
 }
 
-// 爬取manybook allChapter V1实现。把爬取+插入放到1个方法，且和 gin.context 解耦
+// 爬取manybook allChapter V1实现。只适用与 kxmanhua，不能爬章节时，同时处理 能爬到的表数据。如：comic、comic_stats、authoer
+// 把爬取+插入放到1个方法，且和 gin.context 解耦
 /*
 返回：
 	okTotal
 	error
 */
-func SpiderManyBookAllChapter2DB(websiteName string, bookIdArr []int) (int, error) {
+func SpiderManyBookAllChapter2DB_V1_OnlyForKxmanhua(websiteName string, bookIdArr []int) (int, error) {
 	// 0. 初始化
 	okTotal := 0 // 成功条数
-	funcName := "SpiderManyBookAllChapter2DB"
+	funcName := "SpiderManyBookAllChapter2DB_V1_OnlyForKxmanhua"
 	var funcErr error
 
 	// 1. 获取传参。实现方式: c.ShouldBindJSON(请求结构体)实现
@@ -611,12 +613,14 @@ func SpiderManyBookAllChapter2DB(websiteName string, bookIdArr []int) (int, erro
 	// -- 从mapping 工厂了拿数据
 	var mappingFactory = map[string]any{
 		"kxmanhua": ChapterMappingForSpiderKxmanhuaByHTML,
+		"rouman8":  ChapterMappingForSpiderRouman8ByHTML,
 	}
 	mapping := mappingFactory[websiteName]
 
 	// 5.1. 爬取 chapter
 	// -- 请求html页面
-	manyBookChapterArrMap, err := GetManyBookAllChapterByCollyMappingV1_5[models.ChapterSpider](mapping.(map[string]models.ModelHtmlMapping), websiteName, bookIdArr)
+	manyBookChapterArrMap, err := GetManyBookAllChapterByCollyMappingV1_5_V1_OnlyForKxmanhua[models.ChapterSpider](mapping.(map[string]models.ModelHtmlMapping), websiteName, bookIdArr)
+	// manyBookChapterArrMap, err := GetManyBookAllChapterByCollyMappingV1_5_V2_Common_ForAllWebsite[models.ChapterSpider](mapping.(map[string]models.ModelHtmlMapping), websiteName, bookIdArr)
 	chapterNamePreviewCount = 0 // ！！！！重要,必有，重置计数器。chapter中 name包含"Preview"次数
 	// -- 插入前数据校验
 	if manyBookChapterArrMap == nil || err != nil {
@@ -625,7 +629,7 @@ func SpiderManyBookAllChapter2DB(websiteName string, bookIdArr []int) (int, erro
 	}
 
 	// 5.2. 执行核心逻辑 - 插入部分
-	if okTotal, funcErr = SpiderManyBookAllChapter_UpsertPart(websiteName, manyBookChapterArrMap); funcErr != nil {
+	if okTotal, funcErr = SpiderManyBookAllChapter_UpsertPart_V1_OnlyForKxmanhua(websiteName, manyBookChapterArrMap); funcErr != nil {
 		log.Errorf("爬取失败, reaason: 插入db失败. website=%v, bookIdArr=%v", websiteName, bookIdArr)
 		return 0, funcErr
 	}
@@ -1276,4 +1280,510 @@ func SpiderManyChapterAllContent_UpsertPart(websiteId int, websiteName string, m
 
 	log.Infof("插入成功 %v 条", okTotal)
 	return okTotal, nil // 一切正常
+}
+
+// 爬取 SpiderOneTypePageAllBook2DB V1实现。把爬取+插入放到1个方法，且和 gin.context 解耦
+/*
+返回：
+	okTotal 成功总数
+	error
+*/
+func SpiderOneTypeAllBook2DBV1(reqDTO SpiderOneTypeAllBookReqV15V1) (int, error) {
+	// 0. 初始化
+	okTotal := 0 // 成功条数
+	funcName := "SpiderOneTypeAllBook2DBV1"
+
+	// 1. 获取传参。实现方式: 从req中拿
+
+	// 2. 校验传参。用validator，上面shouldBIndJson已经包含 validator验证了
+	// 3. 前端传参, 数据清洗
+	// 4. 业务逻辑 需要的数据校验 +清洗
+
+	// 5. 执行核心逻辑 (6步走)
+	// -- 根据该字段，使用不同的爬虫 ModelMapping映射表
+	// -- 从mapping 工厂了拿数据
+	var mappingFactory = map[string]any{
+		"kxmanhua": ComicMappingForSpiderKxmanhuaByHtml,
+		"rouman8":  ComicMappingForSpiderRouman8ByHtml,
+	}
+
+	// 5.1 爬取
+	manyBookArr2D, err := SpiderOneTypeAllBookUseCollyByMappingV2_Sync[models.ComicSpider](mappingFactory, reqDTO)
+	if err != nil {
+		log.Errorf("爬取 OneBookAllChapterByHtml失败, chapterArr 为空, 拒绝进入下一步: 插入db。可能原因:1 爬取url不对 2 目标网站挂了 3 爬取逻辑错了,没爬到")
+		return 0, err // 直接结束
+	}
+	if len(manyBookArr2D) == 0 {
+		log.Errorf("func=%v,失败, 爬取数据为空", funcName)
+		return 0, errs.ErrNull
+	}
+	// 5.2 插入
+	err = SpiderOneTypeAllBook2DBV1_Upsert_Part(reqDTO.WebsiteId, reqDTO.SpiderTag.Website, &manyBookArr2D)
+	if err != nil {
+		log.Errorf("func=%v, 批量插入db 失败, err: %v", funcName, err)
+		return 0, err
+	}
+
+	// 6 返回
+	// 计算总数
+	for _, oneBookArr := range manyBookArr2D {
+		okTotal += len(oneBookArr)
+	}
+
+	return okTotal, nil // 成功
+}
+
+// 爬取某类 所有book V2实现,根据mapping. 同步
+/*
+常用方法写法：
+func SpiderOneTypeAllBookUseCollyByMappingV2_Sync[T any](websiteId int, websiteName string, spiderUrlNoSetValue string, startPageNum, endPageNum int) ([][]T, error) {
+常用步骤：
+	// 步骤0：初始化
+	// 步骤0.5：从参数中再获取参数。有的参数，传的 前端请求reqDTO
+	// 步骤1：参数异常判断
+	// 步骤2: 爬取
+	// 2.1 建一个爬虫对象
+	// 2.2 设置请求限制（例如：每秒最3个请求, 每个请求发前随机延迟5秒）
+	// 步骤3: 处理回调-colly请求前
+	// 步骤4: 提取数据 c.OhHTML() ,之前需要从获取配置
+	// 4.1 获取配置
+	// 4.2 提取数据
+
+	// 步骤5：处理回调-成功完成时
+	// 步骤6：处理回调-发生错误时
+	// 步骤7: 创建队列 queue 对象
+	// 步骤8: 添加任务到队列
+	// 8.1 拼接请求url
+	// 8.2 添加请求url到队列
+	// 8.2.1 传递自定义参数，判断当前是第N页，url 应该可以之间获取到
+	// 8.2.2 添加到队列
+	// 步骤9: 启动队列
+
+	T 主表
+	SubT 子表
+*/
+// func SpiderOneTypeAllBookUseCollyByMappingV2_Sync[T any, SubT any](mappingFactory map[string]models.ModelHtmlMapping, reqDTO SpiderOneTypeAllBookReqV15V1) ([][]T, error) {
+func SpiderOneTypeAllBookUseCollyByMappingV2_Sync[T any](mappingFactory map[string]any, reqDTO SpiderOneTypeAllBookReqV15V1) ([][]T, error) {
+	// 步骤0：初始化
+	funcName := "SpiderOneTypeAllBookUseCollyByMappingV2_Sync"
+
+	// 步骤0.5：从参数中再获取参数。有的参数，传的 前端请求reqDTO
+	websiteName := reqDTO.SpiderTag.Website // 就是:kxmanhua rouman8 这种，一般不加.com,参考 配置文件：rouman8 kxmanhua 配置
+	websiteId := reqDTO.WebsiteId
+	pornTypeId := reqDTO.PornTypeId
+	countryId := reqDTO.CountryId
+	typeId := reqDTO.TypeId
+	processId := reqDTO.ProcessId
+	authorConcatType := reqDTO.AuthorConcatType
+	spiderUrlNoSetValue := reqDTO.SpiderUrl // 未传值的rul，带%d的写法。如： "https://kxmanhua.com/manga/library?type=2&complete=1&page=%d&orderby=1"
+	startPageNum := reqDTO.StartPageNum
+	endPageNum := reqDTO.EndPageNum
+
+	// 步骤1：参数异常判断
+	// 1.1 endPageNum 必须 >= startPageNUm
+	if endPageNum < startPageNum {
+		return nil, errs.ErrInvalidPageNum
+	}
+
+	// 步骤2: 爬取
+	// 2.1 建一个爬虫对象
+	c := colly.NewCollector(
+		colly.Async(false), // ← 这一行没加就一直是串行的，或者改成false
+	)
+
+	// 2.2 设置请求限制（例如：每秒最3个请求, 每个请求发前随机延迟5秒）
+	c.Limit(&colly.LimitRule{
+		DomainGlob: "*",
+		// Parallelism: config.Cfg.Spider.Public.SpiderType.QueueLimitConcMaxnum,                         // 和queue队列同时存在时，这个必须有。和queue无关，它是真正控制并发的！！！！！！！ 这里非并发，所有注释了
+		RandomDelay: time.Duration(config.Cfg.Spider.Public.SpiderType.RandomDelayTime) * time.Second, // 请求发送前触发。模仿人类，随机等待几秒，再请求。如果queue同时给了3条URL，那每条url触发请求前，都要随机延迟下
+	})
+
+	// 步骤3: 处理回调-colly请求前
+	// 步骤4: 提取数据
+	// 4.1 获取配置
+	StagesCfg := config.CfgSpiderYaml.Websites[websiteName].Stages["one_type_all_book"]
+	bookArrCssSelector := StagesCfg.Crawl.Selectors["arr"].(string)      // 某一页 all book选择器
+	bookArrItemCssSelector := StagesCfg.Crawl.Selectors["item"].(string) // 每个book 选择器
+
+	// 4.2 提取数据
+	var allPageBookArr2D [][]T // 存放爬好的 obj, 二维数组
+	var mu sync.Mutex          // 添加互斥锁
+	mapping := mappingFactory[websiteName].(map[string]models.ModelHtmlMapping)
+	// 遍历每一个 bookArr .c.OnHTML() 根据 CSS选择器, 就让触发1次
+	c.OnHTML(bookArrCssSelector, func(eBookArr *colly.HTMLElement) {
+		// 遍历每一个 bookArrItem, 用forEach. colly，用Html遍历
+		var onePageBookArr []T
+		eBookArr.ForEach(bookArrItemCssSelector, func(i int, e *colly.HTMLElement) {
+			// 1. 获取能获取到的
+			// 通过mapping -> 转成1个对象
+			// 创建对象comic
+			var comicT T
+			// var comicTStats SubT //   comicSpiderStats := models.ComicSpiderStats{} // 子表，统计数据。不知道用不用得着
+
+			// 通过mapping 爬内容
+			result := GetOneObjByCollyMapping(e, mapping)
+			if result != nil {
+				MapByTag(result, &comicT) // 通过 model字段 spider，把爬出来的 map[string]any，转成 model对象
+				log.Infof("映射后的comic对象-只有爬取到的数据: %+v", comicT)
+			}
+
+			// 2. 设置对象值
+			// -- T 类型 -》 具体struct 类型
+			comic := any(comicT).(models.ComicSpider)
+
+			// -- 进度id逻辑
+			if processId == 1 {
+				comic.ProcessId = comic.End // 如果用户传 1(待分类) - 》程序自己判断
+			} else {
+				comic.ProcessId = int(processId) // 如果是2/3, 就直接替换赋值，以前端传参为主
+			}
+			// -- 其它直接赋值
+			comic.WebsiteId = int(websiteId)               // 网站id
+			comic.PornTypeId = int(pornTypeId)             // 色情类型id
+			comic.CountryId = int(countryId)               // 国家id
+			comic.TypeId = int(typeId)                     // 类型id
+			comic.AuthorConcatType = int(authorConcatType) // 作者拼接方式 id
+
+			// 3 数据清洗
+			comic.DataClean()
+
+			// 3.5 处理子表
+			// 如果子表爬到数据了，才处理 没实现--
+			comicStats := comic.Stats
+			// 修复指针类型比较错误：LatestChapterId是*int类型，需要先检查是否为nil再解引用比较
+			latestChapterIdValid := comicStats.LatestChapterId != nil && *comicStats.LatestChapterId > 0
+			if latestChapterIdValid || comicStats.Star > 0 || comicStats.LatestChapterName != "" || comicStats.TotalChapter > 0 || comicStats.Hits > 0 || comicStats.LastestChapterReleaseDate.After(time.Date(1001, 1, 1, 8, 0, 0, 0, time.UTC)) { // 程序爬不到发布时间就 1001-01-01 08:00:00
+				log.Warn("还没实现, 子表爬到数据，要插入有用数据，不然全是0！！")
+			}
+
+			// 4 把爬好的单个数据，放到数组里，准备插入数据库
+			onePageBookArr = append(onePageBookArr, any(comic).(T))
+		})
+
+		// 3. 遍历完之后，加到 allPageBookArr 里 - 使用互斥锁保护 (因为要操作多个线程 用的共享对象 -》 allPageBookArr)
+		mu.Lock()
+		allPageBookArr2D = append(allPageBookArr2D, onePageBookArr)
+		mu.Unlock()
+	})
+
+	// 步骤5：处理回调-成功完成时
+	c.OnScraped(func(r *colly.Response) {
+		// 暂时啥也没写
+	})
+
+	// 步骤6：处理回调-发生错误时
+	// 错误回调
+	c.OnError(func(r *colly.Response, err error) {
+		if r == nil {
+			// 网络层错误（DNS / timeout / TLS）
+			log.Errorf("func= %v, 网络层错误（DNS / timeout / TLS）, err= %v ", funcName, err)
+			return
+		}
+
+		switch {
+		case r.StatusCode >= 400 && r.StatusCode < 500:
+			// 4xx：客户端错误（参数错误、被封、资源不存在）
+			log.Errorf("func= %v, 客户端错误（参数错误、被封、资源不存在）, err= %v ", funcName, err)
+
+		case r.StatusCode >= 500 && r.StatusCode < 600:
+			// 5xx：服务端错误（可重试）
+			log.Errorf("func= %v, 服务端错误（可重试）, err=%v ", funcName, err)
+
+		default:
+			// 其他非常规状态码
+			// 可选重试
+		}
+	})
+
+	// 步骤7: 创建队列 queue 对象
+	q, err := queue.New(config.Cfg.Spider.Public.SpiderType.QueueLimitConcMaxnum, &queue.InMemoryQueueStorage{MaxSize: config.Cfg.Spider.Public.SpiderType.QueuePoolMaxnum})
+	if err != nil {
+		return nil, err
+	}
+
+	// 步骤8: 添加任务到队列
+	// 8.1 拼接请求url
+	spiderUrlArr := make([]string, endPageNum-startPageNum+1)
+	for i := range spiderUrlArr {
+		spiderUrlArr[i] = fmt.Sprintf(spiderUrlNoSetValue, startPageNum+i)
+		log.Infof("爬取请求url, 第%v个, url= =%v", i+1, spiderUrlArr[i])
+
+		// 8.2 添加请求url到队列
+		// 8.2.1 传递自定义参数，判断当前是第N页，url 应该可以之间获取到
+		ctx := colly.NewContext()
+		ctx.Put("currentPageNum", strconv.Itoa(i+1))
+
+		// 8.2.2 添加到队列
+		c.Request("GET", spiderUrlArr[i], nil, nil, nil)
+	}
+
+	// 步骤9: 启动队列
+	q.Run(c)
+
+	return allPageBookArr2D, nil
+}
+
+// SpiderOneTypeAllBook2DBV1_Upsert_Part  插入部分
+// 插入部分 - 插入多个章节的 内容
+/*
+5. 执行核心逻辑 (6步走) : 爬取 | 插入 可以分成2个方法
+		步骤1: 找到目标网站
+		步骤2: 爬取
+		步骤3: 提取数据
+		步骤4: 数据清洗/ 未爬到的字段赋值 <- 本方法
+		步骤5: 验证爬取数据 准确性
+		步骤6: 数据库插入
+			- 6.1 插入 章节
+			- 6.2 更新 book 表stats字段
+
+// 总结出插入方法，经典流程 comic - 简单
+	// 步骤0：初始化
+	// 步骤1：参数异常判断
+	// 步骤2：参数异常业务逻辑判断。比如判断websiteId是否存在
+	// 步骤3：真实业务，插入comic表
+	// 步骤4：真实业务，插入stats 关联表
+	// 步骤5：返回
+
+// 总结出插入方法，经典流程 comic - 详细
+	// 步骤0：初始化
+		// 0.1 根据网站名字，获取配置文件中 相关配置
+	// 步骤1：参数异常判断
+		// 1.1 websiteId 必须>0
+	// 步骤2：参数异常业务逻辑判断。比如判断websiteId是否存在
+		// 2.1 websiteId必须 能从数据库 查到
+	// 步骤3：真实业务，插入comic表 （要想插入的comic对象回填id, allPageComicArr 必须传指针，for allPageComicArr 里也必须传指针）
+		// 3.1 从二维数组中，取出每一页,爬的数据，插入数据库
+		// 3.2 插入主表
+		// 3.3 判断是否回填ID成功
+	// 步骤4：真实业务，插入stats 关联表
+		// 4.1 准备插入数据
+			// 4.1.1 新建插入数组
+			// 4.1.2 从comic取有用数据
+					// 取的数据 异常判断
+							- 取的ID是否无效
+					// 取有用数据
+			// 4.1.3 通用数据清洗
+		// 4.2 插入数据, 异常判断
+			// 4.2.1 父表comic 和stats关联表插入数据不一致
+		// 4.3 插入
+	// 步骤5：返回
+
+参数:
+manyBookChapterArrMap []
+
+返回 插入成功总数
+ error
+ 不用返回 成功总数了，因为 len(allPageBookArr) 就是, -> 因为 stats 个数，一定= comic个数
+*/
+func SpiderOneTypeAllBook2DBV1_Upsert_Part(websiteId int, websiteName string, allPageBookArr2D *[][]models.ComicSpider) error {
+	// 步骤0：初始化
+
+	// 0.1 根据网站名字，获取配置文件中 相关配置
+	webCfg := config.CfgSpiderYaml.Websites[websiteName]
+	if webCfg == nil {
+		log.Error("未根据websiteName, 找到配置文件中 配置webCfg")
+		return errs.ErrNoGetConfig
+	}
+	log.Debug("------- webCfg = ", webCfg)
+
+	// 获取 one_type_all_book 阶段配置
+	stageCfg := webCfg.Stages["one_type_all_book"]
+	if stageCfg == nil {
+		log.Error("未根据websiteName, 找到配置文件中 阶段配置 stageCfg")
+		return errs.ErrNoGetConfig
+	}
+	log.Debug("---------- 配置文件, stageCfg.Insert.UniqueKeys = ", stageCfg.Insert.UniqueKeys)
+	log.Debug("---------- 配置文件，stageCfg.Insert.UpdateKeys = ", stageCfg.Insert.UpdateKeys)
+
+	// 步骤1：参数异常判断
+	// 1.1 websiteId 必须>0
+	if websiteId <= 0 {
+		log.Error("参数错误, websiteId必须大于0")
+		return errs.GetErr("参数错误, websiteId必须大于0")
+	}
+
+	// 步骤2：参数异常业务逻辑判断。比如判断websiteId是否存在
+	// 2.1 websiteId必须 能从数据库 查到
+	_, err := db.DBFindOneByField[models.Website]("id", websiteId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Errorf("websiteId=%d 在数据库中不存在, 请先创建一条数据", websiteId)
+			return errs.GetErr(fmt.Sprintf("websiteId=%d 在数据库中不存在, 请先创建一条数据", websiteId))
+		}
+		return errs.GetErr("查询website失败")
+	}
+
+	// 步骤3：真实业务，插入comic表
+	// 3.1 从二维数组中，取出每一页,爬的数据，插入数据库 --
+	for pageIdx, onePageBookArr := range *allPageBookArr2D {
+		log.Infof("========== 开始处理第 %d 页，共 %d 条数据 ==========", pageIdx+1, len(onePageBookArr))
+
+		// 3.2 插入主表
+		err := db.DBUpsertBatch(db.DBComic, onePageBookArr, stageCfg.Insert.UniqueKeys, stageCfg.Insert.UpdateKeys)
+		if err != nil {
+			log.Errorf("第%d页: 批量插入db-comic失败, err = %v", pageIdx+1, err)
+			return errs.GetErr(fmt.Sprintf("第%d页批量插入db-comic失败: %v", pageIdx+1, err))
+		}
+		log.Infof("第%d页: 主表 comic_spider 插入成功，共 %d 条", pageIdx+1, len(onePageBookArr))
+
+		// 3.3 判断是否回填ID成功 (mysql永远无法成功，因为涉及update的操作，不会回填id。因此只能插入前，自己手动查询并回填下正确id)
+		if onePageBookArr[0].Id <= 0 { // gorm mysql upsert 总会回填一个非0Id，只是update的时候，回填的错的。因此，这里永远不会触发
+			log.Error("Id 回填失败, 跳过本次循环")
+			continue
+		}
+
+		// -- 重要：由于GORM批量Upsert时不会更新对象的ID字段，需要重新查询获取正确的ID
+		for comicIdx := range onePageBookArr {
+			comic := &onePageBookArr[comicIdx]
+			// 使用对象作为查询条件
+			existingComic, err := db.DBFindOneByUniqueIndexMapCondition(comic, stageCfg.Insert.UniqueKeys)
+			if err == nil {
+				// 更新对象的ID为数据库中的实际ID
+				oldId := comic.Id
+				comic.Id = existingComic.Id
+				log.Debugf("第%d页第%d条: 更新comic ID成功,  旧ID=%d -> 新ID=%d, 名称=%s", pageIdx+1, comicIdx+1, oldId, comic.Id, comic.Name)
+			}
+		}
+
+		// 步骤4：真实业务，插入stats 关联表
+		// 4.1 准备插入数据
+		// 4.1.1 新建插入数组
+		var comicStatsArr []models.ComicSpiderStats
+
+		// 4.1.2 从comic取有用数据
+		statsBuildFailedCount := 0
+		for i, comic := range onePageBookArr {
+			// 取的数据 异常判断 --
+			// 取的ID是否无效
+			if comic.Id <= 0 {
+				statsBuildFailedCount++
+				log.Errorf("第%d页第%d条: 构建stats失败，comic ID无效 (ID=%d), comic名称=%s", pageIdx+1, i+1, comic.Id, comic.Name)
+				continue
+			}
+
+			// 取有用数据
+			stats := models.ComicSpiderStats{
+				ComicId:                   comic.Id, // 现在使用正确的ID
+				Star:                      comic.Stats.Star,
+				LatestChapterName:         comic.Stats.LatestChapterName, // 最新章节名字
+				Hits:                      comic.Stats.Hits,
+				TotalChapter:              comic.Stats.TotalChapter,
+				LastestChapterReleaseDate: comic.Stats.LastestChapterReleaseDate,
+			}
+
+			// 4.1.3 通用数据清洗
+			stats.DataClean()
+
+			comicStatsArr = append(comicStatsArr, stats)
+			log.Debugf("第%d页第%d条: 构建stats成功, ComicId=%d, Star=%.2f, Hits=%d", pageIdx+1, i+1, stats.ComicId, stats.Star, stats.Hits)
+		}
+
+		// 4.2 插入数据, 异常判断
+		// 4.2.1 父表comic 和stats关联表插入数据不一致
+		if len(comicStatsArr) != len(onePageBookArr) {
+			log.Errorf("第%d页: 数据不一致！主表插入 %d 条，但stats只构建了 %d 条", pageIdx+1, len(onePageBookArr), len(comicStatsArr))
+			return errs.GetErr(fmt.Sprintf("第%d页: 数据不一致！主表 %d 条, 但stats只构建了 %d 条", pageIdx+1, len(onePageBookArr), len(comicStatsArr)))
+		}
+
+		// 4.3 插入
+		err = db.DBUpsertBatch(db.DBComic, comicStatsArr, stageCfg.RelatedTables["comic_stats"].Insert.UniqueKeys, stageCfg.RelatedTables["comic_stats"].Insert.UpdateKeys)
+		if err != nil {
+			log.Errorf("第%d页: 批量插入db-comic-stats表失败, err = %v", pageIdx+1, err)
+			return errs.GetErr(fmt.Sprintf("第%d页, comic-stats表失败, err = %v", pageIdx+1, err))
+		}
+		log.Infof("第%d页: 关联表 comic_spider_stats 插入成功，共 %d 条", pageIdx+1, len(comicStatsArr))
+
+		// 打印结果
+		onePageOkTotal := len(onePageBookArr) // 每页成功条数
+		log.Infof("========== 第%d页处理完成，成功插入 %d 条 book 数据（主表+stats表） ==========", pageIdx+1, onePageOkTotal)
+	}
+
+	// 步骤5：返回
+	return nil // 一切正常
+}
+
+// 爬取manybook allChapter V2实现。适用所有网站，能爬章节时，同时处理 能爬到的表数据。如：comic、comic_stats、authoer
+// 把爬取+插入放到1个方法，且和 gin.context 解耦
+/*
+返回：
+	okTotal
+	error
+*/
+func SpiderManyBookAllChapter2DB_V2_Common_CanUpdateOtherTable(websiteName string, bookIdArr []int) (int, error) {
+	// 0. 初始化
+	okTotal := 0 // 成功条数
+	funcName := "SpiderManyBookAllChapter2DB_V2_Common_CanUpdateOtherTable"
+	var funcErr error
+
+	// 1. 获取传参。实现方式: c.ShouldBindJSON(请求结构体)实现
+	log.Infof("func=%v, 要爬的bookId = %v", funcName, bookIdArr)
+
+	// 2. 校验传参。用validator，上面shouldBIndJson已经包含 validator验证了
+	// 3. 前端传参, 数据清洗
+	// 4. 业务逻辑 需要的数据校验 +清洗
+
+	// 5. 执行核心逻辑 (6步走)
+	// -- 根据该字段，使用不同的爬虫 ModelMapping映射表
+	// -- 从mapping 工厂了拿数据
+	var mappingFactory = map[string]any{
+		"kxmanhua": ChapterMappingForSpiderKxmanhuaByHTML,
+		// 爬章节依次要传 4个 mapping: 1. 爬章节mapping 2. 通过章节-爬book 3. 通过章节-爬book-stats 4. 通过章节-爬author, 爬不到就传nil
+		"rouman8": []any{ChapterMappingForSpiderRouman8ByHTML, ChapterMappingForSpiderRouman8ByHTML_CanGetBook,
+			ChapterMappingForSpiderRouman8ByHTML_CanGetBookStats, ChapterMappingForSpiderRouman8ByHTML_CanGetAuthor},
+	}
+	mappingArr := mappingFactory[websiteName]
+
+	// 5.1. 爬取 chapter
+	// -- 请求html页面
+	manyBookChapterArrMap, err := GetManyBookAllChapterByCollyMappingV1_5_V1_OnlyForKxmanhua[models.ChapterSpider](mapping.(map[string]models.ModelHtmlMapping), websiteName, bookIdArr)
+	manyBookChapterArrMap, err := GetManyBookAllChapterByCollyMappingV1_5_V2_Common_ForAllWebsite[models.ChapterSpider](mappingArr.(map[string]models.ModelHtmlMapping), websiteName, bookIdArr)
+	chapterNamePreviewCount = 0 // ！！！！重要,必有，重置计数器。chapter中 name包含"Preview"次数
+	// -- 插入前数据校验
+	if manyBookChapterArrMap == nil || err != nil {
+		log.Error("爬取 OneBookAllChapterByHtml失败, chapterArr 为空, 拒绝进入下一步: 插入db。可能原因:1 爬取url不对 2 目标网站挂了 3 爬取逻辑错了,没爬到")
+		return 0, err // 直接结束
+	}
+
+	// 5.2. 执行核心逻辑 - 插入部分
+	if okTotal, funcErr = SpiderManyBookAllChapter_UpsertPart_V1_OnlyForKxmanhua(websiteName, manyBookChapterArrMap); funcErr != nil {
+		log.Errorf("爬取失败, reaason: 插入db失败. website=%v, bookIdArr=%v", websiteName, bookIdArr)
+		return 0, funcErr
+	}
+
+	// 步骤5.3：更新book 字段：spider_sub_chapter_end_status
+	funcErr = db.DBUpdateBatchByIdArr[models.ComicSpider](db.DBComic, bookIdArr, map[string]any{"spider_sub_chapter_end_status": 1})
+	if funcErr != nil {
+		log.Errorf("func= %v 失败, 更新db book spider_sub_chapter_end_status 状态失败, err: %v", funcName, funcErr)
+		return 0, funcErr
+	}
+
+	// 6. 返回结果
+	log.Info("爬取成功,插入" + strconv.Itoa(okTotal) + "条chapter数据")
+	return okTotal, nil
+}
+
+// 获取多个book所有chapter, 用colly, 通过mapping V2,适用于 各种网站
+/*
+
+5. 执行核心逻辑 (6步走) : 爬取 | 插入 可以分成2个方法
+	步骤1: 找到目标网站
+	步骤2: 爬取
+	步骤3: 提取数据 <- 往上是本方法
+	步骤4: 数据清洗/ 未爬到的字段赋值
+	步骤5: 验证爬取数据 准确性
+	步骤6: 数据库插入
+
+参数:
+	2. mapping map[string]models.ModelMapping 爬取映射关系
+	2. websiteName string 网站名称
+	3. bookIdArr
+
+返回:
+map id -> 数组
+
+主表数组
+作用简单说：
+*/
+func GetManyBookAllChapterByCollyMappingV1_5_V2_Common_ForAllWebsite[T any](mapping map[string]models.ModelHtmlMapping, websiteName string, bookIdArr []int) (map[int][]T, error) {
+	还需实现
 }

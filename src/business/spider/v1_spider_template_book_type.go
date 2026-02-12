@@ -1210,6 +1210,7 @@ func setNestedFields(result map[string]any, out any) {
 	}
 }
 
+// 会处理子表，codegeex 说会，没验证
 func MapByTag(result map[string]any, out any) {
 	// 处理嵌套字段
 	setNestedFields(result, out)

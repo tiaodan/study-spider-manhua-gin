@@ -67,8 +67,9 @@ func TrimHttpPrefix(str string) string {
 	return re.ReplaceAllString(str, "")
 }
 
-// 转换点击数量 字符串 比如：5.8w 5.7千 5.6亿
+// 转换点击数量 字符串 比如：5.8w 5.7千 5.6亿 / 5.6M 5.6K
 /*
+能适配 ： w /k /M 亿 K M
 可传参：
 	1. 带单位   比如：5.8w 5.7千 5.6亿
 	2. 不带单位 比如：5600
@@ -79,7 +80,7 @@ func ParseHitsStr(hitsStr string) int {
 	hitsStr, _ = langutil.TraditionalToSimplified(hitsStr)
 
 	// 2. 正则匹配：同时匹配数字和单位（支持中英文单位）
-	re := regexp.MustCompile(`(\d+(?:\.\d+)?)\s*([万千亿kw]?)`)
+	re := regexp.MustCompile(`(\d+(?:\.\d+)?)\s*([万千亿kwKM]?)`)
 	matches := re.FindStringSubmatch(hitsStr)
 
 	if len(matches) < 2 {
@@ -102,6 +103,8 @@ func ParseHitsStr(hitsStr string) int {
 			multiplier = 10000
 		case "千", "k", "K":
 			multiplier = 1000
+		case "M": // 百万 1000 000
+			multiplier = 1000000
 		}
 	}
 

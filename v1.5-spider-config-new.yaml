@@ -108,7 +108,7 @@ websites:
           type: "html"
           selectors:
             arr: "还没想好咋写"  # 需要补充
-            item: ".chapter_list a"  # 每个章节选择起。也可这样写: "[class='chapter_list'] a "
+            item: ".chapter_list a"  # 每个章节选择起。也可这样写: "[class='chapter_list'] a " 目前一般是只用它
 
         # 步骤3: 提取数据配置
         extract:
@@ -360,6 +360,209 @@ websites:
           # 必须首字母大写形式,对应-> 结构体Key，方便反射。否则填小写，反射不到对象的值
           unique_keys: ["ChapterId"]
           update_keys: ["content_url", "content", "spider_end_status", "download_end_status", "updated_at"]
+
+  rouman8:
+    # 网站基本信息
+    meta:     # 没用着
+      name: "肉漫吧"
+      base_url: "https://rouman8.com"
+
+    stages:
+      # 阶段1: 爬取oneType（一个分类下的所有书籍）
+      one_type_all_book:
+        # 步骤1: 找到目标网站
+        meta:
+          table: "comic"
+
+        # 步骤2: 爬取配置
+        crawl:
+          type: "html"
+          selectors:
+            arr: "[class='mt-4 sm:mt-6 grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-4']" # 用着
+            item: "[class='block min-w-[120px] md:min-w-0']"  # 用着
+
+        # 步骤3: 提取数据配置
+        extract:
+          mappings:
+            name:
+              selector: ".product__item__text"
+              type: "content"
+              transforms: ["trim_space", "simplify_chinese"]
+            comicUrlApiPath:
+              selector: ".product__item__pic.set-bg|onclick"
+              type: "attr"
+              transforms: ["trim_space", "simplify_chinese", "regex_extract"]
+            coverUrlApiPath:
+              selector: ".product__item__pic.set-bg|data-setbg"
+              type: "attr"
+              transforms: ["trim_space", "simplify_chinese", "remove_domain_prefix"]
+            end:
+              selector: ".epgreen"
+              type: "content"
+              transforms: ["trim_space", "simplify_chinese", "map_end_status"]
+            hits:
+              selector: ".view"
+              type: "content"
+              transforms: ["parse_hits_number"]
+
+        # 步骤4: 数据清洗/赋值配置
+        clean:
+          foreign_keys:
+            websiteId: "websiteId"
+            pornTypeId: "pornTypeId"
+            countryId: "countryId"
+            typeId: "typeId"
+            processId: "processId"
+          defaults:
+            spider_end_status: 0
+            download_end_status: 0
+            upload_aws_end_status: 0
+            upload_baidu_end_status: 0
+
+        # 步骤5: 验证配置
+        validate:
+          rules:
+            name:
+              - name: "not_empty"
+              - name: "max_length"
+                params: {max: 200}
+            comicUrlApiPath:
+              - name: "not_empty"
+              - name: "valid_url"
+            hits:
+              - name: "min_value"
+                params: {min: 0}
+
+        # 步骤6: 数据库插入配置
+        insert:
+          strategy: "upsert"
+          # 必须首字母大写形式,对应-> 结构体Key，方便反射。否则填小写，反射不到对象的值
+          #unique_keys: ["name", "website_id", "porn_type_id", "country_id", "type_id", "process_id" "author_concat"]
+          unique_keys: ["Name", "WebsiteId", "PornTypeId", "CountryId", "TypeId", "ProcessId", "AuthorConcat"]
+          update_keys: ["process_id", "latest_chapter_id", "author_concat", "author_concat_type", "comic_url_api_path", "cover_url_api_path", "brief_short", "brief_long", "end", "spider_end_status", "download_end_status", "upload_aws_end_status", "upload_baidu_end_status", "release_date", "updated_at"]
+  
+        # 步骤6: 数据库 关联表配置
+        # 插入统计数据表
+        related_tables:
+          comic_stats:  # 给关联表配置一个名称
+            table: "comic_stats"
+            source: "fields"  # 来源于提取的数据字段,暂时没用
+            source_path: "fields"  # 来源于提取的数据字段,暂时没用
+            insert:
+              strategy: "upsert"
+              # 必须首字母大写形式,对应-> 结构体Key，方便反射。否则填小写，反射不到对象的值
+              unique_keys: ["ComicId"]
+              update_keys: ["latest_chapter_id", "star", "latest_chapter_name", "hits", "total_chapter","lastest_chapter_release_date"]
+
+
+      # 阶段2: 爬取oneBook（一本书的所有章节）
+      one_book_all_chapter:
+        # 步骤1: 找到目标网站
+        meta:
+          table: "chapter"
+
+        # 步骤2: 爬取配置
+        crawl:
+          type: "html"
+          selectors:
+            arr: "还没想好咋写"  # 需要补充
+            item: "[class='block hover:bg-white rounded-md transition-colors border border-transparent hover:border-gray-100 hover:shadow-sm']"  # 每个章节选择起。也可这样写: "[class='chapter_list'] a "  目前一般是只用它
+
+        # 步骤3: 提取数据配置
+        extract:
+          mappings:
+            chapterName:
+              selector: "还没想好咋写"
+              type: "content"
+              transforms: ["trim_space", "simplify_chinese"]
+            chapterUrl:
+              selector: "还没想好咋写"
+              type: "attr"
+              transforms: ["trim_space"]
+
+        # 步骤4: 数据清洗/赋值配置
+        clean:
+          foreign_keys:
+            comicId: "comicId"
+            websiteId: "websiteId"
+          defaults:
+            spider_end_status: 0
+            download_end_status: 0
+
+        # 步骤5: 验证配置
+        validate:
+          rules:
+            chapterName:
+              - name: "not_empty"
+            chapterUrl:
+              - name: "not_empty"
+              - name: "valid_url"
+
+        # 步骤6: 数据库插入配置
+        insert:
+          strategy: "upsert"
+          # 必须首字母大写形式,对应-> 结构体Key，方便反射。否则填小写，反射不到对象的值
+          unique_keys: ["ParentId", "ChapterNum", "ChapterSubNum"]
+          update_keys: ["chapter_real_sort_num", "name", "url_api_path", "release_date","spider_end_status", "download_end_status", "upload_aws_end_status", "upload_baidu_end_status"]
+        
+        # 步骤6.1 更新 父stats 统计表
+        update_parent_stats:
+          strategy: "update"
+          unique_keys: ["ComicId"]
+          update_keys: ["latest_chapter_id", "latest_chapter_name", "total_chapter"]
+
+      # 阶段3: 爬取chapter（一个章节的所有内容）
+      one_chapter_all_content:
+        # 步骤1: 找到目标网站
+        meta:
+          table: "chapter_content"
+
+        # 步骤2: 爬取配置
+        crawl:
+          type: "html"
+          selectors:
+            arr: "还没想好咋写"  # 需要补充
+            item: "[class='blog__details__content'] img"  # 需要补充, .blog__details__content img 也可以写 [class='blog__details__content'] img 
+
+        # 步骤3: 提取数据配置
+        extract:
+          mappings:
+            contentUrl:
+              selector: "还没想好咋写"
+              type: "attr"
+              transforms: ["trim_space"]
+            content:
+              selector: "还没想好咋写"
+              type: "content"
+              transforms: ["trim_space"]
+
+        # 步骤4: 数据清洗/赋值配置
+        clean:
+          foreign_keys:
+            chapterId: "chapterId"
+          defaults:
+            spider_end_status: 0
+            download_end_status: 0
+
+        # 步骤5: 验证配置
+        validate:
+          rules:
+            contentUrl:
+              - name: "not_empty"
+              - name: "valid_url"
+            content:
+              - name: "not_empty"
+
+        # 步骤6: 数据库插入配置
+        insert:
+          strategy: "upsert"
+          # 必须首字母大写形式,对应-> 结构体Key，方便反射。否则填小写，反射不到对象的值
+          unique_keys: ["ParentId", "Num", "SubNum"]
+          update_keys: ["real_sort_num", "name", "url_api_path", "spider_end_status", "download_end_status", "upload_aws_end_status", "upload_baidu_end_status", "updated_at"]
+        update_parent_stats:
+          strategy: "update"
+          unique_keys: ["Id"]
+          update_keys: ["spider_end_status"]
 
 # Transform函数库配置
 transform_library:

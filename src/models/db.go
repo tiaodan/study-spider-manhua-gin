@@ -83,6 +83,10 @@ type ModelMapping struct {
    举例：
    var ComicMappingForSpiderToptoonByHtml = map[string]models.ModelMapping{
 	   "name": {GetFieldPath: ".product__item__text", FiledType: "content"},
+
+	使用方式： <div class="product__item__pic set-bg" data-setbg="https://img.imh99.top/webtoon/cover-image/2360_1750037060057.webp"></div>
+	GetFieldPath 写法： ".product__item__pic.set-bg|data-setbg" // 表示 获取 class="product__item__pic set-bg" 这个div 的 data-setbg 属性值
+	也可以写 [class='.product__item__pic set-bg']|data-setbg 这种写法
 */
 type ModelHtmlMapping struct {
 	GetFieldPath string              // gjson 提取字段路径。获取这个字段, gjson path。提取的是json数据里的字段

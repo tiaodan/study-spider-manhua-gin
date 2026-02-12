@@ -353,10 +353,17 @@ func main() {
 	// v2 写法 获取配置 - end
 
 	// V1.5版本 -> 目的基于v1.0版本，自己实现 配置驱动
-	r.POST("/api/v1.5/spider/oneTypeAllBook", spider.DispatchApi_SpiderOneTypeAllBookArr_V1_5_V2)                         // 爬某一类所有书籍
-	r.POST("/api/v1.5/spider/oneBookAllChapter", spider.DispatchApi_OneBookAllChapter_V1_5_V3)                            // 爬某一本书所有章节
-	r.POST("/api/v1.5/spider/manyBookAllChapter", spider.DispatchApi_ManyBookAllChapter_V1_5_V2)                          // 爬某多本书所有章节
-	r.POST("/api/v1.5/spider/books/all-chapters/auto-load-balance", spider.DispatchApi_ManyBookAllChapter_V1_5_V3)        // 爬某多本书所有章节,自动负载均衡
+	r.POST("/api/v1.5/spider/oneTypeAllBook", spider.DispatchApi_SpiderOneTypeAllBookArr_V1_5_V2) // 爬某一类所有书籍
+	r.POST("/api/v1.5/spider/type/books", spider.DispatchApi_SpiderOneTypeAllBookArr_V1_5_V3)     // 爬某一类所有书籍,restful api 写法
+
+	r.POST("/api/v1.5/spider/oneBookAllChapter", spider.DispatchApi_OneBookAllChapter_V1_5_V3)                                     // 爬某一本书所有章节
+	r.POST("/api/v1.5/spider/manyBookAllChapter", spider.DispatchApi_ManyBookAllChapter_V1_5_V2)                                   // 爬某多本书所有章节
+	r.POST("/api/v1.5/spider/books/all-chapters/auto-load-balance", spider.DispatchApi_ManyBookAllChapter_V1_5_V3_OnlyForKxmanhua) // 爬某多本书所有章节,自动负载均衡 V3实现：只适用kxmanhua，不能爬章节时，同时处理 能爬到的表数据。如：comic、comic_stats、authoer
+	// 爬某多本书所有章节,自动负载均衡 V4实现：通用实现，兼容多个网站，
+	// - 用的时候，给mappingFactor 加 对应网站mapping即可
+	// - 如果章节page，有其它表数据(comic,comic_stats,author)，同步更新
+	r.POST("/api/v1.5/spider/books/all-chapters/auto-load-balance", spider.DispatchApi_ManyBookAllChapter_V1_5_V4_Common_CanUpdateOtherTable)
+
 	r.POST("/api/v1.5/spider/oneChapterAllContent", spider.DispatchApi_ManyChapterAllContent_V1_5_V1)                     // 爬某一章节所有内容
 	r.POST("/api/v1.5/spider/book/chapters/contents/auto-load-balance", spider.DispatchApi_ManyChapterAllContent_V1_5_V1) // 爬某一章节所有内容
 
